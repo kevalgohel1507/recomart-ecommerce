@@ -1,0 +1,202 @@
+{% extends "adminpanel/base.html" %}
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+/* ================= PAGE LAYOUT ================= */
+
+.delete-wrapper{
+    min-height:80vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-family:'Poppins',sans-serif;
+}
+
+/* ================= CARD ================= */
+
+.delete-card{
+    width:480px;
+    padding:40px;
+    border-radius:20px;
+    text-align:center;
+    background:rgba(255,255,255,.8);
+    backdrop-filter:blur(14px);
+    box-shadow:0 25px 50px rgba(0,0,0,.15);
+    animation:fadeUp .6s ease;
+    transition:.35s;
+}
+
+.delete-card:hover{
+    transform:translateY(-6px);
+}
+
+/* ================= TEXT ================= */
+
+.delete-card h2{
+    margin-top:10px;
+    font-weight:600;
+}
+
+.delete-card p{
+    color:#555;
+    margin:15px 0 30px;
+    line-height:1.6;
+}
+
+.attr-name{
+    color:#e63946;
+    font-weight:600;
+}
+
+/* ================= BUTTONS ================= */
+
+.actions{
+    display:flex;
+    gap:15px;
+}
+
+.cancel-btn{
+    flex:1;
+    padding:12px;
+    border-radius:10px;
+    border:1px solid #ddd;
+    text-decoration:none;
+    color:#333;
+    font-weight:500;
+    transition:.3s;
+}
+
+.cancel-btn:hover{
+    background:#f3f3f3;
+}
+
+.delete-btn{
+    flex:1;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    background:linear-gradient(135deg,#ff3b3b,#b80000);
+    color:white;
+    font-weight:600;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.delete-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 10px 20px rgba(255,0,0,.35);
+}
+
+/* ================= FOX ANIMATION ================= */
+
+.fox{
+    width:120px;
+    margin:auto;
+    animation:foxFloat 2.5s ease-in-out infinite;
+}
+
+.fox svg{
+    width:100%;
+}
+
+/* tail wag animation */
+.tail{
+    transform-origin:left center;
+    animation:wag 0.8s infinite alternate ease-in-out;
+}
+
+/* ================= ANIMATIONS ================= */
+
+@keyframes fadeUp{
+    from{
+        opacity:0;
+        transform:translateY(40px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+@keyframes foxFloat{
+    0%{transform:translateY(0);}
+    50%{transform:translateY(-8px);}
+    100%{transform:translateY(0);}
+}
+
+@keyframes wag{
+    from{transform:rotate(0deg);}
+    to{transform:rotate(12deg);}
+}
+
+</style>
+
+<div class="delete-wrapper">
+
+<div class="delete-card">
+
+<!-- ================= ANIMATED RED FOX ================= -->
+
+<div class="fox">
+
+<svg viewBox="0 0 200 200">
+
+<!-- body -->
+<ellipse cx="100" cy="120" rx="60" ry="40" fill="#ff4d4d"/>
+
+<!-- head -->
+<circle cx="100" cy="70" r="35" fill="#ff4d4d"/>
+
+<!-- ears -->
+<polygon points="70,40 85,10 95,45" fill="#cc0000"/>
+<polygon points="130,40 115,10 105,45" fill="#cc0000"/>
+
+<!-- eyes -->
+<circle cx="88" cy="70" r="4" fill="#000"/>
+<circle cx="112" cy="70" r="4" fill="#000"/>
+
+<!-- nose -->
+<circle cx="100" cy="85" r="5" fill="#000"/>
+
+<!-- tail -->
+<ellipse class="tail" cx="155" cy="120" rx="30" ry="15" fill="#ff4d4d"/>
+
+</svg>
+
+</div>
+
+<h2>Delete Attribute</h2>
+
+<p>
+Are you sure you want to delete
+<br>
+<b class="attr-name">"{{ attribute.name }}"</b> ?
+<br><br>
+This action cannot be undone.
+</p>
+
+<form method="post">
+{% csrf_token %}
+
+<div class="actions">
+
+<a href="{% url 'adminpanel:categories' %}" class="cancel-btn">
+Cancel
+</a>
+
+<button type="submit" class="delete-btn">
+Yes, Delete
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+{% endblock %}

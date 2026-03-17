@@ -1,0 +1,12 @@
+<form method="post" action="/save-variants/{{product.id}}/{{color}}/">
+{% csrf_token %}
+
+{% for s in sizes %}
+Size {{s}}
+<input name="price_{{s}}">
+<input name="stock_{{s}}">
+<br>
+{% endfor %}
+
+<button>SAVE</button>
+</form>

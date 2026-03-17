@@ -1,0 +1,1132 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+
+:root{
+
+  --accent:#6366f1;
+
+  --accent2:#f43f5e;
+
+  --dark:#0f0f14;
+
+  --card-bg:#ffffff;
+
+}
+
+*,*::before,*::after{box-sizing:border-box;}
+
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:#f9fafb;color:#111;margin:0;}
+
+/* ===================== EDITORIAL STATIC SHOWCASE ===================== */
+.editorial-shell{max-width:1320px;margin:26px auto 0;padding:0 24px;}
+.editorial-hero{
+  background:#f3f3f5;
+  border:1px solid #ececf1;
+  border-radius:26px;
+  padding:28px 26px;
+  display:grid;
+  grid-template-columns:minmax(180px,290px) 1fr minmax(180px,290px);
+  gap:24px;
+  align-items:center;
+}
+.editorial-photo{
+  border-radius:18px;
+  overflow:hidden;
+  aspect-ratio:4/5;
+  background:#e8ebf2;
+  position:relative;
+}
+.editorial-photo img{width:100%;height:100%;object-fit:cover;display:block;}
+.editorial-photo::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border:1px solid rgba(255,255,255,.35);
+  pointer-events:none;
+}
+.editorial-content{text-align:center;}
+.editorial-kicker{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  background:#ffe7ea;
+  color:#ff5f66;
+  font-size:12px;
+  font-weight:700;
+  border-radius:999px;
+  padding:6px 14px;
+  margin-bottom:14px;
+}
+.editorial-title{
+  margin:0;
+  font-family:'Playfair Display',Georgia,'Times New Roman',serif;
+  font-size:clamp(34px,4.8vw,68px);
+  line-height:1.02;
+  letter-spacing:-.6px;
+  color:#202443;
+}
+.editorial-title .accent{color:#ff5f66;}
+.editorial-sub{
+  margin:14px auto 0;
+  max-width:520px;
+  font-size:18px;
+  color:#7f859d;
+  line-height:1.65;
+}
+.editorial-cta{
+  margin-top:22px;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:13px 26px;
+  background:#ff5f66;
+  color:#fff;
+  border-radius:8px;
+  text-decoration:none;
+  font-size:15px;
+  font-weight:700;
+  transition:.2s;
+  box-shadow:0 10px 24px rgba(255,95,102,.28);
+}
+.editorial-cta:hover{background:#ff4952;color:#fff;transform:translateY(-2px);}
+
+.editorial-strip{max-width:1320px;margin:22px auto 44px;padding:0 24px;}
+.editorial-strip-box{
+  background:#f3f3f5;
+  border:1px solid #ececf1;
+  border-radius:22px;
+  padding:20px;
+  display:grid;
+  grid-template-columns:minmax(180px,320px) 1fr;
+  gap:18px;
+  align-items:center;
+}
+.editorial-strip-title{
+  margin:0;
+  font-family:'Playfair Display',Georgia,'Times New Roman',serif;
+  font-size:clamp(34px,3.8vw,52px);
+  color:#202443;
+  line-height:1.05;
+}
+.editorial-mini-row{display:grid;grid-template-columns:repeat(3,minmax(170px,1fr));gap:12px;}
+.editorial-mini{
+  background:#d8f2f7;
+  border-radius:10px;
+  overflow:hidden;
+  text-decoration:none;
+  color:#202443;
+  display:grid;
+  grid-template-columns:1fr 90px;
+  min-height:90px;
+}
+.editorial-mini-info{padding:12px 12px 10px;display:flex;flex-direction:column;justify-content:center;}
+.editorial-mini-name{font-size:14px;font-weight:700;line-height:1.25;color:#202443;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.editorial-mini-price{font-size:26px;font-weight:700;color:#202443;margin-top:6px;line-height:1;}
+.editorial-mini-price small{font-size:13px;vertical-align:top;margin-right:1px;}
+.editorial-mini-img{background:#b6d9e2;display:flex;align-items:flex-end;justify-content:center;overflow:hidden;}
+.editorial-mini-img img{width:100%;height:100%;object-fit:cover;}
+
+@media(max-width:980px){
+  .editorial-hero{grid-template-columns:1fr;gap:16px;padding:20px;}
+  .editorial-photo{max-width:360px;justify-self:center;width:100%;}
+  .editorial-sub{font-size:16px;}
+  .editorial-strip-box{grid-template-columns:1fr;}
+  .editorial-mini-row{grid-template-columns:1fr;}
+}
+
+.sec-hd{
+  text-align:center;
+  padding:64px 24px 28px;
+}
+
+.sec-hd-eyebrow{
+  font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;
+  color:var(--accent);margin-bottom:12px;
+}
+
+.sec-hd-title{
+
+  font-size:clamp(26px,3.5vw,42px);font-weight:800;color:#0f0f14;
+
+  letter-spacing:-1px;margin:0 0 10px;
+
+}
+
+.sec-hd-sub{font-size:14.5px;color:#6b7280;max-width:480px;margin:0 auto;}
+
+
+
+/* ===================== SHOP BY CATEGORY ===================== */
+
+.cat-showcase{
+
+  max-width:1320px;margin:0 auto;
+
+  padding:0 24px 64px;
+
+  display:grid;
+
+  grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+
+  gap:18px;
+
+}
+
+.cat-card{
+
+  position:relative;
+
+  border-radius:20px;
+
+  overflow:hidden;
+
+  aspect-ratio:3/4;
+
+  text-decoration:none;
+
+  display:block;
+
+  background:#e5e7eb;
+
+}
+
+.cat-card-bg{
+
+  position:absolute;inset:0;
+
+  background-size:cover;background-position:center;
+
+  transition:transform .5s ease;
+
+}
+
+.cat-card:hover .cat-card-bg{transform:scale(1.06);}
+
+.cat-card-overlay{
+
+  position:absolute;inset:0;
+
+  background:linear-gradient(0deg,rgba(0,0,0,.65) 0%,rgba(0,0,0,.1) 55%,transparent 100%);
+
+}
+
+.cat-card-label{
+
+  position:absolute;bottom:18px;left:18px;right:18px;
+
+  color:#fff;
+
+}
+
+.cat-card-label span{
+
+  font-size:16px;font-weight:800;letter-spacing:.3px;
+
+  display:block;margin-bottom:4px;
+
+}
+
+.cat-card-label small{font-size:11px;color:rgba(255,255,255,.7);font-weight:500;}
+
+.cat-card-chip{
+
+  display:inline-block;
+
+  background:#fbbf24;color:#111;
+
+  font-size:9px;font-weight:800;letter-spacing:1px;
+
+  text-transform:uppercase;padding:4px 10px;border-radius:50px;
+
+  margin-bottom:8px;
+
+}
+
+
+
+/* ===================== SALE COUNTDOWN (if active) ===================== */
+
+.sale-ticker{
+
+  background:linear-gradient(90deg,#1e1b4b 0%,#312e81 50%,#4c1d95 100%);
+
+  padding:10px 28px;
+
+  display:flex;align-items:center;justify-content:center;
+
+  gap:20px;flex-wrap:wrap;
+
+}
+
+.sale-ticker-label{color:rgba(255,255,255,.8);font-size:12px;font-weight:600;letter-spacing:.05em;}
+
+.sale-timer{display:flex;align-items:center;gap:8px;}
+
+.sale-unit{text-align:center;}
+
+.sale-num{
+
+  font-size:26px;font-weight:800;color:#fff;
+
+  background:rgba(255,255,255,.1);
+
+  padding:4px 12px;border-radius:8px;
+
+  min-width:50px;display:inline-block;
+
+}
+
+.sale-sep{font-size:20px;font-weight:700;color:rgba(255,255,255,.4);}
+
+.sale-unit-label{font-size:9px;color:rgba(255,255,255,.5);font-weight:600;margin-top:3px;letter-spacing:.1em;text-transform:uppercase;}
+
+.sale-title-chip{
+  background:#fbbf24;color:#111;
+
+  font-size:12px;font-weight:800;
+
+  padding:6px 18px;border-radius:50px;letter-spacing:.04em;
+
+}
+
+
+
+/* ads carousel */
+
+.sale-ads-wrap{background:rgba(0,0,0,.2);padding:0 0 4px;}
+
+.sale-ads-track{display:flex;transition:transform .5s cubic-bezier(.4,0,.2,1);}
+
+.sale-ad-slide{flex:0 0 33.333%;max-width:33.333%;padding:12px 8px;cursor:pointer;}
+
+@media(max-width:860px){.sale-ad-slide{flex:0 0 50%;max-width:50%;}}
+
+@media(max-width:560px){.sale-ad-slide{flex:0 0 100%;max-width:100%;}}
+
+.sale-ad-img-wrap{border-radius:14px;overflow:hidden;aspect-ratio:4/3;border:2px solid rgba(255,255,255,.08);transition:.25s;}
+
+.sale-ad-img-wrap:hover{transform:translateY(-4px);box-shadow:0 14px 36px rgba(0,0,0,.5);}
+
+.sale-ad-img{width:100%;height:100%;object-fit:cover;}
+
+.sale-ad-name{color:rgba(255,255,255,.85);font-size:12px;font-weight:600;margin-top:7px;text-align:center;}
+
+.sale-ads-dots{display:flex;justify-content:center;gap:7px;padding:8px 0 12px;}
+
+.sale-ads-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.2);border:none;cursor:pointer;transition:.2s;padding:0;}
+
+.sale-ads-dot.active{background:#fbbf24;transform:scale(1.3);}
+
+
+
+/* ===================== PRODUCTS GRID ===================== */
+
+.products-section{
+
+  max-width:1320px;margin:0 auto;
+
+  padding:0 24px 80px;
+
+}
+
+.prod-grid{
+
+  display:grid;
+
+  grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+
+  gap:22px;
+
+}
+
+.prod-card{
+
+  background:#fff;
+
+  border-radius:18px;
+
+  border:1px solid #f0ece8;
+
+  overflow:hidden;
+
+  display:flex;flex-direction:column;
+
+  transition:box-shadow .25s,transform .25s;
+
+  position:relative;
+
+}
+
+.prod-card:hover{
+
+  transform:translateY(-5px);
+
+  box-shadow:0 18px 48px rgba(0,0,0,.11);
+
+}
+
+.prod-card-img-link{display:block;text-decoration:none;}
+.prod-card-img{
+
+  height:240px;
+
+  background:linear-gradient(135deg,#f8f4f0,#f0ece6);
+
+  display:flex;align-items:center;justify-content:center;
+
+  overflow:hidden;padding:18px;position:relative;
+
+}
+
+.prod-card-img img{
+
+  max-width:100%;max-height:100%;
+
+  object-fit:contain;
+
+  transition:transform .4s ease;
+
+}
+
+.prod-card:hover .prod-card-img img{transform:scale(1.06);}
+
+.prod-card-badge{
+
+  position:absolute;top:12px;left:12px;
+
+  background:#f43f5e;color:#fff;
+
+  font-size:9px;font-weight:800;
+
+  letter-spacing:1px;text-transform:uppercase;
+
+  padding:4px 10px;border-radius:50px;
+
+}
+
+.prod-card-body{
+
+  padding:16px 18px 20px;
+
+  display:flex;flex-direction:column;flex:1;
+
+}
+
+.prod-card-cat{
+
+  font-size:10px;font-weight:700;letter-spacing:2px;
+
+  text-transform:uppercase;color:#9ca3af;margin-bottom:6px;
+
+}
+
+.prod-card-name{
+
+  font-size:14.5px;font-weight:700;color:#111;
+
+  margin-bottom:6px;line-height:1.35;
+
+}
+
+.prod-card-desc{
+
+  font-size:12.5px;color:#9ca3af;
+
+  margin-bottom:10px;line-height:1.5;
+
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+
+}
+
+.prod-card-divider{width:24px;height:2px;background:#6366f1;border-radius:2px;margin:8px 0 12px;}
+
+.prod-card-price{
+  font-size:20px;font-weight:800;color:#0f0f14;margin-bottom:14px;
+
+}
+
+.prod-card-price sup{font-size:12px;font-weight:600;vertical-align:super;}
+
+.prod-card-actions{
+
+  margin-top:auto;display:flex;gap:8px;
+
+}
+
+.btn-prod-view{
+
+  flex:1;
+
+  padding:10px;border-radius:12px;
+
+  border:1.5px solid #e5e7eb;
+
+  background:#fff;color:#374151;
+
+  font-size:12.5px;font-weight:600;
+
+  text-align:center;text-decoration:none;
+
+  transition:.2s;
+
+}
+
+.btn-prod-view:hover{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;transform:translateY(-2px);box-shadow:0 8px 20px rgba(99,102,241,.35);}
+
+
+
+
+
+/* ===================== RECOMMENDED ===================== */
+
+.rec-section{
+
+  background:linear-gradient(160deg,#0f0f14 0%,#1e1b4b 100%);
+
+  padding:64px 24px 72px;
+
+}
+
+.rec-inner{max-width:1320px;margin:0 auto;}
+
+.rec-section .sec-hd-title{color:#fff;}
+
+.rec-section .sec-hd-eyebrow{color:#fbbf24;}
+
+.rec-section .sec-hd-sub{color:rgba(255,255,255,.55);}
+
+.rec-grid{
+
+  display:grid;
+
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+
+  gap:18px;
+
+}
+
+.rec-card{
+
+  background:rgba(255,255,255,.06);
+
+  border:1px solid rgba(255,255,255,.1);
+
+  border-radius:18px;overflow:hidden;
+
+  text-decoration:none;color:inherit;
+
+  transition:.25s;display:flex;flex-direction:column;
+
+  backdrop-filter:blur(6px);
+
+}
+
+.rec-card:hover{
+
+  background:rgba(255,255,255,.1);
+
+  transform:translateY(-4px);
+
+  box-shadow:0 16px 40px rgba(0,0,0,.4);
+
+}
+
+.rec-card-img{
+
+  height:170px;
+
+  background:rgba(255,255,255,.08);
+
+  display:flex;align-items:center;justify-content:center;
+
+  overflow:hidden;padding:14px;
+
+}
+
+.rec-card-img img{max-width:100%;max-height:100%;object-fit:contain;}
+
+.rec-card-body{padding:14px 16px 18px;}
+
+.rec-card-name{font-size:13.5px;font-weight:600;color:#fff;margin:0 0 8px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+
+.rec-card-price{font-size:13px;font-weight:700;color:#fff;}
+
+
+
+/* ===================== TRUST ===================== */
+
+.trust-section{
+
+  max-width:1320px;margin:0 auto;
+
+  padding:64px 24px 80px;
+
+}
+
+.trust-grid{
+
+  display:grid;
+
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+
+  gap:20px;
+
+}
+
+.trust-card{
+
+  background:#fff;
+
+  border-radius:20px;
+
+  border:1px solid #f0ece8;
+
+  padding:30px 24px;
+
+  text-align:center;
+
+  transition:.25s;
+
+}
+
+.trust-card:hover{
+
+  transform:translateY(-4px);
+
+  box-shadow:0 14px 32px rgba(0,0,0,.08);
+
+}
+
+.trust-icon{
+
+  width:56px;height:56px;
+
+  border-radius:16px;
+
+  margin:0 auto 16px;
+
+  display:flex;align-items:center;justify-content:center;
+
+  font-size:24px;
+
+}
+
+.trust-card h5{font-size:15px;font-weight:700;color:#111;margin:0 0 8px;}
+
+.trust-card p{font-size:13px;color:#6b7280;margin:0;line-height:1.6;}
+
+
+
+/* ===================== RESPONSIVE ===================== */
+@media(max-width:1280px){
+  .prod-grid{grid-template-columns:repeat(4,1fr);}
+  .rec-grid{grid-template-columns:repeat(4,1fr);}
+}
+@media(max-width:1100px){
+  .prod-grid{grid-template-columns:repeat(3,1fr);}
+  .rec-grid{grid-template-columns:repeat(3,1fr);}
+  .cat-showcase{grid-template-columns:repeat(3,1fr);}
+}
+@media(max-width:900px){
+  .hero{height:70vh;}
+  .hero-title{letter-spacing:-1px;font-size:clamp(28px,5vw,52px);}
+  .hero-sub{font-size:13.5px;}
+  .cat-showcase{grid-template-columns:repeat(3,1fr);}
+  .prod-grid{grid-template-columns:repeat(2,1fr);}
+  .rec-grid{grid-template-columns:repeat(2,1fr);}
+  .trust-grid{grid-template-columns:repeat(2,1fr);}
+  .sale-ticker{gap:12px;padding:8px 16px;}
+  .hero-dots{bottom:16px;}
+  .hero-prev,.hero-next{width:36px;height:36px;}
+}
+@media(max-width:640px){
+  .hero{height:auto;min-height:480px;}
+  .hero-slide{min-height:480px;}
+  .hero-content{padding:0 18px;}
+  .hero-offer-chip{font-size:10px;letter-spacing:2px;}
+  .hero-tag{font-size:10px;letter-spacing:2px;}
+  .hero-title{font-size:clamp(24px,7vw,40px);letter-spacing:-.5px;}
+  .hero-sub{font-size:13px;margin-bottom:20px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+  .hero-cta-row{flex-direction:column;align-items:flex-start;gap:10px;}
+  .hero-btn-primary,.hero-btn-secondary{width:100%;max-width:260px;text-align:center;padding:12px 22px;font-size:13px;}
+  .hero-prev,.hero-next{display:none;}
+  .hero-progress{display:none;}
+  .cat-showcase{grid-template-columns:repeat(2,1fr);gap:10px;padding:0 14px 40px;}
+  .cat-card{border-radius:12px;min-height:120px;}
+  .cat-card-name{font-size:12px;}
+  .sec-hd{padding:36px 16px 24px;}
+  .sec-hd-title{letter-spacing:-.5px;}
+  .prod-grid{grid-template-columns:repeat(2,1fr);gap:12px;}
+  .prod-card-img{height:150px;padding:10px;}
+  .prod-card-name{font-size:13px;}
+  .prod-card-price{font-size:16px;}
+  .prod-card-body{padding:12px;}
+  .products-section{padding:0 14px 56px;}
+  .rec-section{padding:0 14px 56px;}
+  .rec-grid{grid-template-columns:repeat(2,1fr);gap:12px;}
+  .rec-card-img{height:130px;}
+  .trust-grid{grid-template-columns:repeat(2,1fr);gap:12px;}
+  .trust-section{padding:36px 14px 56px;}
+  .brand-wall-item{padding:14px 22px;font-size:11.5px;letter-spacing:1px;}
+  .sale-num{font-size:20px;min-width:38px;padding:3px 8px;}
+  .sale-title-chip{font-size:11px;padding:5px 14px;}
+  .sale-ticker{flex-wrap:wrap;justify-content:center;gap:8px 16px;padding:10px 14px;}
+}
+@media(max-width:420px){
+  .hero{min-height:420px;}
+  .hero-slide{min-height:420px;}
+  .hero-title{font-size:clamp(22px,8vw,34px);}
+  .hero-sub{-webkit-line-clamp:2;}
+  .hero-cta-row{gap:8px;}
+  .hero-btn-primary,.hero-btn-secondary{max-width:100%;font-size:12.5px;padding:11px 18px;}
+  .cat-showcase{grid-template-columns:repeat(2,1fr);gap:8px;padding:0 12px 36px;}
+  .prod-grid{grid-template-columns:repeat(2,1fr);gap:8px;}
+  .prod-card-img{height:130px;padding:8px;}
+  .prod-card-name{font-size:12.5px;}
+  .prod-card-body{padding:10px;}
+  .rec-grid{grid-template-columns:repeat(2,1fr);gap:8px;}
+  .trust-grid{grid-template-columns:1fr 1fr;}
+  .trust-card{padding:18px 14px;}
+}
+@media(max-width:360px){
+  .prod-grid{grid-template-columns:1fr;}
+  .rec-grid{grid-template-columns:1fr;}
+  .cat-showcase{grid-template-columns:repeat(2,1fr);gap:6px;}
+  .hero-btn-primary{max-width:100%;}
+}
+
+</style>
+
+
+
+<!-- ===================== SALE COUNTDOWN ===================== -->
+
+{% if active_sale %}
+
+<section style="background:linear-gradient(90deg,#1e1b4b,#312e81,#4c1d95);">
+
+  <div class="sale-ticker">
+
+    <span class="sale-title-chip"> {{ active_sale.banner_text }}</span>
+
+    <span class="sale-ticker-label">{% if active_sale.is_live %}Ends in{% else %}Starts in{% endif %}</span>
+
+    <div class="sale-timer">
+
+      <div class="sale-unit"><span class="sale-num" id="cdD">00</span><div class="sale-unit-label">Days</div></div>
+
+      <span class="sale-sep">:</span>
+
+      <div class="sale-unit"><span class="sale-num" id="cdH">00</span><div class="sale-unit-label">Hrs</div></div>
+
+      <span class="sale-sep">:</span>
+
+      <div class="sale-unit"><span class="sale-num" id="cdM">00</span><div class="sale-unit-label">Min</div></div>
+
+      <span class="sale-sep">:</span>
+
+      <div class="sale-unit"><span class="sale-num" id="cdS">00</span><div class="sale-unit-label">Sec</div></div>
+
+    </div>
+
+  </div>
+
+  {% if sale_ads_json != "[]" %}
+
+  <div class="sale-ads-wrap" id="saleAdsWrap">
+
+    <div style="overflow:hidden;"><div class="sale-ads-track" id="saleAdsTrack"></div></div>
+
+    <div class="sale-ads-dots" id="saleAdsDots"></div>
+
+  </div>
+
+  {% endif %}
+
+  <script>
+
+  (function(){
+
+    var target=new Date("{{ sale_end_iso }}");
+
+    function tick(){var now=new Date(),diff=target-now;if(diff<=0){['D','H','M','S'].forEach(function(x){document.getElementById('cd'+x).textContent='00';});return;}var d=Math.floor(diff/86400000),h=Math.floor(diff%86400000/3600000),m=Math.floor(diff%3600000/60000),s=Math.floor(diff%60000/1000);function p(n){return n<10?'0'+n:''+n;}document.getElementById('cdD').textContent=p(d);document.getElementById('cdH').textContent=p(h);document.getElementById('cdM').textContent=p(m);document.getElementById('cdS').textContent=p(s);}
+
+    tick();setInterval(tick,1000);
+
+    var ads={{ sale_ads_json|safe }};if(!ads.length)return;
+
+    var track=document.getElementById('saleAdsTrack'),dots=document.getElementById('saleAdsDots');var perPage=window.innerWidth<=560?1:window.innerWidth<=860?2:3,cur=0,total=ads.length;
+
+    ads.forEach(function(ad){var s=document.createElement('div');s.className='sale-ad-slide';s.innerHTML='<a href="/product/'+ad.product_id+'/" class="sale-ad-img-wrap" style="display:block;"><img class="sale-ad-img" src="'+ad.ad_image+'" alt="'+ad.product_name+'"></a><div class="sale-ad-name">'+ad.product_name+'</div>';track.appendChild(s);});
+
+    var dc=Math.ceil(total/perPage);for(var i=0;i<dc;i++){var d=document.createElement('button');d.className='sale-ads-dot'+(i===0?' active':'');d.setAttribute('data-i',i);d.addEventListener('click',function(){goTo(+this.getAttribute('data-i'));});dots.appendChild(d);}
+
+    function goTo(idx){cur=idx;track.style.transform='translateX(-'+(cur*perPage*(100/total))+'%)';dots.querySelectorAll('.sale-ads-dot').forEach(function(d,i){d.classList.toggle('active',i===cur);});}
+
+    setInterval(function(){goTo((cur+1)%dc);},3000);
+
+  })();
+
+  </script>
+
+</section>
+
+{% endif %}
+
+
+
+<!-- ===================== STATIC SHOWCASE ===================== -->
+
+<section class="editorial-shell">
+  <div class="editorial-hero">
+    <div class="editorial-photo">
+      {% for p in products|slice:":1" %}
+        {% if p.image %}
+          <img src="/media/{{ p.image.0 }}" alt="{{ p.name }}" loading="lazy">
+        {% else %}
+          <img src="/static/images/Recomart-Logo.png" alt="recomart" loading="lazy">
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <div class="editorial-content">
+      <div class="editorial-kicker">New Collection</div>
+      <h1 class="editorial-title">Make Your <span class="accent">Fashion</span><br>More Perfect.</h1>
+      <p class="editorial-sub">With our clothing collection, you can take your style to the next level.</p>
+      <a href="#products" class="editorial-cta">Shop Now &#8599;</a>
+    </div>
+
+    <div class="editorial-photo">
+      {% for p in products|slice:"1:2" %}
+        {% if p.image %}
+          <img src="/media/{{ p.image.0 }}" alt="{{ p.name }}" loading="lazy">
+        {% else %}
+          <img src="/static/images/Recomart-Logo.png" alt="recomart" loading="lazy">
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="editorial-strip">
+  <div class="editorial-strip-box">
+    <h2 class="editorial-strip-title">Exclusive Collections</h2>
+    <div class="editorial-mini-row">
+      {% for p in products|slice:":3" %}
+      {% with v=p.variants.first %}
+      <a href="{% url 'product_detail' p.id %}" class="editorial-mini">
+        <div class="editorial-mini-info">
+          <div class="editorial-mini-name">{{ p.name }}</div>
+          {% if v %}<div class="editorial-mini-price"><small>&#8377;</small>{{ v.price }}</div>{% endif %}
+        </div>
+        <div class="editorial-mini-img">
+          {% if p.image %}
+            <img src="/media/{{ p.image.0 }}" alt="{{ p.name }}" loading="lazy">
+          {% else %}
+            <img src="/static/images/Recomart-Logo.png" alt="recomart" loading="lazy">
+          {% endif %}
+        </div>
+      </a>
+      {% endwith %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+
+
+<!-- ===================== PRODUCTS ===================== -->
+
+<div id="products">
+
+  <div class="sec-hd">
+
+    <div class="sec-hd-eyebrow">Trending Now</div>
+
+    <h2 class="sec-hd-title">Our Products</h2>
+
+    <p class="sec-hd-sub">Handpicked products at the best prices, just for you</p>
+
+  </div>
+
+  <div class="products-section">
+
+    <div class="prod-grid">
+
+      {% for p in products %}
+
+      {% with v=p.variants.first %}
+
+      <div class="prod-card">
+
+        <a href="{% url 'product_detail' p.id %}" class="prod-card-img-link">
+        <div class="prod-card-img">
+
+          {% if p.image %}
+
+          <img src="/media/{{ p.image.0 }}" alt="{{ p.name }}" loading="lazy">
+
+          {% else %}
+
+          <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#ddd" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+
+          {% endif %}
+
+          {% if v %}<div class="prod-card-badge">NEW</div>{% endif %}
+
+        </div>
+
+        <div class="prod-card-body">
+
+          {% if p.category %}<div class="prod-card-cat">{{ p.category.name }}</div>{% endif %}
+
+          <div class="prod-card-name">{{ p.name }}</div>
+
+          {% if p.short_description %}<div class="prod-card-desc">{{ p.short_description }}</div>{% endif %}
+
+          <div class="prod-card-divider"></div>
+
+          <div class="prod-card-price">{% if v %}<sup>&#8377;</sup>{{ v.price }}{% else %}&mdash;{% endif %}</div>
+
+          <div class="prod-card-actions">
+
+            <a href="{% url 'product_detail' p.id %}" class="btn-prod-view">View Details</a>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      {% endwith %}
+
+      {% endfor %}
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- ===================== RECOMMENDED FOR YOU ===================== -->
+
+{% if user.is_authenticated and recommended_products %}
+
+<section class="home-rec-section">
+  <div class="home-rec-inner">
+
+    <!-- Header -->
+    <div class="home-rec-hd">
+      <div class="home-rec-hd-left">
+        <div class="home-rec-eyebrow">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Powered by AI
+        </div>
+        <h2 class="home-rec-title">Recommended For You</h2>
+        <p class="home-rec-sub">Personalised picks based on your browsing &amp; purchase history</p>
+      </div>
+      <div class="home-rec-algo-badges">
+        <span class="algo-badge algo-cf">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          Collaborative Filtering
+        </span>
+        <span class="algo-badge algo-mf">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>
+          Matrix Factorisation
+        </span>
+        <span class="algo-badge algo-dl">
+          <svg viewBox="0 0 24 24"><circle cx="5" cy="6" r="2"/><circle cx="12" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><circle cx="8.5" cy="18" r="2"/><circle cx="15.5" cy="18" r="2"/><line x1="5" y1="8" x2="5" y2="10"/><line x1="12" y1="8" x2="12" y2="10"/><line x1="19" y1="8" x2="19" y2="10"/><line x1="5" y1="8" x2="8.5" y2="16"/><line x1="12" y1="8" x2="8.5" y2="16"/><line x1="12" y1="8" x2="15.5" y2="16"/><line x1="19" y1="8" x2="15.5" y2="16"/></svg>
+          Deep Learning
+        </span>
+      </div>
+    </div>
+
+    <!-- Grid -->
+    <div class="home-rec-grid">
+      {% for p in recommended_products %}
+      {% with v=p.variants.first %}
+      <a href="{% url 'product_detail' p.id %}" class="home-rec-card" data-product-id="{{ p.id }}">
+        <div class="home-rec-img">
+          {% if p.image %}
+            <img src="/media/{{ p.image.0 }}" alt="{{ p.name }}" loading="lazy">
+          {% else %}
+            <svg viewBox="0 0 24 24" class="home-rec-placeholder"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          {% endif %}
+        </div>
+        <div class="home-rec-body">
+          {% if p.brand %}<div class="home-rec-brand">{{ p.brand }}</div>{% endif %}
+          <div class="home-rec-name">{{ p.name }}</div>
+          {% if v %}
+          <div class="home-rec-price-row">
+            <span class="home-rec-price">&#8377;{{ v.price }}</span>
+            {% if v.mrp and v.mrp > v.price %}
+            <span class="home-rec-mrp">&#8377;{{ v.mrp }}</span>
+            <span class="home-rec-disc">{{ v.price|floatformat:0 }}% off</span>
+            {% endif %}
+          </div>
+          {% endif %}
+        </div>
+        <div class="home-rec-hover-overlay">View Product →</div>
+      </a>
+      {% endwith %}
+      {% endfor %}
+    </div>
+
+  </div>
+</section>
+
+<style>
+/* ── HOME RECOMMENDATIONS ─────────────────────────────── */
+.home-rec-section{
+  background: linear-gradient(180deg,#fff 0%,#f9fafb 100%);
+  padding:64px 20px 80px;
+  border-top:1px solid #eee;
+}
+.home-rec-inner{max-width:1200px;margin:0 auto;}
+
+/* header */
+.home-rec-hd{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start;justify-content:space-between;margin-bottom:40px;}
+.home-rec-hd-left{}
+.home-rec-eyebrow{
+  display:inline-flex;align-items:center;gap:7px;
+  background:linear-gradient(135deg,#fff0ec,#fde8e4);
+  color:#e8735a;border-radius:24px;padding:6px 16px;
+  font-size:11.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;
+  margin-bottom:12px;
+}
+.home-rec-eyebrow svg{width:13px;height:13px;stroke:#e8735a;fill:none;stroke-width:2;}
+.home-rec-title{font-size:clamp(24px,3vw,34px);font-weight:900;color:#0f172a;margin:0 0 8px;letter-spacing:-.02em;}
+.home-rec-sub{font-size:14px;color:#64748b;margin:0;}
+
+/* algorithm badges */
+.home-rec-algo-badges{display:flex;flex-wrap:wrap;gap:8px;align-self:center;}
+.algo-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  border-radius:20px;padding:5px 13px;
+  font-size:11px;font-weight:700;letter-spacing:.04em;
+}
+.algo-badge svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:1.8;}
+.algo-cf{background:#eff6ff;color:#2563eb;}
+.algo-mf{background:#f0fdf4;color:#16a34a;}
+.algo-dl{background:#faf5ff;color:#7c3aed;}
+
+/* grid */
+.home-rec-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:20px;
+}
+.home-rec-card{
+  background:#fff;border-radius:20px;overflow:hidden;
+  text-decoration:none;color:inherit;
+  border:1.5px solid #e8ecf0;
+  transition:box-shadow .25s,transform .25s,border-color .25s;
+  display:flex;flex-direction:column;position:relative;
+}
+.home-rec-card:hover{
+  box-shadow:0 12px 40px rgba(0,0,0,.12);
+  transform:translateY(-5px);
+  border-color:#e8735a;
+}
+.home-rec-img{
+  height:190px;background:#f8fafc;
+  display:flex;align-items:center;justify-content:center;overflow:hidden;
+}
+.home-rec-img img{width:100%;height:100%;object-fit:contain;padding:14px;transition:transform .35s;}
+.home-rec-card:hover .home-rec-img img{transform:scale(1.07);}
+.home-rec-placeholder{width:48px;height:48px;stroke:#d1d5db;fill:none;stroke-width:1.5;}
+.home-rec-body{padding:14px 16px 18px;flex:1;display:flex;flex-direction:column;}
+.home-rec-brand{font-size:10.5px;color:#94a3b8;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;}
+.home-rec-name{font-size:13.5px;font-weight:700;color:#0f172a;line-height:1.4;margin-bottom:10px;flex:1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.home-rec-price-row{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;}
+.home-rec-price{font-size:16px;font-weight:900;color:#0f8c3b;}
+.home-rec-mrp{font-size:12px;color:#94a3b8;text-decoration:line-through;}
+.home-rec-disc{font-size:11px;font-weight:700;color:#e8735a;background:#fff5f3;padding:2px 7px;border-radius:10px;}
+
+.home-rec-hover-overlay{
+  position:absolute;bottom:0;left:0;right:0;
+  background:linear-gradient(0deg,rgba(232,115,90,.90),transparent);
+  color:#fff;font-size:13px;font-weight:700;
+  padding:14px 16px 12px;
+  transform:translateY(100%);
+  transition:transform .25s;
+}
+.home-rec-card:hover .home-rec-hover-overlay{transform:translateY(0);}
+
+@media(max-width:640px){
+  .home-rec-grid{grid-template-columns:repeat(2,1fr);}
+  .home-rec-hd{flex-direction:column;}
+}
+</style>
+
+{% endif %}
+
+
+
+<!-- ===================== TRUST ===================== -->
+
+<div class="sec-hd">
+
+  <div class="sec-hd-eyebrow">Why Us</div>
+
+  <h2 class="sec-hd-title">Why Shop With recomart?</h2>
+
+</div>
+
+<div class="trust-section" style="padding-top:0;">
+
+  <div class="trust-grid">
+
+    <div class="trust-card">
+
+      <div class="trust-icon" style="background:#fef3c7;"><svg width="24" height="24" fill="none" stroke="#92400e" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2"/><circle cx="18.5" cy="18.5" r="2"/></svg></div>
+
+      <h5>Free Fast Delivery</h5>
+
+      <p>Orders above &#8377;499 get free shipping. Express delivery in 24&ndash;48 hrs.</p>
+
+    </div>
+
+    <div class="trust-card">
+
+      <div class="trust-icon" style="background:#dcfce7;"><svg width="24" height="24" fill="none" stroke="#166534" stroke-width="2" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-5"/></svg></div>
+
+      <h5>100% Secure Payment</h5>
+
+      <p>Bank-grade encryption on every transaction. UPI, cards, wallets accepted.</p>
+
+    </div>
+
+    <div class="trust-card">
+
+      <div class="trust-icon" style="background:#ede9fe;"><svg width="24" height="24" fill="none" stroke="#5b21b6" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+
+      <h5>Easy 7-Day Returns</h5>
+
+      <p>Not satisfied? Return within 7 days. No questions asked, full refund.</p>
+
+    </div>
+
+    <div class="trust-card">
+
+      <div class="trust-icon" style="background:#fee2e2;"><svg width="24" height="24" fill="none" stroke="#991b1b" stroke-width="2" viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg></div>
+
+      <h5>24/7 Customer Support</h5>
+
+      <p>Our team is always here for you &mdash; chat, email or call anytime.</p>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+{% endblock %}
+

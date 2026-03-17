@@ -1,0 +1,255 @@
+{% extends 'vendor/vendor_base.html' %}
+
+{% block vendor_content %}
+
+<style>
+.ord-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;}
+.ord-header h2{font-size:20px;font-weight:800;color:#0f172a;display:flex;align-items:center;gap:9px;}
+.ord-header h2 i{color:#2563eb;}
+.ord-count{font-size:12px;background:#eff6ff;color:#2563eb;padding:4px 12px;border-radius:20px;font-weight:700;}
+
+.cust-cell{display:flex;align-items:center;gap:10px;}
+.cust-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;flex-shrink:0;}
+.cust-name{font-weight:600;font-size:13px;color:#1e293b;}
+
+.var-attr{font-size:12px;color:#475569;}
+.var-sku{font-size:11px;color:#94a3b8;}
+
+.btn-view{background:#2563eb;color:#fff;border:none;padding:6px 16px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;transition:.2s;}
+.btn-view:hover{background:#1d4ed8;transform:translateY(-1px);}
+
+.status-form{display:flex;align-items:center;gap:8px;min-width:230px;}
+.status-select{
+  border:1px solid #cbd5e1;background:#fff;color:#0f172a;
+  border-radius:8px;padding:6px 10px;font-size:12px;font-weight:600;
+}
+.status-select:focus{outline:none;border-color:#2563eb;box-shadow:0 0 0 2px rgba(37,99,235,.12);}
+.btn-status{
+  border:none;background:#0f172a;color:#fff;border-radius:8px;
+  padding:6px 10px;font-size:11px;font-weight:700;cursor:pointer;
+}
+.btn-status:hover{background:#1e293b;}
+
+.amount-wrap{display:flex;align-items:center;gap:8px;}
+.breakdown{position:relative;display:inline-block;}
+.breakdown summary{list-style:none;cursor:pointer;background:#e2e8f0;color:#334155;border-radius:5px;padding:1px 7px;font-size:11px;line-height:1.1;user-select:none;}
+.breakdown summary::-webkit-details-marker{display:none;}
+.breakdown-panel{display:none;position:absolute;top:calc(100% + 6px);right:0;min-width:230px;background:#fff;border:1px solid #dbe3ec;border-radius:8px;padding:10px 12px;box-shadow:0 10px 26px rgba(15,23,42,.14);z-index:25;}
+.breakdown[open] .breakdown-panel{display:block;}
+.break-row{display:flex;justify-content:space-between;gap:14px;font-size:12px;color:#1e293b;margin-bottom:5px;}
+.break-row:last-child{margin-bottom:0;}
+
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:#fff;border-radius:16px;padding:32px;width:520px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);position:relative;}
+.modal-close{position:absolute;top:16px;right:18px;background:none;border:none;font-size:20px;cursor:pointer;color:#64748b;}
+.modal-title{font-size:18px;font-weight:800;color:#0f172a;margin:0 0 20px;}
+.modal-section{margin-bottom:18px;}
+.modal-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#94a3b8;margin:0 0 8px;}
+.modal-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f1f5f9;font-size:14px;}
+.modal-row:last-child{border-bottom:none;}
+.modal-label{color:#64748b;font-weight:500;}
+.modal-value{color:#0f172a;font-weight:600;text-align:right;max-width:60%;}
+
+@media(max-width:900px){
+  .vp-card{overflow-x:auto;}
+  .vp-table{min-width:980px;}
+}
+</style>
+
+<div class="ord-header">
+  <h2><i class="fa fa-receipt"></i> Orders <span class="ord-count">{{ orders|length }}</span></h2>
+</div>
+
+<div class="vp-card" style="overflow-x:auto;overflow-y:visible;">
+  <table class="vp-table">
+    <thead>
+      <tr>
+        <th>Customer</th>
+        <th>Product</th>
+        <th>Variant</th>
+        <th>Qty</th>
+        <th>Total Price</th>
+        <th>Your Profit</th>
+        <th>Status</th>
+        <th>Update Order</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for o in orders %}
+      <tr
+        data-id="{{ o.id }}"
+        data-customer="{{ o.customer.username }}"
+        data-product="{{ o.product.name }}"
+        data-variant="{% if o.variant %}{{ o.variant.display_attributes }}{% else %}&mdash;{% endif %}"
+        data-sku="{% if o.variant %}{{ o.variant.sku }}{% else %}&mdash;{% endif %}"
+        data-qty="{{ o.quantity }}"
+        data-total="&#8377;{{ o.total|floatformat:2 }}"
+        data-address="{{ o.address }}"
+        data-pincode="{{ o.pincode }}"
+        data-payment="{{ o.payment_method }}"
+        data-status="{{ o.status }}"
+        data-date="{{ o.created|date:'d M Y, h:i A' }}"
+      >
+        <td>
+          <div class="cust-cell">
+            <div class="cust-av">{{ o.customer.username|first|upper }}</div>
+            <span class="cust-name">{{ o.customer.username }}</span>
+          </div>
+        </td>
+
+        <td style="font-weight:600;font-size:13px;">{{ o.product.name }}</td>
+
+        <td>
+          {% if o.variant %}
+            <div class="var-attr">{{ o.variant.display_attributes }}</div>
+            <div class="var-sku">SKU: {{ o.variant.sku }}</div>
+          {% else %}
+            <span style="color:#94a3b8;">&mdash;</span>
+          {% endif %}
+        </td>
+
+        <td style="font-weight:600;">{{ o.quantity }}</td>
+
+        <td style="font-weight:700;color:#16a34a;">
+          <span>&#8377;{{ o.total|floatformat:2 }}</span>
+        </td>
+
+        <td style="font-weight:700;color:#0284c7;">
+          <div class="amount-wrap">
+            <span>&#8377;{{ o.vendor_profit_amount|floatformat:2 }}</span>
+            <details class="breakdown">
+              <summary title="Profit breakdown">&#9662;</summary>
+              <div class="breakdown-panel">
+                <div class="break-row"><span>Product Price</span><b>&#8377;{{ o.total|floatformat:2 }}</b></div>
+                <div class="break-row"><span>Platform Fee (12%)</span><b>&#8377;{{ o.platform_fee|floatformat:2 }}</b></div>
+                <div class="break-row"><span>GST on Platform Fee (18%)</span><b>&#8377;{{ o.platform_fee_gst|floatformat:2 }}</b></div>
+                <div class="break-row"><span><b>Vendor Profit</b></span><b>&#8377;{{ o.vendor_profit_amount|floatformat:2 }}</b></div>
+              </div>
+            </details>
+          </div>
+        </td>
+
+        <td>
+          <span class="badge
+            {% if o.status == 'Pending' %}badge-yellow
+            {% elif o.status == 'Accepted' %}badge-blue
+            {% elif o.status == 'Packed' %}badge-blue
+            {% elif o.status == 'Out for Delivery' %}badge-blue
+            {% elif o.status == 'Shipped' %}badge-purple
+            {% elif o.status == 'Delivered' or o.status == 'Completed' %}badge-green
+            {% else %}badge-red
+            {% endif %}">
+            {{ o.status }}
+          </span>
+        </td>
+
+        <td>
+          <form method="post" action="{% url 'update_order_status' o.id %}" class="status-form">
+            {% csrf_token %}
+            <select name="status" class="status-select" aria-label="Update order status">
+              {% for value, label in status_choices %}
+                <option value="{{ value }}" {% if o.status == value %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+            <button type="submit" class="btn-status">Update</button>
+          </form>
+        </td>
+
+        <td>
+          <button class="btn-view" onclick="openModal(this.closest('tr'))">
+            <i class="fa fa-eye" style="margin-right:4px;"></i>View
+          </button>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="9" class="vp-empty">
+          <i class="fa fa-inbox"></i><br>No orders yet
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="modal-overlay" id="orderModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal()">&#10005;</button>
+    <div class="modal-title">Order Details &nbsp;<span id="m-id" style="font-size:13px;color:#94a3b8;font-weight:500;"></span></div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">Customer</div>
+      <div class="modal-row"><span class="modal-label">Username</span><span class="modal-value" id="m-customer"></span></div>
+      <div class="modal-row"><span class="modal-label">Delivery Address</span><span class="modal-value" id="m-address"></span></div>
+      <div class="modal-row"><span class="modal-label">Pincode</span><span class="modal-value" id="m-pincode"></span></div>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">Product</div>
+      <div class="modal-row"><span class="modal-label">Product</span><span class="modal-value" id="m-product"></span></div>
+      <div class="modal-row"><span class="modal-label">Variant</span><span class="modal-value" id="m-variant"></span></div>
+      <div class="modal-row"><span class="modal-label">SKU</span><span class="modal-value" id="m-sku"></span></div>
+      <div class="modal-row"><span class="modal-label">Quantity</span><span class="modal-value" id="m-qty"></span></div>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">Payment</div>
+      <div class="modal-row"><span class="modal-label">Method</span><span class="modal-value" id="m-payment"></span></div>
+      <div class="modal-row"><span class="modal-label">Total Price</span><span class="modal-value" id="m-total" style="color:#16a34a;font-size:16px;"></span></div>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">Status</div>
+      <div class="modal-row"><span class="modal-label">Current Status</span><span class="modal-value" id="m-status"></span></div>
+      <div class="modal-row"><span class="modal-label">Order Date</span><span class="modal-value" id="m-date"></span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('.breakdown').forEach(function(detailsEl){
+  detailsEl.addEventListener('toggle', function(){
+    if (!detailsEl.open) return;
+    document.querySelectorAll('.breakdown').forEach(function(other){
+      if (other !== detailsEl) other.open = false;
+    });
+  });
+});
+
+document.addEventListener('click', function(e){
+  if (!e.target.closest('.breakdown')) {
+    document.querySelectorAll('.breakdown').forEach(function(detailsEl){
+      detailsEl.open = false;
+    });
+  }
+});
+
+function openModal(row){
+  var d = row.dataset;
+  document.getElementById('m-id').textContent = '#' + d.id;
+  document.getElementById('m-customer').textContent = d.customer;
+  document.getElementById('m-address').textContent = d.address;
+  document.getElementById('m-pincode').textContent = d.pincode;
+  document.getElementById('m-product').textContent = d.product;
+  document.getElementById('m-variant').innerHTML = d.variant;
+  document.getElementById('m-sku').textContent = d.sku;
+  document.getElementById('m-qty').textContent = d.qty;
+  document.getElementById('m-payment').textContent = d.payment;
+  document.getElementById('m-total').innerHTML = d.total;
+  document.getElementById('m-status').textContent = d.status;
+  document.getElementById('m-date').textContent = d.date;
+  document.getElementById('orderModal').classList.add('open');
+}
+
+function closeModal(){
+  document.getElementById('orderModal').classList.remove('open');
+}
+
+document.getElementById('orderModal').addEventListener('click', function(e){
+  if (e.target === this) closeModal();
+});
+</script>
+
+{% endblock %}

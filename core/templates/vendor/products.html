@@ -1,0 +1,219 @@
+{% extends 'vendor/vendor_base.html' %}
+{% block vendor_content %}
+
+<style>
+/* ── Page header ── */
+.prod-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px;}
+.prod-header-left h2{font-size:20px;font-weight:800;color:#0f172a;display:flex;align-items:center;gap:9px;margin:0;}
+.prod-header-left h2 i{color:#2563eb;}
+.prod-header-left p{font-size:13px;color:#64748b;margin:4px 0 0;}
+
+/* ── Product image ── */
+.pimg-box{width:52px;height:52px;border-radius:10px;overflow:hidden;background:#f3f4f6;
+  display:flex;align-items:center;justify-content:center;border:1px solid #e5e7eb;flex-shrink:0;}
+.pimg-box img{width:100%;height:100%;object-fit:cover;}
+
+/* ── Product name/category ── */
+.pname{font-weight:700;font-size:14px;color:#111;}
+.pcategory{font-size:11px;color:#6b7280;margin-top:2px;}
+
+/* ── Variant count pill ── */
+.vcnt{display:inline-block;background:#eff6ff;color:#2563eb;font-size:12px;font-weight:700;
+  padding:3px 10px;border-radius:20px;}
+
+/* ── Action buttons ── */
+.actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}
+.btn-view-p{padding:6px 13px;border-radius:8px;font-size:12px;font-weight:700;border:none;
+  cursor:pointer;background:#2563eb;color:white;transition:.2s;display:flex;align-items:center;gap:4px;}
+.btn-view-p:hover{background:#1d4ed8;}
+.btn-view-p.active{background:#1e3a5f;}
+.btn-edit-p{padding:6px 13px;border-radius:8px;font-size:12px;font-weight:700;
+  text-decoration:none;color:white;background:#16a34a;transition:.2s;}
+.btn-edit-p:hover{background:#15803d;}
+.btn-del-p{padding:6px 13px;border-radius:8px;font-size:12px;font-weight:700;
+  text-decoration:none;color:white;background:#dc2626;transition:.2s;}
+.btn-del-p:hover{background:#b91c1c;}
+
+/* ── Detail expand row ── */
+.detail-row{display:none;}
+.detail-row td{padding:0!important;border-bottom:2px solid #2563eb;}
+.detail-panel{background:linear-gradient(135deg,#f8faff,#f0fdf4);padding:24px 28px;animation:panelIn .25s ease;}
+@keyframes panelIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+
+.detail-title{font-size:12px;font-weight:800;color:#374151;text-transform:uppercase;
+  letter-spacing:.07em;margin-bottom:8px;}
+.detail-desc{font-size:13px;color:#374151;line-height:1.6;margin-bottom:20px;
+  background:white;padding:12px 16px;border-radius:10px;border:1px solid #e5e7eb;}
+
+/* Variants grid */
+.variants-grid{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:20px;}
+.vcard{background:white;border:1px solid #e5e7eb;border-radius:14px;padding:14px;
+  min-width:200px;max-width:240px;flex:1;}
+.vcard-label{font-size:11px;font-weight:800;color:#374151;text-transform:uppercase;
+  letter-spacing:.06em;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.vcard-price{color:#16a34a;font-weight:700;}
+.vcard-stock{color:#6b7280;font-size:12px;}
+.vcard-imgs{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.vcard-imgs img{width:52px;height:52px;object-fit:cover;border-radius:7px;border:1px solid #e5e7eb;}
+.vcard-noimg{width:52px;height:52px;border-radius:7px;background:#f1f5f9;
+  display:flex;align-items:center;justify-content:center;font-size:11px;color:#9ca3af;}
+
+/* Panel footer */
+.panel-footer{display:flex;justify-content:flex-end;padding-top:16px;
+  border-top:1px solid #e5e7eb;}
+.btn-edit-big{display:inline-block;padding:10px 24px;background:linear-gradient(135deg,#4f46e5,#22c55e);
+  color:white;font-weight:700;border-radius:12px;text-decoration:none;font-size:13px;transition:.3s;
+  box-shadow:0 6px 16px rgba(0,0,0,.12);}
+.btn-edit-big:hover{transform:translateY(-2px);box-shadow:0 12px 24px rgba(0,0,0,.16);}
+</style>
+
+<!-- Page header -->
+<div class="prod-header">
+  <div class="prod-header-left">
+    <h2><i class="fa fa-box-open"></i> Your Products</h2>
+    <p>Manage your listings, pricing and inventory.</p>
+  </div>
+  <a href="{% url 'vendor_add' %}" class="vp-btn vp-btn-primary">
+    <i class="fa fa-plus"></i> Add Product
+  </a>
+</div>
+
+<!-- Table -->
+<div class="vp-card" style="overflow:hidden;">
+<table class="vp-table">
+  <thead>
+    <tr>
+      <th>Image</th>
+      <th>Product</th>
+      <th>Variants</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+
+  {% for p in products %}
+
+  <!-- PRODUCT ROW -->
+  <tr class="product-row" id="row-{{ p.id }}">
+
+    <td>
+      <div class="pimg-box">
+      {% with fv=p.variants.first %}
+        {% if fv.images.first %}
+          <img src="{{ fv.images.first.image.url }}" alt="">
+        {% elif p.image %}
+          <img src="/media/{{ p.image.0 }}" alt="">
+        {% else %}
+          <span style="font-size:20px;color:#cbd5e1;">&#128247;</span>
+        {% endif %}
+      {% endwith %}
+      </div>
+    </td>
+
+    <td>
+      <div class="pname">{{ p.name }}</div>
+      {% if p.category %}<div class="pcategory">{{ p.category.name }}</div>{% endif %}
+    </td>
+
+    <td>
+      <span class="vcnt">{{ p.variants.count }} variant{{ p.variants.count|pluralize }}</span>
+    </td>
+
+    <td>
+      {% if p.status == 'approved' %}
+        <span class="badge badge-green">Approved</span>
+      {% elif p.status == 'rejected' %}
+        <span class="badge badge-red">Rejected</span>
+      {% else %}
+        <span class="badge badge-yellow">Pending</span>
+      {% endif %}
+    </td>
+
+    <td>
+      <div class="actions">
+        <button class="btn-view-p" onclick="toggleDetail({{ p.id }}, this)" id="vbtn-{{ p.id }}">
+          <i class="fa fa-eye"></i> View
+        </button>
+        <a href="{% url 'vendor_edit' p.id %}" class="btn-edit-p"><i class="fa fa-pen"></i> Edit</a>
+        <a href="{% url 'vendor_delete' p.id %}" class="btn-del-p"
+           onclick="return confirm('Delete {{ p.name }}?')"><i class="fa fa-trash"></i> Delete</a>
+      </div>
+    </td>
+
+  </tr>
+
+  <!-- DETAIL EXPAND ROW -->
+  <tr class="detail-row" id="detail-{{ p.id }}">
+    <td colspan="5">
+      <div class="detail-panel">
+
+        <!-- Description -->
+        <div class="detail-title">Description</div>
+        <div class="detail-desc">{{ p.description|default:"No description provided." }}</div>
+
+        <!-- Variants -->
+        <div class="detail-title">All Variants</div>
+        <div class="variants-grid">
+        {% for v in p.variants.all %}
+          <div class="vcard">
+            <div class="vcard-label">
+              {{ v.display_attributes|default:v.sku }}
+              <span class="vcard-price">&#8377;{{ v.price }}</span>
+            </div>
+            <div class="vcard-stock">Stock: {{ v.stock }}</div>
+            <div class="vcard-imgs">
+              {% for img in v.images.all %}
+                {% if img.image %}
+                  <img src="{{ img.image.url }}" alt="">
+                {% endif %}
+              {% empty %}
+                <div class="vcard-noimg">No img</div>
+              {% endfor %}
+            </div>
+          </div>
+        {% empty %}
+          <p style="color:#9ca3af;font-size:13px;">No variants added yet.</p>
+        {% endfor %}
+        </div>
+
+        <!-- Footer — Edit CTA -->
+        <div class="panel-footer">
+          <a href="{% url 'vendor_edit' p.id %}" class="btn-edit-big">&#9998; Edit This Product</a>
+        </div>
+
+      </div>
+    </td>
+  </tr>
+
+  {% empty %}
+  <tr>
+    <td colspan="5" class="vp-empty">
+      <i class="fa fa-box-open"></i><br>No products yet &mdash; start selling!
+    </td>
+  </tr>
+  {% endfor %}
+
+  </tbody>
+</table>
+</div>
+
+<script>
+function toggleDetail(id, btn){
+  var row = document.getElementById('detail-'+id);
+  var prow = document.getElementById('row-'+id);
+  var open = row.style.display === 'table-row';
+  // Close all
+  document.querySelectorAll('.detail-row').forEach(r=>r.style.display='none');
+  document.querySelectorAll('.product-row').forEach(r=>r.classList.remove('open'));
+  document.querySelectorAll('.btn-view-p').forEach(b=>{b.classList.remove('active');b.innerHTML='<i class="fa fa-eye"></i> View';});
+  if(!open){
+    row.style.display='table-row';
+    prow.classList.add('open');
+    btn.classList.add('active');
+    btn.innerHTML='<i class="fa fa-chevron-up"></i> Close';
+  }
+}
+</script>
+
+{% endblock %}

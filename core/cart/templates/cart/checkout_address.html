@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+.addr-wrap{max-width:580px;margin:50px auto;padding:0 20px;}
+.addr-card{background:white;padding:32px;border-radius:12px;box-shadow:0 2px 14px rgba(0,0,0,.09);}
+.addr-title{font-size:20px;font-weight:800;color:#1a1a1a;margin:0 0 6px;}
+.addr-sub{font-size:13px;color:#888;margin:0 0 24px;}
+.addr-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.addr-field{display:flex;flex-direction:column;gap:5px;}
+.addr-field.full{grid-column:1/-1;}
+.addr-field label{font-size:13px;font-weight:600;color:#444;}
+.addr-input{width:100%;padding:11px 14px;border-radius:7px;border:1.5px solid #e0e0e0;font-size:14px;box-sizing:border-box;transition:border .2s;}
+.addr-input:focus{outline:none;border-color:#2563eb;background:#f8faff;}
+.addr-input.error-border{border-color:#e53e3e;}
+.addr-btn{width:100%;margin-top:22px;padding:14px;background:#fb641b;color:white;font-size:16px;font-weight:700;border:none;border-radius:7px;cursor:pointer;transition:.2s;}
+.addr-btn:hover{background:#e85c0d;}
+.addr-steps{display:flex;align-items:center;gap:0;margin-bottom:26px;}
+.step{flex:1;text-align:center;font-size:12px;font-weight:700;padding:8px 4px;border-bottom:3px solid #e0e0e0;color:#aaa;}
+.step.active{border-color:#2563eb;color:#2563eb;}
+.step.done{border-color:#22c55e;color:#22c55e;}
+</style>
+
+<div class="addr-wrap">
+  <!-- step indicator -->
+  <div class="addr-steps">
+    <div class="step active">1. ADDRESS</div>
+    <div class="step">2. REVIEW & PAY</div>
+  </div>
+
+  <div class="addr-card">
+    <div class="addr-title">Delivery Address</div>
+    <div class="addr-sub">Where should we deliver your order?</div>
+
+    {% if messages %}
+      {% for msg in messages %}
+        <div style="background:#fee2e2;color:#b91c1c;padding:10px 14px;border-radius:6px;margin-bottom:16px;font-size:13px;">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="POST">
+      {% csrf_token %}
+      <div class="addr-grid">
+        <div class="addr-field">
+          <label>Full Name *</label>
+          <input class="addr-input" name="full_name" placeholder="John Doe" required value="{{ request.user.get_full_name }}">
+        </div>
+        <div class="addr-field">
+          <label>Phone Number *</label>
+          <input class="addr-input" name="phone" placeholder="9876543210" required maxlength="10" pattern="[0-9]{10}">
+        </div>
+        <div class="addr-field full">
+          <label>Address (House No, Street, Area) *</label>
+          <textarea class="addr-input" name="address" rows="2" placeholder="123, MG Road, Near City Mall..." required></textarea>
+        </div>
+        <div class="addr-field">
+          <label>City *</label>
+          <input class="addr-input" name="city" placeholder="Ahmedabad" required>
+        </div>
+        <div class="addr-field">
+          <label>State *</label>
+          <input class="addr-input" name="state" placeholder="Gujarat" required>
+        </div>
+        <div class="addr-field">
+          <label>Pincode *</label>
+          <input class="addr-input" name="pincode" placeholder="380051" required maxlength="6" pattern="[0-9]{6}">
+        </div>
+      </div>
+      <button class="addr-btn">Continue to Review &rarr;</button>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,368 @@
+﻿{% extends 'base.html' %}
+{% block content %}
+
+<style>
+/* ===== AMAZON-STYLE CART ===== */
+.cart-wrap{max-width:1140px;margin:24px auto;padding:0 16px;}
+
+/* Header */
+.cart-page-header{background:#fff;padding:14px 22px;border-radius:6px;margin-bottom:18px;
+  box-shadow:0 1px 4px rgba(0,0,0,.08);display:flex;align-items:center;justify-content:space-between;}
+.cart-page-header h2{font-size:1.4rem;font-weight:700;margin:0;color:#0f1111;}
+.cart-page-header span{font-size:.85rem;color:#565959;}
+
+/* Two-column layout */
+.cart-layout{display:grid;grid-template-columns:1fr 310px;gap:22px;align-items:start;}
+
+/* Items panel */
+.cart-panel{background:#fff;border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,.08);overflow:hidden;}
+
+.select-all-bar{display:flex;align-items:center;gap:10px;padding:12px 20px;
+  border-bottom:1px solid #e7e7e7;font-size:.88rem;color:#565959;}
+.select-all-bar input[type=checkbox]{width:17px;height:17px;cursor:pointer;accent-color:#e77600;}
+
+/* Each cart row */
+.cart-item{display:grid;grid-template-columns:28px 140px 1fr;gap:14px;
+  padding:20px 20px;border-bottom:1px solid #f0f0f0;align-items:start;}
+.cart-item:last-child{border-bottom:none;}
+
+.ci-check input[type=checkbox]{width:17px;height:17px;cursor:pointer;accent-color:#e77600;margin-top:2px;}
+
+.ci-img img{width:130px;height:130px;object-fit:contain;border:1px solid #f0f0f0;border-radius:4px;}
+
+.ci-info h4{font-size:.97rem;font-weight:500;color:#0f1111;margin:0 0 3px;line-height:1.4;}
+.ci-seller{font-size:.77rem;color:#565959;margin-bottom:10px;}
+
+/* Price row */
+.ci-price-row{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:4px;}
+.ci-price{font-size:1.28rem;font-weight:700;color:#0f1111;}
+.ci-mrp{font-size:.82rem;color:#878787;text-decoration:line-through;}
+.ci-disc-badge{background:#cc0c39;color:#fff;font-size:.7rem;font-weight:700;
+  padding:2px 6px;border-radius:3px;letter-spacing:.3px;}
+
+.ci-saving-note{font-size:.78rem;color:#007600;font-weight:600;margin-bottom:8px;}
+.ci-stock{font-size:.78rem;color:#007600;font-weight:500;margin-bottom:12px;}
+
+/* Qty + actions */
+.ci-actions{display:flex;align-items:center;flex-wrap:wrap;gap:0;}
+.qty-box{display:flex;align-items:center;border:1px solid #d5d9d9;border-radius:7px;
+  overflow:hidden;background:#f0f2f2;margin-right:18px;}
+.qty-box button{background:#f0f2f2;border:none;padding:7px 13px;font-size:1.05rem;
+  cursor:pointer;color:#0f1111;line-height:1;}
+.qty-box button:hover{background:#d5d9d9;}
+.qty-box .qty-num{padding:7px 12px;min-width:34px;text-align:center;font-weight:700;
+  font-size:.92rem;background:#fff;border-left:1px solid #d5d9d9;border-right:1px solid #d5d9d9;}
+.ci-link{font-size:.8rem;color:#007185;text-decoration:none;padding:0 14px;
+  border-right:1px solid #d5d9d9;}
+.ci-link:last-child{border-right:none;}
+.ci-link:hover{color:#c7511f;text-decoration:underline;}
+
+/* Price Details panel */
+.price-panel{background:#fff;border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,.08);
+  padding:20px;position:sticky;top:80px;}
+
+.savings-banner{background:#f0fff4;border:1px solid #b2dfdb;color:#1b5e20;
+  font-weight:600;font-size:.86rem;padding:10px 14px;border-radius:4px;
+  margin-bottom:14px;display:none;text-align:center;}
+
+.price-panel h3{font-size:.82rem;font-weight:700;color:#565959;text-transform:uppercase;
+  letter-spacing:.6px;margin:0 0 14px;padding-bottom:10px;border-bottom:1px solid #e7e7e7;}
+
+.pp-row{display:flex;justify-content:space-between;font-size:.91rem;color:#0f1111;margin:9px 0;}
+.pp-row.green{color:#007600;font-weight:500;}
+.pp-divider{border:none;border-top:1px solid #e7e7e7;margin:13px 0;}
+.pp-total{display:flex;justify-content:space-between;font-size:1.05rem;font-weight:700;
+  color:#0f1111;margin:0 0 16px;}
+
+.proceed-btn{display:block;width:100%;background:#ffd814;color:#0f1111;border:1px solid #fcd200;
+  border-radius:20px;padding:12px;font-size:.95rem;font-weight:600;text-align:center;
+  cursor:pointer;text-decoration:none;transition:background .15s;}
+.proceed-btn:hover{background:#f7ca00;color:#0f1111;}
+
+.secure-note{text-align:center;font-size:.72rem;color:#565959;margin-top:10px;}
+
+/* Empty cart */
+.empty-cart{text-align:center;padding:60px 20px;background:#fff;border-radius:6px;
+  box-shadow:0 1px 4px rgba(0,0,0,.08);}
+.empty-cart h3{font-size:1.3rem;color:#0f1111;margin-bottom:8px;}
+.empty-cart p{color:#565959;margin-bottom:20px;}
+.shop-now-btn{background:#ffd814;border:1px solid #fcd200;padding:11px 32px;
+  border-radius:20px;font-weight:600;color:#0f1111;text-decoration:none;display:inline-block;}
+
+/* Bottom place order */
+.bottom-place{margin-top:16px;display:flex;justify-content:flex-end;}
+.bottom-place a{max-width:260px;}
+
+@media(max-width:960px){.cart-layout{grid-template-columns:1fr;} .price-panel{position:static;}}
+@media(max-width:580px){
+  .cart-item{grid-template-columns:22px 88px 1fr;gap:10px;padding:14px 12px;}
+  .ci-img img{width:80px;height:80px;}
+  .ci-price{font-size:1.05rem;}
+  .proceed-btn{border-radius:6px;}
+  .cart-page-header h2{font-size:1.1rem;}
+}
+</style>
+
+<div class="cart-wrap">
+
+  <!-- PAGE HEADER -->
+  <div class="cart-page-header">
+    <h2>Shopping Cart</h2>
+    <span id="hdr-count">{% if items %}{{ items|length }} item{{ items|length|pluralize }}{% endif %}</span>
+  </div>
+
+  {% if items %}
+  <div class="cart-layout">
+
+    <!-- ----- LEFT: Items ----- -->
+    <div>
+      <div class="cart-panel">
+
+        <!-- Select All -->
+        <div class="select-all-bar">
+          <input type="checkbox" id="select-all" checked>
+          <label for="select-all" style="cursor:pointer;user-select:none;">Select all items</label>
+        </div>
+
+        {% for item in items %}
+        <div class="cart-item"
+             data-price="{{ item.price }}"
+             data-qty="{{ item.qty }}"
+             data-mrp="{% if item.mrp %}{{ item.mrp }}{% else %}0{% endif %}">
+
+          <!-- Checkbox -->
+          <div class="ci-check">
+            <input type="checkbox" class="select-item" checked>
+          </div>
+
+          <!-- Image -->
+          <div class="ci-img">
+            {% if item.image %}
+              <img src="{{ item.image.image.url }}" alt="{{ item.product.name }}">
+            {% elif item.product.image %}
+              <img src="/media/{{ item.product.image.0 }}" alt="{{ item.product.name }}">
+            {% endif %}
+          </div>
+
+          <!-- Info -->
+          <div class="ci-info">
+            <h4>{{ item.product.name }}</h4>
+            <div class="ci-seller">Sold by: <strong>{{ item.product.vendor.username }}</strong></div>
+
+            <!-- Price row -->
+            <div class="ci-price-row">
+              <span class="ci-price">&#8377;{{ item.price }}</span>
+              {% if item.mrp %}
+                <span class="ci-mrp">M.R.P: &#8377;{{ item.mrp }}</span>
+                <span class="ci-disc-badge">{{ item.discount_pct }}% off</span>
+              {% endif %}
+            </div>
+
+            {% if item.mrp %}
+            <div class="ci-saving-note">You save: &#8377;{{ item.unit_saving }} on this item</div>
+            {% endif %}
+
+            <div class="ci-stock">&#10003; In Stock</div>
+
+            <!-- Quantity + Actions -->
+            <div class="ci-actions">
+              <form method="post" action="/cart/update/" class="qty-form" style="display:inline-flex;align-items:center;">
+                {% csrf_token %}
+                <input type="hidden" name="variant_id" value="{{ item.variant.id }}">
+                <div class="qty-box">
+                  <button type="submit" name="action" value="decrease">&minus;</button>
+                  <span class="qty-num">{{ item.qty }}</span>
+                  <button type="submit" name="action" value="increase">+</button>
+                </div>
+              </form>
+              <a href="#" class="ci-link">Save for later</a>
+              <a href="/cart/remove/{{ item.variant.id }}/" class="ci-link">Delete</a>
+            </div>
+          </div>
+
+        </div>
+        {% endfor %}
+
+      </div><!-- cart-panel -->
+
+      <div class="bottom-place">
+        <a href="{% url 'checkout_address' %}" class="proceed-btn" id="place-btn-bottom">
+          Proceed to Buy
+        </a>
+      </div>
+    </div><!-- LEFT -->
+
+    <!-- ----- RIGHT: Price Details ----- -->
+    <div>
+      <div class="price-panel">
+
+        <!-- Savings banner -->
+        <div class="savings-banner" id="save-box">
+          You will save &#8377;<span id="savings-amount">0</span> on this order!
+        </div>
+
+        <h3>Price Details</h3>
+
+        <div class="pp-row">
+          <span>Subtotal (<span id="pp-count">{{ items|length }}</span> item{{ items|length|pluralize }})</span>
+          <span>&#8377;<span id="pp-subtotal">0</span></span>
+        </div>
+
+        <div class="pp-row green" id="pp-discount-row" style="display:none;">
+          <span>Discount</span>
+          <span>&minus; &#8377;<span id="pp-discount">0</span></span>
+        </div>
+
+        <div class="pp-row">
+          <span>Platform Fee (5%)</span>
+          <span>&#8377;<span id="pp-platform">0</span></span>
+        </div>
+
+        <div class="pp-row">
+          <span>GST on Platform Fee (18%)</span>
+          <span>&#8377;<span id="pp-gst">0</span></span>
+        </div>
+
+        <div class="pp-row">
+          <span>Delivery Charges</span>
+          <span id="pp-delivery" style="color:#007600;">&#8377;40</span>
+        </div>
+
+        <hr class="pp-divider">
+
+        <div class="pp-total">
+          <span>Total Amount</span>
+          <span id="pp-total">&#8377;0</span>
+        </div>
+
+        <a href="{% url 'checkout_address' %}" class="proceed-btn" id="place-btn">
+          Proceed to Buy (<span id="pp-btn-count">{{ items|length }}</span> item{{ items|length|pluralize }})
+        </a>
+
+        <p class="secure-note">Safe &amp; Secure Payments &middot; Easy Returns</p>
+      </div>
+    </div><!-- RIGHT -->
+
+  </div><!-- cart-layout -->
+
+  {% else %}
+
+  <div class="empty-cart">
+    <h3>Your cart is empty!</h3>
+    <p>Add items to start shopping.</p>
+    <a href="/" class="shop-now-btn">Shop Now</a>
+  </div>
+
+  {% endif %}
+
+</div><!-- cart-wrap -->
+
+<script>
+function recalculate() {
+  let subtotal = 0, mrpTotal = 0, checked = 0;
+
+  document.querySelectorAll(".cart-item").forEach(row => {
+    const cb = row.querySelector(".select-item");
+    if (!cb || !cb.checked) return;
+    const price = parseFloat(row.dataset.price) || 0;
+    const qty   = parseInt(row.dataset.qty)     || 1;
+    const mrp   = parseFloat(row.dataset.mrp)   || price;
+    subtotal += price * qty;
+    mrpTotal += mrp   * qty;
+    checked++;
+  });
+
+  const discount  = mrpTotal - subtotal;
+  const platformFee = parseFloat((subtotal * 0.05).toFixed(2));
+  const gstOnPlatform = parseFloat((platformFee * 0.18).toFixed(2));
+  const delivery  = subtotal > 0 ? 40 : 0;
+  const total     = subtotal + platformFee + gstOnPlatform + delivery;
+
+  /* Subtotal (matches checkout page logic) */
+  document.getElementById("pp-subtotal").innerText = subtotal.toFixed(2);
+
+  /* Discount row */
+  const discRow = document.getElementById("pp-discount-row");
+  if (discount > 0) {
+    document.getElementById("pp-discount").innerText = discount.toFixed(2);
+    discRow.style.display = "";
+  } else {
+    discRow.style.display = "none";
+  }
+
+  /* Platform fee + GST */
+  const pfEl = document.getElementById("pp-platform");
+  if (pfEl) pfEl.innerText = platformFee.toFixed(2);
+  const gstEl = document.getElementById("pp-gst");
+  if (gstEl) gstEl.innerText = gstOnPlatform.toFixed(2);
+
+  /* Delivery */
+  const delEl = document.getElementById("pp-delivery");
+  delEl.innerHTML = delivery > 0 ? "&#8377;" + delivery : "FREE";
+  delEl.style.color = delivery === 0 ? "#007600" : "#0f1111";
+
+  /* Total */
+  document.getElementById("pp-total").innerHTML = "&#8377;" + total.toFixed(2);
+
+  /* Savings banner */
+  const saveBox = document.getElementById("save-box");
+  if (discount > 0) {
+    document.getElementById("savings-amount").innerText = discount.toFixed(2);
+    saveBox.style.display = "";
+  } else {
+    saveBox.style.display = "none";
+  }
+
+  /* Item counts */
+  const plural = checked !== 1 ? "s" : "";
+  document.getElementById("pp-count").innerText       = checked;
+  const btnCount = document.getElementById("pp-btn-count");
+  if (btnCount) btnCount.innerText = checked;
+  const hdr = document.getElementById("hdr-count");
+  if (hdr) hdr.innerText = checked + " item" + plural;
+}
+
+/* Select All */
+const selectAll = document.getElementById("select-all");
+selectAll && selectAll.addEventListener("change", function() {
+  document.querySelectorAll(".select-item").forEach(cb => cb.checked = this.checked);
+  recalculate();
+});
+
+/* Individual checkboxes sync back to select-all */
+document.querySelectorAll(".select-item").forEach(cb => {
+  cb.addEventListener("change", function() {
+    const all = document.querySelectorAll(".select-item");
+    if (selectAll) selectAll.checked = [...all].every(c => c.checked);
+    recalculate();
+  });
+});
+
+/* Qty buttons - re-read qty after form updates DOM */
+document.querySelectorAll(".qty-box button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    setTimeout(() => {
+      document.querySelectorAll(".cart-item").forEach(row => {
+        const el = row.querySelector(".qty-num");
+        if (el) row.dataset.qty = el.innerText;
+      });
+      recalculate();
+    }, 350);
+  });
+});
+
+/* Block checkout if nothing selected */
+["place-btn", "place-btn-bottom"].forEach(id => {
+  const el = document.getElementById(id);
+  el && el.addEventListener("click", function(e) {
+    if (!document.querySelectorAll(".select-item:checked").length) {
+      alert("Please select at least one item to proceed.");
+      e.preventDefault();
+    }
+  });
+});
+
+recalculate();
+</script>
+
+{% endblock %}

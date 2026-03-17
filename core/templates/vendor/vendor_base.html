@@ -1,0 +1,834 @@
+﻿{% load static %}
+{% load vendor_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vendor Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --sb:64px;
+  --navy:#16213e;
+  --navy2:#0f3460;
+  --accent:#2563eb;
+  --green:#22c55e;
+  --bg:#f4f6fb;
+  --white:#ffffff;
+  --border:#e8edf2;
+  --text:#1a2332;
+  --muted:#8898aa;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;overflow-x:hidden;}
+
+/* ═══════════════ ICON SIDEBAR ═══════════════ */
+.vp-sidebar{
+  width:var(--sb);
+  min-height:100vh;
+  background:var(--navy);
+  display:flex;flex-direction:column;align-items:center;
+  position:fixed;top:0;left:0;z-index:300;
+  padding:0 0 16px;
+  border-right:1px solid rgba(255,255,255,.04);
+}
+.vp-logo{
+  width:var(--sb);height:64px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--navy2);
+  flex-shrink:0;
+  margin-bottom:8px;
+}
+.vp-logo svg{width:26px;height:26px;fill:none;stroke:white;stroke-width:2.2;}
+
+.vp-nav{display:flex;flex-direction:column;align-items:center;gap:2px;flex:1;padding:4px 0;width:100%;}
+
+.vp-item{
+  position:relative;
+  width:100%;display:flex;align-items:center;justify-content:center;
+  height:52px;text-decoration:none;color:rgba(255,255,255,.4);
+  font-size:18px;transition:.2s;
+  border-left:3px solid transparent;
+}
+.vp-item:hover{color:rgba(255,255,255,.85);background:rgba(255,255,255,.06);}
+.vp-item.active{
+  color:white;background:rgba(37,99,235,.25);
+  border-left-color:var(--accent);
+}
+/* tooltip */
+.vp-item::after{
+  content:attr(data-tip);
+  position:absolute;left:calc(var(--sb) + 8px);top:50%;transform:translateY(-50%);
+  background:#1e293b;color:white;
+  font-size:12px;font-family:'Inter',sans-serif;font-weight:500;
+  padding:5px 10px;border-radius:6px;white-space:nowrap;
+  pointer-events:none;opacity:0;transition:opacity .15s;
+  box-shadow:0 4px 12px rgba(0,0,0,.3);z-index:999;
+}
+.vp-item:hover::after{opacity:1;}
+
+.vp-divider{width:32px;height:1px;background:rgba(255,255,255,.08);margin:8px 0;}
+
+.vp-bottom{margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;}
+
+/* ═══════════════ MAIN SHELL ═══════════════ */
+.vp-main{
+  margin-left:var(--sb);
+  flex:1;display:flex;flex-direction:column;min-height:100vh;
+  background:var(--bg);
+}
+
+/* Top bar */
+.vp-topbar{
+  height:64px;background:var(--white);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 28px;
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 1px 4px rgba(0,0,0,.04);
+}
+.vp-topbar-title{
+  font-size:20px;font-weight:700;color:var(--text);
+  display:flex;align-items:center;gap:10px;
+}
+.vp-topbar-title .pg-icon{
+  width:34px;height:34px;border-radius:9px;
+  background:#eff6ff;display:flex;align-items:center;justify-content:center;
+  color:var(--accent);font-size:15px;
+}
+.vp-topbar-right{display:flex;align-items:center;gap:12px;}
+
+/* Search bar */
+.vp-search{
+  position:relative;display:flex;align-items:center;
+}
+.vp-search input{
+  width:240px;padding:8px 12px 8px 36px;
+  border:1.5px solid var(--border);border-radius:8px;
+  font-family:'Inter',sans-serif;font-size:13px;color:var(--text);
+  background:#f8fafc;outline:none;transition:.2s;
+}
+.vp-search input:focus{border-color:var(--accent);background:white;box-shadow:0 0 0 3px rgba(37,99,235,.1);}
+.vp-search input::placeholder{color:var(--muted);}
+.vp-search i{position:absolute;left:11px;color:var(--muted);font-size:13px;}
+
+.vp-btn{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:8px 16px;border-radius:8px;
+  font-family:'Inter',sans-serif;font-size:13px;font-weight:600;
+  cursor:pointer;border:none;transition:.2s;text-decoration:none;
+}
+.vp-btn-outline{background:white;border:1.5px solid var(--border);color:var(--text);}
+.vp-btn-outline:hover{border-color:#adb5c8;background:#f8fafc;}
+.vp-btn-primary{background:var(--accent);color:white;}
+.vp-btn-primary:hover{background:#1d4ed8;transform:translateY(-1px);}
+.vp-btn-danger{background:#ef4444;color:white;}
+.vp-btn-danger:hover{background:#dc2626;}
+
+/* User chip */
+.vp-user-chip{
+  display:flex;align-items:center;gap:8px;
+  padding:5px 12px 5px 5px;
+  border:1.5px solid var(--border);border-radius:24px;
+  background:white;cursor:pointer;
+}
+.vp-user-av{
+  width:30px;height:30px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--green));
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;color:white;
+}
+.vp-user-name{font-size:12.5px;font-weight:600;color:var(--text);}
+
+/* Page content */
+.vp-content{flex:1;padding:28px;}
+
+/* ═══════════════ COMMON TABLE CARD ═══════════════ */
+.vp-card{background:var(--white);border-radius:14px;border:1px solid var(--border);overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.04);}
+.vp-card-header{
+  padding:18px 24px;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--border);
+}
+.vp-card-header h3{font-size:15px;font-weight:700;color:var(--text);}
+.vp-card-subtext{font-size:12px;color:var(--muted);margin-top:1px;}
+
+/* Table */
+.vp-table{width:100%;border-collapse:collapse;}
+.vp-table thead tr{background:#f8fafc;}
+.vp-table th{
+  padding:11px 16px;font-size:11.5px;font-weight:600;
+  color:var(--muted);text-transform:uppercase;letter-spacing:.06em;
+  text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;
+}
+.vp-table td{
+  padding:13px 16px;font-size:13.5px;color:var(--text);
+  border-bottom:1px solid #f1f5f9;vertical-align:middle;
+}
+.vp-table tbody tr{transition:.15s;}
+.vp-table tbody tr:last-child td{border-bottom:none;}
+.vp-table tbody tr:hover{background:#f8fafc;}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600;}
+.badge::before{content:"";width:6px;height:6px;border-radius:50%;}
+.badge-green{background:#dcfce7;color:#16a34a;}.badge-green::before{background:#16a34a;}
+.badge-yellow{background:#fef3c7;color:#d97706;}.badge-yellow::before{background:#d97706;}
+.badge-blue{background:#dbeafe;color:#1d4ed8;}.badge-blue::before{background:#1d4ed8;}
+.badge-red{background:#fee2e2;color:#dc2626;}.badge-red::before{background:#dc2626;}
+.badge-purple{background:#ede9fe;color:#7c3aed;}.badge-purple::before{background:#7c3aed;}
+.badge-gray{background:#f1f5f9;color:#475569;}.badge-gray::before{background:#94a3b8;}
+
+/* Avatar cell */
+.row-avatar{width:34px;height:34px;border-radius:50%;
+  background:linear-gradient(135deg,#e0e7ff,#bfdbfe);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;color:var(--accent);flex-shrink:0;}
+
+/* Stat cards */
+.vp-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px;}
+.vp-stat{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:20px 22px;
+  display:flex;align-items:center;gap:16px;box-shadow:0 1px 6px rgba(0,0,0,.04);transition:.2s;}
+.vp-stat:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(0,0,0,.08);}
+.vp-stat-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+.vp-stat-icon.c1{background:#eff6ff;color:#2563eb;}
+.vp-stat-icon.c2{background:#f0fdf4;color:#16a34a;}
+.vp-stat-icon.c3{background:#fefce8;color:#ca8a04;}
+.vp-stat-icon.c4{background:#faf5ff;color:#7c3aed;}
+.vp-stat-val{font-size:24px;font-weight:800;color:var(--text);line-height:1;}
+.vp-stat-label{font-size:12px;color:var(--muted);margin-top:3px;}
+
+/* Three-dot menu */
+.row-menu{background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;padding:4px 6px;border-radius:6px;transition:.15s;}
+.row-menu:hover{background:#f1f5f9;color:var(--text);}
+
+/* Empty state */
+.vp-empty{text-align:center;padding:60px 20px;color:var(--muted);}
+.vp-empty i{font-size:36px;margin-bottom:12px;display:block;opacity:.3;}
+.vp-empty p{font-size:14px;}
+
+/* Responsive */
+@media(max-width:980px){
+  .vp-search input{width:170px;}
+  .vp-content{padding:18px;}
+  .vp-topbar{padding:0 16px;}
+  .vp-topbar-title{font-size:16px;}
+}
+@media(max-width:768px){
+  body{display:block;padding-bottom:66px;}
+  .vp-main{margin-left:0;min-height:auto;}
+  .vp-topbar{height:58px;padding:0 12px;}
+  .vp-topbar-title .pg-icon{width:30px;height:30px;font-size:13px;}
+  .vp-search{display:none;}
+  .vp-user-name{display:none;}
+  .vp-user-chip{padding:4px;border-radius:999px;}
+  .vp-user-av{width:28px;height:28px;}
+
+  .vp-sidebar{
+    width:100%;
+    min-height:64px;
+    height:64px;
+    position:fixed;
+    left:0;
+    top:auto;
+    bottom:0;
+    z-index:700;
+    border-right:none;
+    border-top:1px solid rgba(255,255,255,.08);
+    flex-direction:row;
+    align-items:stretch;
+    padding:0;
+  }
+  .vp-logo{display:none;}
+  .vp-nav{
+    flex-direction:row;
+    width:calc(100% - 62px);
+    gap:0;
+    overflow-x:auto;
+    overflow-y:hidden;
+    padding:0;
+  }
+  .vp-nav::-webkit-scrollbar{display:none;}
+  .vp-item{
+    min-width:62px;
+    width:62px;
+    height:64px;
+    border-left:none;
+    border-top:3px solid transparent;
+    flex-shrink:0;
+  }
+  .vp-item.active{border-left:none;border-top-color:var(--accent);}
+  .vp-item::after{display:none;}
+  .vp-divider{display:none;}
+  .vp-bottom{margin-top:0;display:flex;flex-direction:row;width:62px;flex:0 0 62px;}
+  .vp-bottom .vp-item{width:62px;min-width:62px;}
+
+  .vp-content{padding:14px;}
+  .vp-card{overflow-x:auto;}
+}
+@media(max-width:640px){
+  .vp-table th:nth-child(n+4),.vp-table td:nth-child(n+4){display:none;}
+  .vp-stats{grid-template-columns:1fr 1fr;}
+  .vp-content{padding:12px;}
+}
+@media(max-width:400px){
+  .vp-stats{grid-template-columns:1fr;}
+  .vp-content{padding:10px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ ICON SIDEBAR ═══════════════ -->
+<aside class="vp-sidebar">
+  <div class="vp-logo">
+    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+  </div>
+
+  <nav class="vp-nav">
+    <a href="/vendor/dashboard/" class="vp-item {% if request.path == '/vendor/dashboard/' %}active{% endif %}" data-tip="Dashboard">
+      <i class="fa fa-chart-pie"></i>
+    </a>
+    <a href="/vendor/products/" class="vp-item {% if '/vendor/products' in request.path or '/vendor/add' in request.path or '/vendor/edit' in request.path %}active{% endif %}" data-tip="Products">
+      <i class="fa fa-box-open"></i>
+    </a>
+    <a href="/vendor/orders/" class="vp-item {% if '/vendor/orders' in request.path %}active{% endif %}" data-tip="Orders">
+      <i class="fa fa-receipt"></i>
+    </a>
+    {% vendor_unread_sale_notifs request.user as sale_notif_count %}
+    <a href="/vendor/sales/" class="vp-item {% if '/vendor/sales' in request.path %}active{% endif %}" data-tip="Sales" style="position:relative;">
+      <i class="fa fa-tags"></i>
+      {% if sale_notif_count %}<span style="position:absolute;top:10px;right:10px;width:8px;height:8px;border-radius:50%;background:#ef4444;border:1.5px solid var(--navy);"></span>{% endif %}
+    </a>
+    <a href="/vendor/analytics/" class="vp-item {% if '/vendor/analytics' in request.path %}active{% endif %}" data-tip="Analytics">
+      <i class="fa fa-chart-line"></i>
+    </a>
+    <a href="/vendor/reviews/" class="vp-item {% if '/vendor/reviews' in request.path %}active{% endif %}" data-tip="Reviews">
+      <i class="fa fa-star"></i>
+    </a>
+
+    <div class="vp-divider"></div>
+
+    <a href="/vendor/profile/" class="vp-item {% if '/vendor/profile' in request.path %}active{% endif %}" data-tip="Profile">
+      <i class="fa fa-user-circle"></i>
+    </a>
+    <a href="/vendor/inbox/" class="vp-item {% if '/vendor/inbox' in request.path %}active{% endif %}" data-tip="Messages">
+      <i class="fa fa-comment-dots"></i>
+    </a>
+  </nav>
+
+  <div class="vp-bottom">
+    <div class="vp-divider"></div>
+    <a href="/accounts/logout/" class="vp-item" data-tip="Logout" style="color:#f87171;">
+      <i class="fa fa-right-from-bracket"></i>
+    </a>
+  </div>
+</aside>
+
+<!-- ═══════════════ MAIN ═══════════════ -->
+<div class="vp-main">
+
+  <!-- Top bar -->
+  <header class="vp-topbar">
+    <div class="vp-topbar-title">
+      {% if request.path == '/vendor/dashboard/' %}
+        <div class="pg-icon"><i class="fa fa-chart-pie"></i></div> Dashboard
+      {% elif '/vendor/products' in request.path or '/vendor/add' in request.path or '/vendor/edit' in request.path %}
+        <div class="pg-icon"><i class="fa fa-box-open"></i></div> Products
+      {% elif '/vendor/orders' in request.path %}
+        <div class="pg-icon"><i class="fa fa-receipt"></i></div> Orders
+      {% elif '/vendor/analytics' in request.path %}
+        <div class="pg-icon"><i class="fa fa-chart-line"></i></div> Analytics
+      {% elif '/vendor/profile' in request.path %}
+        <div class="pg-icon"><i class="fa fa-user-circle"></i></div> Profile
+      {% elif '/vendor/inbox' in request.path %}
+        <div class="pg-icon"><i class="fa fa-comment-dots"></i></div> Messages
+      {% elif '/vendor/sales' in request.path %}
+        <div class="pg-icon"><i class="fa fa-tags"></i></div> Sales
+      {% elif '/vendor/reviews' in request.path %}
+        <div class="pg-icon"><i class="fa fa-star"></i></div> Reviews
+      {% else %}
+        <div class="pg-icon"><i class="fa fa-store"></i></div> Vendor Panel
+      {% endif %}
+    </div>
+    <div class="vp-topbar-right">
+      <div class="vp-search">
+        <i class="fa fa-magnifying-glass"></i>
+        <input type="text" id="vp-search-input" placeholder="Search by...">
+      </div>
+      <div class="vp-user-chip">
+        <div class="vp-user-av">{{ request.user.username|first|upper }}</div>
+        <div class="vp-user-name">{{ request.user.username }}</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Content -->
+  <main class="vp-content">
+    {% block vendor_content %}{% endblock %}
+  </main>
+
+</div>
+
+<script>
+/* Live search — filters any visible table rows */
+(function(){
+  var inp = document.getElementById('vp-search-input');
+  if(!inp) return;
+  inp.addEventListener('input', function(){
+    var q = this.value.toLowerCase();
+    document.querySelectorAll('.vp-table tbody tr:not(.vp-detail-row)').forEach(function(tr){
+      tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+  });
+})();
+</script>
+
+<!-- ================= VENDOR CHATBOT ================= -->
+<style>
+#chatbot-fab{
+  position:fixed;
+  bottom:28px;
+  right:28px;
+  width:58px;
+  height:58px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#2563eb,#1d4ed8);
+  box-shadow:0 8px 24px rgba(37,99,235,.45);
+  border:none;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+  transition:transform .25s ease,box-shadow .25s ease;
+}
+#chatbot-fab:hover{
+  transform:translateY(-4px) scale(1.06);
+  box-shadow:0 14px 32px rgba(37,99,235,.55);
+}
+#chatbot-fab svg{width:26px;height:26px;stroke:white;fill:none;stroke-width:2;}
+
+#chatbot-fab .fab-dot{
+  position:absolute;
+  top:6px;right:6px;
+  width:11px;height:11px;
+  background:#ef4444;
+  border-radius:50%;
+  border:2px solid white;
+  animation:dotPulse 2s infinite;
+}
+@keyframes dotPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.3);}}
+
+#chatbot-window{
+  position:fixed;
+  bottom:100px;
+  right:28px;
+  width:360px;
+  max-width:calc(100vw - 40px);
+  background:white;
+  border-radius:20px;
+  box-shadow:0 20px 60px rgba(0,0,0,.18);
+  display:none;
+  flex-direction:column;
+  overflow:hidden;
+  z-index:9998;
+  animation:slideUp .3s ease;
+}
+@keyframes slideUp{
+  from{opacity:0;transform:translateY(20px);}
+  to{opacity:1;transform:translateY(0);}
+}
+#chatbot-window.open{display:flex;}
+
+.cb-header{
+  background:linear-gradient(135deg,#2563eb,#1d4ed8);
+  color:white;
+  padding:16px 18px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.cb-avatar{
+  width:38px;height:38px;
+  background:rgba(255,255,255,.2);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.cb-avatar svg{width:20px;height:20px;stroke:white;fill:none;stroke-width:2;}
+.cb-title{flex:1;}
+.cb-title strong{display:block;font-size:14px;font-weight:700;}
+.cb-title span{font-size:11px;opacity:.85;}
+.cb-close{
+  background:none;border:none;color:white;cursor:pointer;
+  font-size:20px;line-height:1;opacity:.8;
+  padding:0;
+}
+.cb-close:hover{opacity:1;}
+
+.cb-messages{
+  flex:1;
+  padding:16px;
+  overflow-y:auto;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  min-height:280px;
+  max-height:340px;
+  background:#f8fafc;
+}
+.cb-messages::-webkit-scrollbar{width:4px;}
+.cb-messages::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:4px;}
+
+.cb-msg{
+  display:flex;
+  gap:8px;
+  align-items:flex-end;
+  max-width:88%;
+}
+.cb-msg.bot{align-self:flex-start;}
+.cb-msg.user{align-self:flex-end;flex-direction:row-reverse;}
+
+.cb-msg-avatar{
+  width:28px;height:28px;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  font-size:12px;font-weight:700;
+}
+.cb-msg.bot .cb-msg-avatar{background:#dbeafe;color:#1d4ed8;}
+.cb-msg.user .cb-msg-avatar{background:#dcfce7;color:#16a34a;}
+
+.cb-bubble{
+  padding:10px 14px;
+  border-radius:16px;
+  font-size:13px;
+  line-height:1.55;
+  color:#1e293b;
+  word-break:break-word;
+  overflow-wrap:break-word;
+}
+.cb-msg.bot .cb-bubble{
+  background:white;
+  border:1px solid #e2e8f0;
+  border-radius:4px 16px 16px 16px;
+  box-shadow:0 2px 6px rgba(0,0,0,.05);
+}
+.cb-msg.user .cb-bubble{
+  background:linear-gradient(135deg,#2563eb,#1d4ed8);
+  color:white;
+  border-radius:16px 4px 16px 16px;
+}
+
+.cb-typing .cb-bubble{
+  display:flex;gap:4px;align-items:center;padding:12px 16px;
+}
+.cb-typing .dot{
+  width:7px;height:7px;
+  background:#94a3b8;border-radius:50%;
+  animation:typingDot 1.2s infinite;
+}
+.cb-typing .dot:nth-child(2){animation-delay:.2s;}
+.cb-typing .dot:nth-child(3){animation-delay:.4s;}
+@keyframes typingDot{
+  0%,60%,100%{transform:translateY(0);}
+  30%{transform:translateY(-5px);}
+}
+
+.cb-quick{
+  padding:8px 16px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  background:#f8fafc;
+  border-top:1px solid #f1f5f9;
+}
+.cb-quick-btn{
+  background:white;
+  border:1px solid #2563eb;
+  color:#2563eb;
+  padding:5px 12px;
+  border-radius:20px;
+  font-size:12px;
+  cursor:pointer;
+  transition:.2s;
+}
+.cb-quick-btn:hover{background:#2563eb;color:white;}
+
+.cb-input-row{
+  display:flex;
+  gap:8px;
+  padding:12px 14px;
+  border-top:1px solid #e2e8f0;
+  background:white;
+}
+.cb-input-row input{
+  flex:1;
+  border:1.5px solid #e2e8f0;
+  border-radius:20px;
+  padding:9px 16px;
+  font-size:13px;
+  outline:none;
+  font-family:inherit;
+  transition:border-color .2s;
+}
+.cb-input-row input:focus{border-color:#2563eb;}
+.cb-send{
+  width:38px;height:38px;
+  background:#2563eb;
+  border:none;border-radius:50%;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:.2s;flex-shrink:0;
+}
+.cb-send:hover{background:#1d4ed8;transform:scale(1.08);}
+.cb-send svg{width:16px;height:16px;stroke:white;fill:none;stroke-width:2;}
+
+@media(max-width:768px){
+  #chatbot-fab{bottom:80px;right:14px;width:50px;height:50px;}
+  #chatbot-fab svg{width:22px;height:22px;}
+  #chatbot-window{
+    bottom:138px;
+    right:8px;
+    width:calc(100vw - 16px);
+    max-width:none;
+    border-radius:16px;
+  }
+}
+</style>
+
+<!-- FAB -->
+<button id="chatbot-fab" onclick="toggleChatbot()" title="Vendor Help">
+  <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  <span class="fab-dot"></span>
+</button>
+
+<!-- CHAT WINDOW -->
+<div id="chatbot-window">
+  <!-- Header -->
+  <div class="cb-header">
+    <div class="cb-avatar">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c2-4 14-4 16 0"/></svg>
+    </div>
+    <div class="cb-title">
+      <strong>Vendor Assistant</strong>
+      <span>🟢 Online — Here to help vendors!</span>
+    </div>
+    <button class="cb-close" onclick="toggleChatbot()">✕</button>
+  </div>
+
+  <!-- Messages -->
+  <div class="cb-messages" id="cb-messages"></div>
+
+  <!-- Quick replies -->
+  <div class="cb-quick" id="cb-quick">
+    <button class="cb-quick-btn" onclick="sendQuick('How to add a product')">➕ Add Product</button>
+    <button class="cb-quick-btn" onclick="sendQuick('How to manage orders')">📦 Orders</button>
+    <button class="cb-quick-btn" onclick="sendQuick('How to get paid')">💰 Payments</button>
+    <button class="cb-quick-btn" onclick="sendQuick('How to handle returns')">↩ Returns</button>
+    <button class="cb-quick-btn" onclick="sendQuick('Vendor approval status')">✅ Approval</button>
+    <button class="cb-quick-btn" onclick="sendQuick('Contact admin support')">📞 Support</button>
+  </div>
+
+  <!-- Input -->
+  <div class="cb-input-row">
+    <input id="cb-input" type="text" placeholder="Ask a vendor question…" onkeydown="if(event.key==='Enter') sendMessage()">
+    <button class="cb-send" onclick="sendMessage()">
+      <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+(function(){
+
+  /* ===== VENDOR KNOWLEDGE BASE ===== */
+  const KB = [
+    {
+      keys: ['add product','list product','create product','new product','upload product','how to list'],
+      answer: '➕ <strong>Adding a Product</strong><br>Go to <a href="/vendor/products/" style="color:#2563eb;">Products</a> → click <em>Add Product</em>. Fill in the product name, description, price, category, and upload images. You can also add variants (size, colour) after saving the product.'
+    },
+    {
+      keys: ['edit product','update product','change product','modify product'],
+      answer: '✏️ <strong>Editing a Product</strong><br>Go to <a href="/vendor/products/" style="color:#2563eb;">Products</a>, find the item and click <em>Edit</em>. Update the details and save. Changes go live immediately.'
+    },
+    {
+      keys: ['delete product','remove product'],
+      answer: '🗑️ <strong>Deleting a Product</strong><br>Go to <a href="/vendor/products/" style="color:#2563eb;">Products</a>, find the item and click <em>Delete</em>. This action is permanent, so make sure you no longer need the listing.'
+    },
+    {
+      keys: ['variant','size','colour','color','stock','inventory','quantity'],
+      answer: '🎨 <strong>Variants & Inventory</strong><br>After adding a product, open it and use the <em>Add Variant</em> option to create size or colour variations. Set stock quantity for each variant individually to manage inventory accurately.'
+    },
+    {
+      keys: ['order','manage order','new order','pending order','order status','accepted','shipped','delivered'],
+      answer: '📦 <strong>Managing Orders</strong><br>Go to <a href="/vendor/orders/" style="color:#2563eb;">Orders</a> to see all incoming orders. You can accept or update order status from there. Keep customers informed by updating statuses promptly.'
+    },
+    {
+      keys: ['ship','shipping','dispatch','courier','delivery','mark shipped'],
+      answer: '🚚 <strong>Shipping Orders</strong><br>Once you accept an order, pack the item and dispatch it with a courier. Update the order status to <em>Shipped</em> in your <a href="/vendor/orders/" style="color:#2563eb;">Orders</a> panel so customers are notified.'
+    },
+    {
+      keys: ['payment','paid','payout','earnings','commission','revenue','money','withdraw','balance'],
+      answer: '💰 <strong>Payments & Payouts</strong><br>Payments from customers are collected by the platform. Your earnings (minus platform commission) are transferred to your registered bank account periodically. For payout queries, contact admin via the <a href="/vendor/inbox/" style="color:#2563eb;">Messages</a> panel.'
+    },
+    {
+      keys: ['return','refund','cancel','cancellation','return request','dispute'],
+      answer: '↩ <strong>Returns & Refunds</strong><br>If a customer requests a return, you will be notified via <a href="/vendor/inbox/" style="color:#2563eb;">Messages</a>. Cooperate with the admin to resolve the dispute. Refunds are processed through the platform after admin approval.'
+    },
+    {
+      keys: ['approval','approved','pending approval','account status','vendor status','activate','rejected'],
+      answer: '✅ <strong>Vendor Approval</strong><br>New vendor accounts are reviewed by the admin before activation. If your account is still pending, please wait or send a message via <a href="/vendor/inbox/" style="color:#2563eb;">Messages</a>. Once approved, you can start listing products immediately.'
+    },
+    {
+      keys: ['profile','update profile','store name','business','contact details','phone','address'],
+      answer: '👤 <strong>Vendor Profile</strong><br>Go to <a href="/vendor/profile/" style="color:#2563eb;">Profile</a> to update your store name, contact details, and business address. Keeping your profile complete builds buyer trust.'
+    },
+    {
+      keys: ['image','photo','picture','banner','upload image','product image'],
+      answer: '🖼️ <strong>Product Images</strong><br>High-quality images improve sales. Upload at least 2–3 clear photos from different angles. Supported formats: JPG, PNG, AVIF. Maximum file size is 5 MB per image.'
+    },
+    {
+      keys: ['category','subcategory','product category'],
+      answer: '📂 <strong>Product Category</strong><br>Select the most relevant category when listing a product. Correct categorisation helps buyers find your items faster through search and browse filters.'
+    },
+    {
+      keys: ['dashboard','analytics','sales','performance','stats','revenue report'],
+      answer: '📊 <strong>Dashboard & Analytics</strong><br>Your <a href="/vendor/dashboard/" style="color:#2563eb;">Dashboard</a> shows total sales, pending orders, and product count at a glance. Use this data to plan restocking and promotions.'
+    },
+    {
+      keys: ['message','inbox','admin message','contact admin','chat with admin'],
+      answer: '💬 <strong>Messages / Inbox</strong><br>Use the <a href="/vendor/inbox/" style="color:#2563eb;">Messages</a> section to communicate directly with the admin team for any account, payment, or policy questions.'
+    },
+    {
+      keys: ['contact','support','help','email','phone','reach'],
+      answer: '📞 <strong>Contact Admin Support</strong><br>For urgent issues, send a message via <a href="/vendor/inbox/" style="color:#2563eb;">Messages</a> in your dashboard.<br>📧 Email: <a href="mailto:support@ecommerce.com" style="color:#2563eb;">support@ecommerce.com</a><br>Response time: within 24 hours (Mon–Sat).'
+    },
+    {
+      keys: ['hello','hi','hey','hii','good morning','good evening','namaste'],
+      answer: '👋 <strong>Hello!</strong> Welcome to the Vendor Help Centre. I can assist you with products, orders, payments, and more. How can I help you today?'
+    },
+    {
+      keys: ['thank','thanks','thank you','great','awesome','helpful'],
+      answer: '😊 You\'re welcome! Is there anything else I can help you with?'
+    },
+    {
+      keys: ['bye','goodbye','see you','ok done','no thanks'],
+      answer: '👋 Goodbye! Best of luck with your store. Feel free to ask anytime! 🏪'
+    },
+  ];
+
+  const DEFAULT = '🤔 I\'m not sure about that yet. Please <a href="/vendor/inbox/" style="color:#2563eb;">message the admin</a> or try rephrasing your question. You can also use the quick buttons below!';
+
+  let opened = false;
+  let greeted = false;
+
+  window._cbToggle = function(){
+    const win = document.getElementById('chatbot-window');
+    const dot = document.querySelector('#chatbot-fab .fab-dot');
+    opened = !opened;
+    if(opened){
+      win.classList.add('open');
+      dot && (dot.style.display='none');
+      if(!greeted){ greet(); greeted=true; }
+      setTimeout(scrollBottom, 50);
+    } else {
+      win.classList.remove('open');
+    }
+  };
+
+  function greet(){
+    addBotMsg('👋 Hi! I\'m your <strong>Vendor Assistant</strong>. I can help you with adding products, managing orders, payments, approvals, and more. What do you need help with?');
+  }
+
+  function getAnswer(text){
+    const lower = text.toLowerCase();
+    for(const entry of KB){
+      if(entry.keys.some(k => lower.includes(k))) return entry.answer;
+    }
+    return DEFAULT;
+  }
+
+  function addBotMsg(html){
+    const box = document.getElementById('cb-messages');
+    const wrap = document.createElement('div');
+    wrap.className = 'cb-msg bot';
+    wrap.innerHTML = '<div class="cb-msg-avatar">🤖</div><div class="cb-bubble">'+html+'</div>';
+    box.appendChild(wrap);
+    scrollBottom();
+  }
+
+  function addUserMsg(text){
+    const box = document.getElementById('cb-messages');
+    const wrap = document.createElement('div');
+    wrap.className = 'cb-msg user';
+    wrap.innerHTML = '<div class="cb-msg-avatar">👤</div><div class="cb-bubble">'+escHtml(text)+'</div>';
+    box.appendChild(wrap);
+    scrollBottom();
+  }
+
+  function showTyping(){
+    const box = document.getElementById('cb-messages');
+    const t = document.createElement('div');
+    t.className = 'cb-msg bot cb-typing';
+    t.id = 'cb-typing';
+    t.innerHTML = '<div class="cb-msg-avatar">🤖</div><div class="cb-bubble"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>';
+    box.appendChild(t);
+    scrollBottom();
+  }
+
+  function removeTyping(){
+    const t = document.getElementById('cb-typing');
+    if(t) t.remove();
+  }
+
+  function scrollBottom(){
+    const box = document.getElementById('cb-messages');
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function escHtml(s){
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  window._cbSendQuick = function(text){
+    processInput(text);
+  };
+
+  window._cbSend = function(){
+    const inp = document.getElementById('cb-input');
+    const text = inp.value.trim();
+    if(!text) return;
+    inp.value = '';
+    processInput(text);
+  };
+
+  function processInput(text){
+    addUserMsg(text);
+    showTyping();
+    setTimeout(function(){
+      removeTyping();
+      addBotMsg(getAnswer(text));
+    }, 700);
+  }
+
+})();
+
+
+/* ── Global handlers called from onclick attributes ── */
+function toggleChatbot(){
+  if(typeof window._cbToggle === 'function') window._cbToggle();
+}
+function sendQuick(text){
+  if(typeof window._cbSendQuick === 'function') window._cbSendQuick(text);
+}
+function sendMessage(){
+  if(typeof window._cbSend === 'function') window._cbSend();
+}
+</script>
+<!-- ================= END VENDOR CHATBOT ================= -->
+
+</body>
+</html>

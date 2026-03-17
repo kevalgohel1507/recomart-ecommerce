@@ -1,0 +1,22 @@
+{% extends "adminpanel/base.html" %}
+{% block content %}
+
+<h3>Add Attribute</h3>
+
+<form method="post">
+{% csrf_token %}
+<input name="name" placeholder="Attribute name" required>
+<button>Add</button>
+</form>
+
+<hr>
+
+<h4>Existing Attributes</h4>
+
+<ul>
+{% for a in attributes %}
+<li>{{ a.name }}</li>
+{% endfor %}
+</ul>
+
+{% endblock %}

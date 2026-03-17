@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="checkout-wrapper">
+    <div class="checkout-card" style="text-align:center">
+
+        <h2 style="color:#22c55e;">&#10003; Order Placed Successfully!</h2>
+
+        <p style="margin:15px 0;">
+            Thank you for shopping with us.
+            Your order has been placed and is being processed.
+        </p>
+
+        <a href="{% url 'order_bill' %}" class="btn-checkout" style="background:#4f46e5;display:inline-block;margin-bottom:12px;">
+            &#128424; See the Bill
+        </a>
+
+        <br>
+
+        <a href="/orders/my-orders/" class="btn-checkout" style="display:inline-block;margin-bottom:12px;">
+            View My Orders
+        </a>
+
+        <br>
+
+        <a href="/" class="icon-btn">
+            Continue Shopping
+        </a>
+
+    </div>
+</div>
+
+{% endblock %}

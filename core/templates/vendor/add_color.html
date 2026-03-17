@@ -1,0 +1,95 @@
+﻿{% extends "base.html" %}
+{% block content %}
+
+<style>
+
+.card{
+background:white;
+padding:30px;
+border-radius:14px;
+max-width:600px;
+}
+
+input{
+width:100%;
+padding:12px;
+border:1px solid #ddd;
+border-radius:10px;
+margin-bottom:15px;
+}
+
+button{
+width:100%;
+background:black;
+color:white;
+padding:14px;
+border:none;
+font-weight:600;
+border-radius:10px;
+cursor:pointer;
+}
+
+.variant-box{
+background:#f9fafb;
+padding:15px;
+border-radius:10px;
+margin-top:20px;
+}
+
+.color-item{
+padding:10px 0;
+border-bottom:1px solid #eee;
+}
+
+.color-item a{
+color:#2563eb;
+font-weight:600;
+}
+
+</style>
+
+<div class="admin-layout">
+
+{% include "vendor/sidebar.html" %}
+
+<div class="admin-main">
+
+<div class="topbar">
+<h2>Add Color – {{ product.name }}</h2>
+</div>
+
+<div class="card">
+
+<form method="post" enctype="multipart/form-data">
+{% csrf_token %}
+
+<input name="color" placeholder="Color Name (Sky Blue)" required>
+
+<label>Color Images (Multiple)</label>
+<input type="file" name="images" multiple required>
+
+<button>Add Color</button>
+
+</form>
+
+<div class="variant-box">
+
+<h4>Added Colors</h4>
+
+{% for v in product.variants.all %}
+<div class="color-item">
+{{ v.color }}
+<a href="{% url 'vendor_add_sizes' product.id v.color %}">Add Sizes</a>
+</div>
+{% empty %}
+<p>No colors added yet.</p>
+{% endfor %}
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+{% endblock %}

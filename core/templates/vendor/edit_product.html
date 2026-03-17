@@ -1,0 +1,413 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+
+.profile-wrapper{
+display:flex;
+justify-content:center;
+padding:60px 20px;
+}
+
+.profile-box{
+width:100%;
+max-width:1000px;
+background:white;
+border-radius:26px;
+padding:40px;
+box-shadow:0 30px 70px rgba(0,0,0,.12);
+}
+
+.profile-box h2{
+font-weight:800;
+margin-bottom:30px;
+text-align:center;
+background:linear-gradient(90deg,#4f46e5,#22c55e);
+-webkit-background-clip:text;
+color:transparent;
+}
+
+/* ================= TABLE ================= */
+
+.edit-table{
+width:100%;
+border-collapse:separate;
+border-spacing:0 14px;
+}
+
+.edit-table th{
+width:200px;
+font-weight:600;
+text-align:left;
+}
+
+.edit-table input,
+.edit-table textarea,
+.edit-table select{
+width:100%;
+padding:12px;
+border-radius:12px;
+border:1px solid #e5e7eb;
+}
+
+.preview{
+max-width:120px;
+border-radius:10px;
+border:1px solid #ddd;
+margin-bottom:10px;
+}
+
+/* ================= VARIANTS ================= */
+
+.variant-wrapper{
+margin-top:36px;
+}
+
+.vgroup-label{
+font-size:11px;
+font-weight:800;
+letter-spacing:.1em;
+text-transform:uppercase;
+color:#374151;
+margin-bottom:14px;
+}
+
+.variant-selector{
+display:flex;
+gap:18px;
+flex-wrap:wrap;
+margin-bottom:6px;
+}
+
+/* Each clickable option */
+.v-opt{
+display:flex;
+flex-direction:column;
+align-items:center;
+gap:7px;
+cursor:pointer;
+}
+
+.v-opt-box{
+width:88px;
+height:88px;
+border-radius:14px;
+border:2px solid #e5e7eb;
+overflow:hidden;
+background:#f3f4f6;
+display:flex;
+align-items:center;
+justify-content:center;
+transition:.2s;
+}
+
+.v-opt-box img{
+width:100%;
+height:100%;
+object-fit:cover;
+}
+
+.v-opt-name{
+font-size:12px;
+font-weight:600;
+color:#374151;
+}
+
+.v-opt:hover .v-opt-box{
+border-color:#6366f1;
+}
+
+.v-opt.active .v-opt-box{
+border-color:#2563eb;
+border-width:3px;
+box-shadow:0 0 0 3px #2563eb22;
+}
+
+.v-opt.active .v-opt-name{
+color:#2563eb;
+font-weight:700;
+}
+
+/* Panel that shows when variant is selected */
+.variant-card{
+display:none;
+background:#f8fafc;
+border:1px solid #e5e7eb;
+border-radius:16px;
+padding:22px;
+margin-top:14px;
+animation:fadeIn .25s ease;
+}
+
+@keyframes fadeIn{
+from{opacity:0;transform:translateY(6px)}
+to{opacity:1;transform:translateY(0)}
+}
+
+.vcard-meta{
+font-size:14px;
+font-weight:700;
+color:#111;
+margin-bottom:6px;
+}
+
+.vcard-sub{
+font-size:12px;
+color:#6b7280;
+margin-bottom:16px;
+}
+
+.variant-images{
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+margin-bottom:16px;
+}
+
+.img-wrap{
+position:relative;
+width:88px;
+height:88px;
+}
+
+.img-wrap img{
+width:88px;
+height:88px;
+object-fit:cover;
+border-radius:10px;
+border:1px solid #e5e7eb;
+}
+
+.img-del{
+position:absolute;
+top:-7px;
+right:-7px;
+width:22px;
+height:22px;
+background:#ef4444;
+color:white;
+border-radius:50%;
+border:none;
+cursor:pointer;
+font-size:14px;
+line-height:1;
+display:flex;
+align-items:center;
+justify-content:center;
+padding:0;
+}
+
+.add-img-label{
+display:inline-flex;
+align-items:center;
+gap:6px;
+padding:9px 18px;
+border:2px dashed #d1d5db;
+border-radius:10px;
+cursor:pointer;
+font-size:13px;
+font-weight:600;
+color:#6b7280;
+background:white;
+transition:.2s;
+}
+
+.add-img-label:hover{
+border-color:#6366f1;
+color:#4f46e5;
+}
+
+.new-preview{
+display:flex;
+flex-wrap:wrap;
+gap:8px;
+margin-top:10px;
+}
+
+.new-preview img{
+width:80px;
+height:80px;
+object-fit:cover;
+border-radius:10px;
+border:2px dashed #22c55e;
+}
+
+.update-btn{
+margin-top:30px;
+width:100%;
+padding:15px;
+border:none;
+border-radius:18px;
+background:linear-gradient(90deg,#4f46e5,#22c55e);
+color:white;
+font-weight:700;
+cursor:pointer;
+transition:.3s;
+}
+
+.update-btn:hover{
+transform:translateY(-2px);
+box-shadow:0 15px 30px rgba(0,0,0,.15);
+}
+
+</style>
+
+<div class="profile-wrapper">
+<div class="profile-box">
+
+<h2>Edit Product + Variants</h2>
+
+<form method="POST" enctype="multipart/form-data">
+{% csrf_token %}
+
+<table class="edit-table">
+
+<tr>
+<th>Name</th>
+<td><input name="name" value="{{ product.name }}"></td>
+</tr>
+
+<tr>
+<th>Category</th>
+<td>
+<select name="category">
+{% for row in category_tree %}
+<option value="{{ row.category.id }}" {% if product.category.id == row.category.id %}selected{% endif %}>
+{{ row.category.name }}
+</option>
+
+{% for child in row.children %}
+<option value="{{ child.category.id }}" {% if product.category.id == child.category.id %}selected{% endif %}>
+↳ {{ child.category.name }}
+</option>
+{% endfor %}
+
+{% endfor %}
+</select>
+</td>
+</tr>
+
+<tr>
+<th>Base Price</th>
+<td><input name="price" value="{{ product.price }}"></td>
+</tr>
+
+<tr>
+<th>Description</th>
+<td><textarea name="description">{{ product.description }}</textarea></td>
+</tr>
+
+<tr>
+<th>Main Image</th>
+<td>
+{% if product.images.first and product.images.first.image %}
+<img src="{{ product.images.first.image.url }}" class="preview">
+{% endif %}
+<input type="file" name="images" multiple>
+</td>
+</tr>
+
+</table>
+
+<!-- ================= VARIANT SECTION ================= -->
+
+<div class="variant-wrapper">
+
+<div class="vgroup-label">Color / Variant</div>
+
+<!-- Selector row: one card per variant -->
+<div class="variant-selector">
+{% for v in product.variants.all %}
+<div class="v-opt" onclick="showVariant('{{ v.id }}', this)" id="vopt-{{ v.id }}">
+  <div class="v-opt-box">
+    {% if v.images.first and v.images.first.image %}
+      <img src="{{ v.images.first.image.url }}" alt="">
+    {% else %}
+      <span style="font-size:11px;color:#9ca3af;text-align:center;padding:4px;">No img</span>
+    {% endif %}
+  </div>
+  <span class="v-opt-name">{{ v.display_attributes|default:v.sku }}</span>
+</div>
+{% endfor %}
+</div>
+
+<!-- Detail panel per variant -->
+{% for v in product.variants.all %}
+<div class="variant-card" id="variant-{{ v.id }}">
+
+  <div class="vcard-meta">{{ v.display_attributes|default:v.sku }}</div>
+  <div class="vcard-sub">SKU: {{ v.sku }} &nbsp;|&nbsp; Price: &#8377;{{ v.price }} &nbsp;|&nbsp; Stock: {{ v.stock }}</div>
+
+  <!-- Existing images with delete button -->
+  {% if v.images.all %}
+  <div class="variant-images">
+    {% for img in v.images.all %}
+    {% if img.image %}
+    <div class="img-wrap">
+      <img src="{{ img.image.url }}" alt="">
+      <button type="button" class="img-del" onclick="markDel(this,'{{ img.id }}')" title="Delete">&#215;</button>
+      <input type="checkbox" name="delete_img" value="{{ img.id }}" id="del_{{ img.id }}" style="display:none;">
+    </div>
+    {% endif %}
+    {% endfor %}
+  </div>
+  {% else %}
+  <p style="font-size:13px;color:#9ca3af;margin-bottom:14px;">No images yet.</p>
+  {% endif %}
+
+  <!-- Add new images -->
+  <label class="add-img-label" for="vfile_{{ v.id }}">
+    <span style="font-size:18px;line-height:1;">+</span> Add Images
+    <input type="file" id="vfile_{{ v.id }}" name="variant_images_{{ v.id }}" multiple accept="image/*"
+           style="display:none;" onchange="previewNew(this, 'nprev_{{ v.id }}')">
+  </label>
+  <div class="new-preview" id="nprev_{{ v.id }}"></div>
+
+</div>
+{% endfor %}
+
+</div>
+
+<button class="update-btn">Update Product</button>
+
+</form>
+
+</div>
+</div>
+
+<script>
+
+function showVariant(id, el){
+  document.querySelectorAll('.variant-card').forEach(c => c.style.display = 'none');
+  document.querySelectorAll('.v-opt').forEach(o => o.classList.remove('active'));
+  document.getElementById('variant-' + id).style.display = 'block';
+  el.classList.add('active');
+}
+
+function markDel(btn, imgId){
+  document.getElementById('del_' + imgId).checked = true;
+  var wrap = btn.closest('.img-wrap');
+  wrap.style.opacity = '0.25';
+  wrap.style.pointerEvents = 'none';
+}
+
+function previewNew(input, previewId){
+  var box = document.getElementById(previewId);
+  box.innerHTML = '';
+  Array.from(input.files).forEach(function(f){
+    var img = document.createElement('img');
+    img.src = URL.createObjectURL(f);
+    box.appendChild(img);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  var firstOpt  = document.querySelector('.v-opt');
+  var firstCard = document.querySelector('.variant-card');
+  if(firstOpt)  firstOpt.classList.add('active');
+  if(firstCard) firstCard.style.display = 'block';
+});
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+.cart-price-breakdown { margin-bottom: 12px; }
+.cart-price-line { display: flex; justify-content: space-between; padding: 5px 0; font-size: 14px; color: #444; border-bottom: 1px dashed #ddd; }
+.cart-price-line:last-child { border-bottom: none; }
+.cart-total-line { font-size: 16px; font-weight: 700; color: #111; margin-top: 6px; }
+</style>
+
+<div class="container">
+<h1 style="text-align:center; margin-bottom:25px; color:#111; font-size:26px;">Your Shopping Cart</h1>
+
+{% if items %}
+
+<div class="cart-container">
+
+{% for item in items %}
+
+<div class="cart-card">
+    
+    <div class="cart-card-image">
+        <img src="/media/{{ item.product.image.0 }}" alt="{{ item.product.name }}">
+    </div>
+
+    <div class="cart-card-details">
+        <h3>{{ item.product.name }}</h3>
+        <p class="seller-info">Seller: {{ item.product.vendor.username }}</p>
+        <p class="cart-price">&#8377;{{ item.price }}</p>
+    </div>
+
+    <div class="cart-card-actions">
+        <div class="quantity-controls">
+            <button class="qty-btn">-</button>
+            <span class="qty-display">{{ item.qty }}</span>
+            <button class="qty-btn">+</button>
+        </div>
+        
+        <p class="subtotal"><b>Subtotal:</b> &#8377;{{ item.subtotal }}</p>
+        
+        <a class="btn-remove"
+           href="/cart/remove/{{ item.variant.id }}/"
+           onclick="return confirm('Are you sure you want to remove this item?');">
+           REMOVE
+        </a>
+    </div>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+<div class="cart-summary">
+    <div class="cart-price-breakdown">
+        <div class="cart-price-line"><span>Subtotal</span><span>&#8377;{{ subtotal }}</span></div>
+        <div class="cart-price-line"><span>Platform Fee (5%)</span><span>&#8377;{{ platform_fee }}</span></div>
+        <div class="cart-price-line"><span>GST on Platform Fee (18%)</span><span>&#8377;{{ gst_on_platform }}</span></div>
+        <div class="cart-price-line"><span>Delivery</span><span>&#8377;{{ shipping }}</span></div>
+        <div class="cart-price-line cart-total-line"><span>Total</span><span>&#8377;{{ total }}</span></div>
+    </div>
+    <a href="/cart/checkout/" class="btn-checkout">Proceed to Checkout</a>
+</div>
+
+{% else %}
+
+<p style="text-align:center; color:#666; font-size:18px;">Your cart is empty.</p>
+
+{% endif %}
+
+</div>
+
+{% endblock %}

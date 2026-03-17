@@ -1,0 +1,20 @@
+{% extends "adminpanel/base.html" %}
+{% block content %}
+
+<h2>Edit Attribute</h2>
+
+<form method="post">
+{% csrf_token %}
+
+<input type="text" name="name" value="{{ attribute.name }}" required>
+
+<select name="section" style="display:block;margin-top:12px;padding:8px 12px;border:1px solid #d1d5db;border-radius:6px;font-size:14px;width:100%;">
+  <option value="specs" {% if attribute.section == 'specs' %}selected{% endif %}>Specifications</option>
+  <option value="manufacturer" {% if attribute.section == 'manufacturer' %}selected{% endif %}>Manufacturer Info</option>
+</select>
+
+<button type="submit" style="margin-top:16px;">Update Attribute</button>
+
+</form>
+
+{% endblock %}

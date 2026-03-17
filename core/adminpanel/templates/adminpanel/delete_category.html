@@ -1,0 +1,166 @@
+{% extends "adminpanel/base.html" %}
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+/* ================= PAGE BACKGROUND ================= */
+
+.delete-wrapper{
+    min-height:80vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-family:'Poppins',sans-serif;
+}
+
+/* ================= CARD ================= */
+
+.delete-card{
+    width:480px;
+    background:rgba(255,255,255,.75);
+    backdrop-filter:blur(14px);
+    border-radius:20px;
+    padding:40px;
+    text-align:center;
+    box-shadow:
+        0 20px 45px rgba(0,0,0,.12),
+        inset 0 1px rgba(255,255,255,.5);
+    animation:floatCard .6s ease;
+    transition:.35s;
+}
+
+.delete-card:hover{
+    transform:translateY(-6px) rotateX(2deg);
+}
+
+/* ================= ICON ================= */
+
+.warning-icon{
+    font-size:60px;
+    margin-bottom:15px;
+    animation:pulse 1.6s infinite;
+}
+
+/* ================= TEXT ================= */
+
+.delete-card h2{
+    margin-bottom:10px;
+    font-weight:600;
+}
+
+.delete-card p{
+    color:#555;
+    margin-bottom:30px;
+    line-height:1.6;
+}
+
+.category-name{
+    font-weight:600;
+    color:#e63946;
+}
+
+/* ================= BUTTON AREA ================= */
+
+.actions{
+    display:flex;
+    gap:15px;
+}
+
+/* CANCEL BUTTON */
+
+.cancel-btn{
+    flex:1;
+    padding:12px;
+    border-radius:10px;
+    border:1px solid #ddd;
+    background:white;
+    text-decoration:none;
+    color:#333;
+    font-weight:500;
+    transition:.3s;
+}
+
+.cancel-btn:hover{
+    background:#f3f3f3;
+}
+
+/* DELETE BUTTON */
+
+.delete-btn{
+    flex:1;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    background:linear-gradient(135deg,#ff3b3b,#b80000);
+    color:white;
+    font-weight:600;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.delete-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 10px 20px rgba(255,0,0,.35);
+}
+
+/* ================= ANIMATIONS ================= */
+
+@keyframes floatCard{
+    from{
+        opacity:0;
+        transform:translateY(40px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+@keyframes pulse{
+    0%{transform:scale(1);}
+    50%{transform:scale(1.1);}
+    100%{transform:scale(1);}
+}
+
+</style>
+
+<div class="delete-wrapper">
+
+<div class="delete-card">
+
+<div class="warning-icon">⚠️</div>
+
+<h2>Delete Category</h2>
+
+<p>
+Are you sure you want to delete
+<br>
+<span class="category-name">"{{ category.name }}"</span> ?
+<br><br>
+This action <b>cannot be undone.</b>
+</p>
+
+<form method="post">
+{% csrf_token %}
+
+<div class="actions">
+
+<a href="{% url 'categories' %}" class="cancel-btn">
+Cancel
+</a>
+
+<button type="submit" class="delete-btn">
+Yes, Delete
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+{% endblock %}

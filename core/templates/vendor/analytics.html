@@ -1,0 +1,214 @@
+{% extends "vendor/vendor_base.html" %}
+{% block vendor_content %}
+
+<style>
+/* ── KPI cards ────────────────────────────────────────── */
+.an-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:18px;margin-bottom:28px;}
+.an-kpi{background:#fff;border-radius:14px;border:1px solid var(--border);padding:22px 24px;display:flex;flex-direction:column;gap:6px;box-shadow:0 1px 5px rgba(0,0,0,.04);}
+.an-kpi-label{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+.an-kpi-val{font-size:28px;font-weight:800;color:var(--text);}
+.an-kpi-sub{font-size:12px;color:var(--muted);}
+.an-kpi-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:4px;}
+
+/* ── Chart grid ───────────────────────────────────────── */
+.an-charts{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:28px;}
+@media(max-width:900px){.an-charts{grid-template-columns:1fr;}}
+.an-chart-card{background:#fff;border-radius:14px;border:1px solid var(--border);padding:22px 24px;box-shadow:0 1px 5px rgba(0,0,0,.04);}
+.an-chart-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:18px;display:flex;align-items:center;gap:8px;}
+.an-chart-title i{color:var(--accent);}
+.an-chart-wrap{position:relative;height:240px;}
+
+/* ── Rating section ───────────────────────────────────── */
+.an-rating-card{background:#fff;border-radius:14px;border:1px solid var(--border);padding:22px 24px;box-shadow:0 1px 5px rgba(0,0,0,.04);margin-bottom:28px;}
+.an-rating-inner{display:flex;gap:40px;align-items:center;flex-wrap:wrap;}
+.an-avg-block{text-align:center;}
+.an-avg-num{font-size:56px;font-weight:800;color:var(--text);line-height:1;}
+.an-stars{display:flex;gap:3px;justify-content:center;margin:6px 0;}
+.an-stars .s{font-size:20px;color:#e5e7eb;}
+.an-stars .s.on{color:#f59e0b;}
+.an-avg-sub{font-size:13px;color:var(--muted);}
+.an-dist{flex:1;min-width:200px;}
+.an-dist-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:13px;}
+.an-dist-label{width:42px;color:#374151;font-weight:600;flex-shrink:0;}
+.an-dist-track{flex:1;height:10px;background:#f1f5f9;border-radius:6px;overflow:hidden;}
+.an-dist-fill{height:100%;background:#f59e0b;border-radius:6px;transition:width .6s ease;}
+.an-dist-cnt{width:28px;color:var(--muted);text-align:right;flex-shrink:0;}
+</style>
+
+<!-- KPI Cards -->
+<div class="an-kpis">
+
+  <div class="an-kpi">
+    <div class="an-kpi-icon" style="background:#eff6ff;color:#2563eb;"><i class="fa fa-indian-rupee-sign"></i></div>
+    <div class="an-kpi-label">Total Revenue</div>
+    <div class="an-kpi-val">₹{{ total_revenue|floatformat:2 }}</div>
+    <div class="an-kpi-sub">All-time earnings</div>
+  </div>
+
+  <div class="an-kpi">
+    <div class="an-kpi-icon" style="background:#f0fdf4;color:#16a34a;"><i class="fa fa-receipt"></i></div>
+    <div class="an-kpi-label">Total Orders</div>
+    <div class="an-kpi-val">{{ total_orders }}</div>
+    <div class="an-kpi-sub">Avg ₹{{ avg_order_value }} / order</div>
+  </div>
+
+  <div class="an-kpi">
+    <div class="an-kpi-icon" style="background:#fefce8;color:#ca8a04;"><i class="fa fa-box-open"></i></div>
+    <div class="an-kpi-label">Products</div>
+    <div class="an-kpi-val">{{ total_products }}</div>
+    <div class="an-kpi-sub">Listed products</div>
+  </div>
+
+  <div class="an-kpi">
+    <div class="an-kpi-icon" style="background:#fdf4ff;color:#9333ea;"><i class="fa fa-star"></i></div>
+    <div class="an-kpi-label">Reviews</div>
+    <div class="an-kpi-val">{{ total_reviews }}</div>
+    <div class="an-kpi-sub">Avg rating {{ avg_rating }} / 5</div>
+  </div>
+
+</div>
+
+<!-- Charts Row -->
+<div class="an-charts">
+
+  <!-- Revenue over last 6 months -->
+  <div class="an-chart-card">
+    <div class="an-chart-title"><i class="fa fa-chart-line"></i> Revenue — Last 6 Months</div>
+    <div class="an-chart-wrap"><canvas id="revenueChart"></canvas></div>
+  </div>
+
+  <!-- Orders by status -->
+  <div class="an-chart-card">
+    <div class="an-chart-title"><i class="fa fa-chart-donut"></i> Orders by Status</div>
+    <div class="an-chart-wrap"><canvas id="statusChart"></canvas></div>
+  </div>
+
+  <!-- Top products by revenue -->
+  <div class="an-chart-card" style="grid-column:1/-1;">
+    <div class="an-chart-title"><i class="fa fa-trophy"></i> Top Products by Revenue</div>
+    <div class="an-chart-wrap" style="height:260px;"><canvas id="topChart"></canvas></div>
+  </div>
+
+</div>
+
+<!-- Rating breakdown -->
+<div class="an-rating-card">
+  <div class="an-chart-title" style="margin-bottom:18px;"><i class="fa fa-star"></i> Customer Rating Breakdown</div>
+  {% if total_reviews %}
+  <div class="an-rating-inner">
+    <div class="an-avg-block">
+      <div class="an-avg-num">{{ avg_rating }}</div>
+      <div class="an-stars">
+        {% for i in "12345" %}
+          <span class="s {% if forloop.counter <= avg_rating|floatformat:"0" %}on{% endif %}">&#9733;</span>
+        {% endfor %}
+      </div>
+      <div class="an-avg-sub">{{ total_reviews }} approved review{{ total_reviews|pluralize }}</div>
+    </div>
+    <div class="an-dist">
+      {% for star, cnt in rating_dist.items %}
+      <div class="an-dist-row">
+        <span class="an-dist-label">{{ star }} &#9733;</span>
+        <div class="an-dist-track">
+          <div class="an-dist-fill" style="width:{% if total_reviews %}{% widthratio cnt total_reviews 100 %}{% else %}0{% endif %}%"></div>
+        </div>
+        <span class="an-dist-cnt">{{ cnt }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% else %}
+  <p style="color:var(--muted);font-size:14px;">No approved reviews yet.</p>
+  {% endif %}
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+const MONTH_LABELS  = {{ month_labels_json|safe }};
+const MONTH_REVENUE = {{ month_revenue_json|safe }};
+const STATUS_LABELS = {{ status_labels_json|safe }};
+const STATUS_COUNTS = {{ status_counts_json|safe }};
+const TOP_NAMES     = {{ top_names_json|safe }};
+const TOP_REV       = {{ top_rev_json|safe }};
+
+Chart.defaults.font.family = "'Inter', sans-serif";
+Chart.defaults.color = '#64748b';
+
+/* Revenue line chart */
+new Chart(document.getElementById('revenueChart'), {
+  type: 'bar',
+  data: {
+    labels: MONTH_LABELS,
+    datasets: [{
+      label: 'Revenue (₹)',
+      data: MONTH_REVENUE,
+      backgroundColor: 'rgba(37,99,235,.18)',
+      borderColor: '#2563eb',
+      borderWidth: 2,
+      borderRadius: 7,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: true, grid: { color: '#f1f5f9' },
+           ticks: { callback: v => '₹' + v.toLocaleString() } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+/* Orders by status doughnut */
+const STATUS_COLORS = ['#2563eb','#22c55e','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#64748b'];
+new Chart(document.getElementById('statusChart'), {
+  type: 'doughnut',
+  data: {
+    labels: STATUS_LABELS,
+    datasets: [{
+      data: STATUS_COUNTS,
+      backgroundColor: STATUS_COLORS.slice(0, STATUS_LABELS.length),
+      borderWidth: 2,
+      borderColor: '#fff',
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'right', labels: { padding: 14, font: { size: 12 } } }
+    },
+    cutout: '62%'
+  }
+});
+
+/* Top products horizontal bar */
+new Chart(document.getElementById('topChart'), {
+  type: 'bar',
+  data: {
+    labels: TOP_NAMES.length ? TOP_NAMES : ['No data'],
+    datasets: [{
+      label: 'Revenue (₹)',
+      data: TOP_REV.length ? TOP_REV : [0],
+      backgroundColor: [
+        'rgba(37,99,235,.75)','rgba(34,197,94,.75)','rgba(245,158,11,.75)',
+        'rgba(239,68,68,.75)','rgba(139,92,246,.75)'
+      ],
+      borderRadius: 7,
+      borderSkipped: false,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { beginAtZero: true, grid: { color: '#f1f5f9' },
+           ticks: { callback: v => '₹' + v.toLocaleString() } },
+      y: { grid: { display: false } }
+    }
+  }
+});
+</script>
+
+{% endblock %}

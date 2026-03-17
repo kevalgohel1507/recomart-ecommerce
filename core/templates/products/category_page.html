@@ -1,0 +1,583 @@
+﻿{% extends "base.html" %}
+{% block content %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+/* ========= RESET / BASE ========= */
+*,*::before,*::after{box-sizing:border-box;}
+body{background:#f5f5f5;font-family:"Inter",sans-serif;}
+a{text-decoration:none;}
+
+/* ========= BREADCRUMB ========= */
+.page-bc{
+  padding:10px 24px;
+  font-size:12px;color:#888;
+  background:#fff;border-bottom:1px solid #eee;
+}
+.page-bc a{color:#888;}
+.page-bc a:hover{color:#9d27b0;}
+.page-bc span{margin:0 5px;color:#ccc;}
+
+/* ========= SORT BAR (top - full width) ========= */
+.page-sort-bar{
+  background:#fff;
+  border-bottom:1px solid #e8e8e8;
+  padding:12px 24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  max-width:1400px;
+  margin:0 auto;
+}
+.page-sort-bar .sort-label{
+  font-size:13px;color:#444;
+}
+.page-sort-bar .sort-label strong{color:#111;}
+.page-sort-select{
+  border:none;
+  font-size:13.5px;font-weight:600;color:#333;
+  outline:none;cursor:pointer;background:transparent;
+  padding:4px 6px 4px 0;
+}
+.page-sort-select:focus{outline:none;}
+.page-sort-wrap{
+  padding:0 24px;
+  background:#fff;
+  border-bottom:1px solid #ebebeb;
+}
+.page-sort-outer{
+  background:#fff;
+  border-bottom:1px solid #ebebeb;
+}
+
+/* ========= CATEGORY TITLE ========= */
+.cat-page-heading{
+  background:#fff;
+  border-bottom:1px solid #ebebeb;
+  padding:18px 24px 14px;
+}
+.cat-page-heading h1{
+  font-size:20px;font-weight:700;color:#222;
+  margin:0 0 4px;
+}
+.cat-page-heading p{
+  font-size:13px;color:#888;margin:0;
+}
+
+/* ========= MAIN LAYOUT ========= */
+.shop-wrap{
+  display:flex;
+  align-items:flex-start;
+  max-width:1400px;
+  margin:0 auto;
+  padding:20px 20px 40px;
+  gap:20px;
+}
+
+/* ========= FILTER SIDEBAR ========= */
+.filter-sidebar{
+  width:240px;
+  flex-shrink:0;
+  background:#fff;
+  border-right:1px solid #ebebeb;
+  border-radius:0;
+  overflow:visible;
+  position:sticky;
+  top:0;
+  align-self:flex-start;
+  min-height:80vh;
+}
+.filter-header{
+  padding:16px 20px 10px;
+  border-bottom:1px solid #ebebeb;
+}
+.filter-header-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:2px;
+}
+.filter-header h6{
+  font-size:15px;font-weight:800;
+  color:#111;margin:0;letter-spacing:.3px;
+  text-transform:uppercase;
+}
+.filter-prod-count{
+  font-size:12px;color:#999;margin-top:4px;
+}
+.filter-clear{
+  font-size:12px;color:#9d27b0;font-weight:700;
+}
+.filter-clear:hover{color:#6a0dad;}
+
+/* Filter sections */
+.filter-section{
+  border-bottom:1px solid #f0f0f0;
+  padding:16px 20px;
+}
+.filter-section-title{
+  font-size:13.5px;font-weight:600;color:#333;
+  display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;user-select:none;margin-bottom:0;
+  letter-spacing:-.1px;
+}
+.filter-section-title svg{
+  width:16px;height:16px;stroke:#888;fill:none;
+  stroke-width:2;transition:transform .25s;flex-shrink:0;
+}
+.filter-section-title.collapsed svg{transform:rotate(-90deg);}
+.filter-body{margin-top:12px;}
+
+/* Price slider */
+.price-range-wrap{padding:4px 2px 8px;}
+.price-inputs{display:flex;gap:8px;margin-top:10px;}
+.price-inputs input{
+  width:100%;border:1px solid #ddd;border-radius:6px;
+  padding:6px 8px;font-size:12px;color:#333;outline:none;
+  text-align:center;
+}
+.price-inputs input:focus{border-color:#9d27b0;}
+.range-slider{
+  -webkit-appearance:none;
+  width:100%;height:4px;
+  background:linear-gradient(to right,#9d27b0 0%,#9d27b0 50%,#ddd 50%,#ddd 100%);
+  border-radius:4px;outline:none;cursor:pointer;
+}
+.range-slider::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  width:16px;height:16px;
+  border-radius:50%;background:#9d27b0;
+  border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.2);cursor:pointer;
+}
+.btn-apply-price{
+  display:block;width:100%;margin-top:10px;
+  background:#9d27b0;color:#fff;
+  border:none;border-radius:6px;padding:7px 0;
+  font-size:12px;font-weight:600;cursor:pointer;
+  transition:background .2s;
+}
+.btn-apply-price:hover{background:#6a0dad;}
+
+/* Attribute checkboxes */
+.attr-list{list-style:none;margin:0;padding:0;max-height:200px;overflow-y:auto;scrollbar-width:thin;}
+.attr-list::-webkit-scrollbar{width:4px;}
+.attr-list::-webkit-scrollbar-thumb{background:#ddd;border-radius:4px;}
+.attr-list li{padding:5px 0;}
+.attr-list label{
+  display:flex;align-items:center;gap:8px;
+  font-size:12.5px;color:#444;cursor:pointer;
+}
+.attr-list input[type=checkbox]{
+  accent-color:#9d27b0;
+  width:14px;height:14px;cursor:pointer;
+}
+
+/* Applied filter chips */
+.active-filters{
+  display:flex;flex-wrap:wrap;gap:6px;
+  padding:10px 24px 4px;
+}
+.filter-chip{
+  display:inline-flex;align-items:center;gap:5px;
+  background:#f3e5f5;color:#7b1fa2;
+  padding:4px 10px 4px 12px;border-radius:20px;
+  font-size:12px;font-weight:600;
+}
+.filter-chip a{color:#9d27b0;font-size:14px;line-height:1;text-decoration:none;margin-left:2px;}
+
+/* ========= PRODUCTS AREA ========= */
+.products-area{flex:1;min-width:0;padding-top:4px;}
+
+/* Full-width sort bar (above shop-wrap) */
+.meesho-sort-bar{
+  background:#fff;
+  border-bottom:1px solid #ebebeb;
+  padding:0 24px;
+}
+.meesho-sort-inner{
+  max-width:1400px;
+  margin:0 auto;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  padding:10px 0;
+}
+.meesho-sort-label{font-size:13.5px;color:#444;margin-right:6px;}
+.meesho-sort-label b{color:#111;}
+.meesho-sort-select{
+  border:none;background:transparent;
+  font-size:13.5px;font-weight:700;color:#111;
+  outline:none;cursor:pointer;
+  padding:2px 0;
+}
+
+/* Product grid */
+.prod-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:20px;
+}
+/* ── CARD ── */
+.prod-card{
+  background:#fff;
+  border-radius:12px;
+  border:1px solid #f0ece8;
+  box-shadow:0 2px 10px rgba(0,0,0,.04);
+  overflow:hidden;
+  transition:box-shadow .25s,transform .25s;
+  display:flex;flex-direction:column;
+  text-decoration:none;
+  color:inherit;
+}
+.prod-card:hover{transform:translateY(-5px);box-shadow:0 12px 28px rgba(0,0,0,.09);}
+/* ── IMAGE — warm beige bg ── */
+.prod-card-img{
+  height:220px;
+  background:#f6f1ec;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;padding:16px;
+}
+.prod-card-img img{
+  max-width:100%;max-height:100%;
+  object-fit:contain;transition:transform .35s;
+}
+.prod-card:hover .prod-card-img img{transform:scale(1.05);}
+/* ── BODY ── */
+.prod-card-body{padding:14px 16px 18px;display:flex;flex-direction:column;flex:1;}
+.prod-brand{font-size:11px;font-weight:700;color:#9d27b0;text-transform:uppercase;margin-bottom:4px;}
+.prod-name{
+  font-size:14px;font-weight:700;color:#111;line-height:1.35;margin-bottom:6px;
+  overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+}
+.prod-divider{width:26px;height:2px;background:#4f46e5;border-radius:2px;margin:8px 0;}
+.prod-price{font-size:17px;font-weight:700;color:#e74c3c;margin-bottom:12px;}
+.prod-price span{font-size:12px;font-weight:400;color:#999;margin-left:4px;}
+.prod-actions{display:flex;gap:8px;margin-top:auto;}
+.btn-prod-view{
+  flex:1;text-align:center;padding:8px 0;
+  border-radius:8px;font-size:12.5px;font-weight:600;
+  border:1.5px solid #ddd;color:#555;
+  transition:.2s;
+}
+.btn-prod-view:hover{border-color:#111;background:#111;color:#fff;}
+
+/* Empty state */
+.empty-state{
+  text-align:center;padding:60px 20px;
+  grid-column:1/-1;
+}
+.empty-state svg{width:64px;height:64px;stroke:#ddd;fill:none;stroke-width:1.2;margin-bottom:14px;}
+.empty-state p{color:#aaa;font-size:14px;}
+
+/* ========= MOBILE FILTER FAB ========= */
+.filter-fab{
+  display:none;
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  background:#9d27b0;color:#fff;
+  border:none;border-radius:30px;padding:11px 28px;
+  font-size:14px;font-weight:700;
+  box-shadow:0 4px 20px rgba(157,39,176,.4);
+  z-index:1000;cursor:pointer;
+  align-items:center;gap:8px;
+}
+.filter-fab svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2;}
+.filter-overlay{
+  display:none;
+  position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1100;
+}
+.filter-overlay.open{display:block;}
+.filter-sidebar.mobile-open{
+  position:fixed!important;left:0;top:0;height:100vh;
+  overflow-y:auto;z-index:1200;width:280px!important;
+  border-radius:0;box-shadow:8px 0 32px rgba(0,0,0,.15);
+}
+
+@media(max-width:768px){
+  .filter-sidebar{display:none;}
+  .filter-fab{display:flex;}
+  .prod-grid{grid-template-columns:repeat(2,1fr);gap:10px;}
+  .shop-wrap{padding:10px 8px;}
+}
+@media(max-width:560px){
+  .page-bc,
+  .cat-page-heading,
+  .meesho-sort-bar,
+  .page-sort-bar{padding-left:12px;padding-right:12px;}
+
+  .cat-page-heading h1{font-size:18px;}
+  .cat-page-heading p{font-size:12px;}
+
+  .meesho-sort-inner{
+    justify-content:space-between;
+    padding:8px 0;
+    gap:8px;
+  }
+  .meesho-sort-label,
+  .meesho-sort-select{font-size:12.5px;}
+
+  .prod-card-img{height:180px;padding:12px;}
+  .prod-card-body{padding:12px;}
+  .prod-name{font-size:13px;}
+  .prod-price{font-size:15px;margin-bottom:10px;}
+  .btn-prod-view{font-size:12px;padding:7px 0;}
+
+  .filter-fab{bottom:96px;padding:10px 22px;font-size:13px;}
+}
+@media(max-width:380px){
+  .prod-grid{grid-template-columns:1fr;gap:10px;}
+}
+</style>
+
+<!-- Breadcrumb -->
+<div class="page-bc">
+  <a href="/">Home</a>
+  {% if parent.parent %}
+    <span>&rsaquo;</span>
+    <a href="{% url 'category_page' parent.parent.slug %}">{{ parent.parent.name }}</a>
+  {% endif %}
+  <span>&rsaquo;</span>
+  <strong style="color:#333;">{{ parent.name }}</strong>
+</div>
+
+<!-- Category heading -->
+<div class="cat-page-heading">
+  <h1>{{ parent.name }}</h1>
+  <p>{{ total_products }} product{{ total_products|pluralize }} found</p>
+</div>
+
+<!-- Full-width sort bar -->
+<div class="meesho-sort-bar">
+  <div class="meesho-sort-inner">
+    <span class="meesho-sort-label">Sort by: </span>
+    <select class="meesho-sort-select" onchange="applySort(this.value)">
+      <option value="" {% if not sort %}selected{% endif %}>Relevance</option>
+      <option value="newest" {% if sort == 'newest' %}selected{% endif %}>What's New</option>
+      <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+      <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+    </select>
+  </div>
+</div>
+
+<!-- Main shop layout -->
+<div class="shop-wrap">
+
+  <!-- ====== FILTER SIDEBAR ====== -->
+  <aside class="filter-sidebar" id="filterSidebar">
+    <div class="filter-header">
+      <div class="filter-header-top">
+        <h6>FILTERS</h6>
+        <a href="{% url 'category_page' parent.slug %}" class="filter-clear">CLEAR ALL</a>
+      </div>
+      <div class="filter-prod-count">{{ total_products }}+ Products</div>
+    </div>
+
+    <form method="GET" action="" id="filterForm">
+      <!-- preserve sort -->
+      {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
+
+      <!-- Price Range -->
+      <div class="filter-section">
+        <div class="filter-section-title" onclick="toggleSection(this)">
+          Price Range
+          <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="filter-body">
+          <div class="price-range-wrap">
+            <input type="range" class="range-slider" id="priceSlider"
+              min="{{ global_min }}" max="{{ global_max }}"
+              value="{{ sel_max }}"
+              oninput="updatePrice(this.value)">
+            <div class="price-inputs">
+              <input type="number" id="priceMinInput" name="price_min"
+                value="{{ sel_min }}" min="{{ global_min }}" max="{{ global_max }}"
+                placeholder="Min &#8377;">
+              <input type="number" id="priceMaxInput" name="price_max"
+                value="{{ sel_max }}" min="{{ global_min }}" max="{{ global_max }}"
+                placeholder="Max &#8377;">
+            </div>
+          </div>
+          <button type="submit" class="btn-apply-price">Apply</button>
+        </div>
+      </div>
+
+      <!-- Filterable Attributes -->
+      {% for attr in filter_attrs %}
+      <div class="filter-section">
+        <div class="filter-section-title" onclick="toggleSection(this)">
+          {{ attr.name }}
+          <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="filter-body">
+          <ul class="attr-list">
+            {% for val in attr.values %}
+            <li>
+              <label>
+                <input type="checkbox"
+                  name="attr_{{ attr.slug }}"
+                  value="{{ val.slug }}"
+                  {% if val.slug in selected_slugs %}checked{% endif %}
+                  onchange="this.form.submit()">
+                {{ val.value }}
+              </label>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      {% endfor %}
+
+    </form>
+  </aside>
+
+  <!-- ====== PRODUCTS AREA ====== -->
+  <div class="products-area">
+
+    <!-- Active filter chips -->
+    {% if selected_filters or sel_min != global_min or sel_max != global_max %}
+    <div class="active-filters" style="padding:0 0 12px;">
+      {% for attr_name, slugs in selected_filters.items %}
+        {% for s in slugs %}
+        <span class="filter-chip">
+          {{ attr_name }}: {{ s }}
+          <a href="javascript:removeFilter('{{ attr_name }}','{{ s }}')" title="Remove">&#x2715;</a>
+        </span>
+        {% endfor %}
+      {% endfor %}
+      {% if sel_min != global_min or sel_max != global_max %}
+      <span class="filter-chip">
+        &#8377;{{ sel_min }} &ndash; &#8377;{{ sel_max }}
+        <a href="javascript:clearPrice()" title="Remove">&#x2715;</a>
+      </span>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Product grid -->
+    <div class="prod-grid">
+      {% for p in products %}
+      <a href="{% url 'product_detail' p.id %}" class="prod-card">
+        <div class="prod-card-img">
+          {% if p.images.first %}
+            <img src="{{ p.images.first.image.url }}" alt="{{ p.name }}">
+          {% elif p.image %}
+            <img src="/media/{{ p.image.0 }}" alt="{{ p.name }}">
+          {% else %}
+            <svg viewBox="0 0 24 24" style="width:48px;height:48px;stroke:#ccc;fill:none;stroke-width:1.2;">
+              <rect x="3" y="3" width="18" height="18" rx="2"/>
+              <circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21 15 16 10 5 21"/>
+            </svg>
+          {% endif %}
+        </div>
+        <div class="prod-card-body">
+          {% if p.brand %}<div class="prod-brand">{{ p.brand }}</div>{% endif %}
+          <div class="prod-name">{{ p.name }}</div>
+          <div class="prod-divider"></div>
+          {% with v=p.variants.first %}
+          {% if v %}
+          <div class="prod-price">&#8377;{{ v.price }}</div>
+          {% endif %}
+          {% endwith %}
+          <div class="prod-actions">
+            <span class="btn-prod-view">View</span>
+          </div>
+        </div>
+      </a>
+      {% empty %}
+      <div class="empty-state">
+        <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        <p>No products match your filters.<br><a href="{% url 'category_page' parent.slug %}" style="color:#9d27b0;">Clear all filters</a></p>
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+</div>
+
+<!-- Mobile filter FAB -->
+<button class="filter-fab" onclick="openMobileFilter()">
+  <svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+  Filters {% if selected_filters %}&bull; {{ selected_filters|length }}{% endif %}
+</button>
+<div class="filter-overlay" id="filterOverlay" onclick="closeMobileFilter()"></div>
+
+<script>
+// ── Collapsible filter sections ──
+function toggleSection(el){
+  el.classList.toggle("collapsed");
+  var body = el.nextElementSibling;
+  body.style.display = body.style.display === "none" ? "" : "none";
+}
+
+// ── Price slider ──
+function updatePrice(val){
+  document.getElementById("priceMaxInput").value = val;
+  var slider = document.getElementById("priceSlider");
+  var min = slider.min, max = slider.max;
+  var pct = ((val - min) / (max - min)) * 100;
+  slider.style.background = "linear-gradient(to right,#9d27b0 0%,#9d27b0 "+pct+"%,#ddd "+pct+"%,#ddd 100%)";
+}
+
+// ── Sort ──
+function applySort(val){
+  var url = new URL(window.location.href);
+  url.searchParams.set("sort", val);
+  window.location.href = url.toString();
+}
+
+// ── Remove single filter chip ──
+function removeFilter(attrName, valSlug){
+  var url = new URL(window.location.href);
+  // Find param key by matching hidden input
+  var form = document.getElementById("filterForm");
+  var inputs = form.querySelectorAll("input[type=checkbox]");
+  // rebuild without this value
+  var param = null;
+  inputs.forEach(function(inp){
+    if(inp.value === valSlug) param = inp.name;
+  });
+  if(!param) return;
+  var vals = url.searchParams.getAll(param).filter(function(v){return v !== valSlug;});
+  url.searchParams.delete(param);
+  vals.forEach(function(v){url.searchParams.append(param,v);});
+  window.location.href = url.toString();
+}
+
+// ── Clear price filter ──
+function clearPrice(){
+  var url = new URL(window.location.href);
+  url.searchParams.delete("price_min");
+  url.searchParams.delete("price_max");
+  window.location.href = url.toString();
+}
+
+// ── Mobile filter panel ──
+function openMobileFilter(){
+  document.getElementById("filterSidebar").classList.add("mobile-open");
+  document.getElementById("filterSidebar").style.display="block";
+  document.getElementById("filterOverlay").classList.add("open");
+  document.body.style.overflow="hidden";
+}
+function closeMobileFilter(){
+  document.getElementById("filterSidebar").classList.remove("mobile-open");
+  document.getElementById("filterSidebar").style.display="";
+  document.getElementById("filterOverlay").classList.remove("open");
+  document.body.style.overflow="";
+}
+
+// Init slider gradient on load
+(function(){
+  var slider = document.getElementById("priceSlider");
+  if(slider) updatePrice(slider.value);
+})();
+
+// Collapse all filter sections by default (Meesho style)
+(function(){
+  document.querySelectorAll('.filter-section-title').forEach(function(t){
+    t.classList.add('collapsed');
+    var b = t.nextElementSibling;
+    if(b) b.style.display = 'none';
+  });
+})();
+</script>
+
+{% endblock %}

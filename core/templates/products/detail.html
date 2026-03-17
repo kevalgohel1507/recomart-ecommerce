@@ -1,0 +1,28 @@
+<h2>{{ product.name }}</h2>
+
+<p id="price">₹ {{ product.price }}</p>
+
+{% for attr, values in attributes.items %}
+<h4>{{ attr }}</h4>
+
+{% for val in values %}
+<button onclick="selectVariant('{{ attr }}','{{ val }}')">
+{{ val }}
+</button>
+{% endfor %}
+
+{% endfor %}
+
+<script>
+
+function selectVariant(attribute, value){
+
+fetch(`/variant-price/?product={{ product.id }}&attribute=${attribute}&value=${value}`)
+.then(res => res.json())
+.then(data => {
+    document.getElementById("price").innerText = "₹ " + data.price;
+});
+
+}
+
+</script>

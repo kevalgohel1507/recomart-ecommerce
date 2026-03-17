@@ -1,0 +1,109 @@
+<!-- ================= SUB CATEGORY SLIDER ================= -->
+ <style>
+/* ===== SUB CATEGORY STYLE ===== */
+
+.subcategory-slider{
+    position:relative;
+    padding:30px 60px;
+}
+
+.subcategory-track{
+    display:flex;
+    gap:70px;
+    overflow-x:auto;
+    scroll-behavior:smooth;
+}
+
+.subcategory-track::-webkit-scrollbar{
+    display:none;   
+}
+
+.sub-card{
+    min-width:160px;
+    text-align:center;
+    text-decoration:none;
+    color:black;
+}
+
+.sub-icon-box{
+    width:140px;
+    height:140px;
+    margin:auto;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.sub-icon-box img{
+    width:120px;
+    height:120px;
+    object-fit:contain;
+}
+
+.sub-card p{
+    margin-top:10px;
+    font-weight:700;
+    color:#0d6efd;
+}
+
+/* arrows */
+
+.sub-slide{
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+    width:40px;
+    height:40px;
+    border-radius:50%;
+    border:none;
+    background:black;
+    color:white;
+    font-size:22px;
+}
+
+.sub-slide:hover{
+    background:#22c55e;
+}
+
+.sub-slide.left{left:10px;}
+.sub-slide.right{right:10px;}
+</style>
+
+<div class="subcategory-slider">
+
+<button class="sub-slide left" onclick="subSlideLeft()">‹</button>
+
+<div class="subcategory-track" id="subTrack">
+
+{% for sub in sub_categories %}
+
+<a href="{% url 'category_page' sub.slug %}" class="sub-card">
+
+<div class="sub-icon-box">
+    {% if sub.icon %}
+    <img src="{{ sub.icon.url }}">
+    {% endif %}
+</div>
+
+<p>{{ sub.name }}</p>
+
+</a>
+
+{% endfor %}
+
+</div>
+
+<button class="sub-slide right" onclick="subSlideRight()">›</button>
+
+</div>
+<script>
+const subTrack = document.getElementById("subTrack");
+
+function subSlideLeft(){
+    subTrack.scrollBy({left:-300, behavior:"smooth"});
+}
+
+function subSlideRight(){
+    subTrack.scrollBy({left:300, behavior:"smooth"});
+}
+</script>

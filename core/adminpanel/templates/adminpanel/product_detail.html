@@ -1,0 +1,185 @@
+{% extends "adminpanel/base.html" %}
+{% block content %}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+.detail-table{
+width:100%;
+border-collapse:collapse;
+margin-bottom:25px;
+}
+.detail-table th{
+background:#f8f9fa;
+padding:10px;
+border:1px solid #ddd;
+width:200px;
+}
+.detail-table td{
+padding:10px;
+border:1px solid #ddd;
+}
+.section-title{
+font-size:20px;
+font-weight:700;
+margin:25px 0 10px;
+border-bottom:3px solid #0d6efd;
+padding-bottom:6px;
+}
+.product-image{
+max-width:200px;
+border-radius:10px;
+border:1px solid #ddd;
+}
+.variant-thumb{
+width:70px;
+height:70px;
+object-fit:cover;
+border-radius:6px;
+border:1px solid #ddd;
+}
+</style>
+
+<div class="d-flex justify-content-between mb-3">
+<h3>📦 Product Details</h3>
+<a href="{% url 'adminpanel:admin_products' %}" class="btn btn-secondary">← Back</a>
+</div>
+
+<!-- BASIC PRODUCT INFO -->
+
+<h4 class="section-title">Basic Info</h4>
+
+<table class="detail-table">
+
+<tr><th>ID</th><td>#{{ product.id }}</td></tr>
+
+<tr><th>Name</th><td>{{ product.name }}</td></tr>
+
+<tr><th>Category</th><td>{{ product.category.name }}</td></tr>
+
+<tr><th>Base Price</th><td>{% with fv=product.variants.first %}{% if fv %}₹{{ fv.price }}{% else %}—{% endif %}{% endwith %}</td></tr>
+
+<tr>
+<th>Status</th>
+<td>
+{% if product.status == "approved" %}
+<span class="badge bg-success">Approved</span>
+{% elif product.status == "rejected" %}
+<span class="badge bg-danger">Rejected</span>
+{% else %}
+<span class="badge bg-warning">Pending</span>
+{% endif %}
+</td>
+</tr>
+
+<tr><th>Description</th><td>{{ product.description }}</td></tr>
+
+</table>
+
+<!-- VENDOR -->
+
+<h4 class="section-title">Vendor</h4>
+
+<table class="detail-table">
+<tr><th>Username</th><td>{{ product.vendor.username }}</td></tr>
+<tr><th>Email</th><td>{{ product.vendor.email }}</td></tr>
+</table>
+
+<!-- MAIN IMAGE -->
+
+<h4 class="section-title">Main Image</h4>
+
+{% with fv=product.variants.first %}
+{% if fv.images.first and fv.images.first.image %}
+  <img src="{{ fv.images.first.image.url }}" class="product-image">
+{% elif product.image %}
+  <img src="/media/{{ product.image.0 }}" class="product-image">
+{% else %}
+  <p>No image</p>
+{% endif %}
+{% endwith %}
+
+<!-- VARIANTS -->
+
+<h4 class="section-title">Variants</h4>
+
+{% if variants %}
+
+<table class="table table-bordered">
+
+<thead class="table-dark">
+<tr>
+<th>ID</th>
+<th>Attributes</th>
+<th>SKU</th>
+<th>Price</th>
+<th>Stock</th>
+<th>Images</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for v in variants %}
+<tr>
+
+<td>#{{ v.id }}</td>
+
+<td>{{ v.display_attributes }}</td>
+
+<td><small class="text-muted">{{ v.sku }}</small></td>
+
+<td>₹{{ v.price }}</td>
+
+<td>
+  {% if v.stock > 0 %}
+    <span class="badge bg-success">{{ v.stock }}</span>
+  {% else %}
+    <span class="badge bg-danger">0</span>
+  {% endif %}
+</td>
+
+<td style="display:flex;gap:6px;flex-wrap:wrap;">
+{% for img in v.images.all %}
+  {% if img.image %}
+    <img src="{{ img.image.url }}" class="variant-thumb">
+  {% endif %}
+{% empty %}
+  <span class="text-muted" style="font-size:12px;">No image</span>
+{% endfor %}
+</td>
+
+</tr>
+{% endfor %}
+
+</tbody>
+
+</table>
+
+{% else %}
+<p>No variants added.</p>
+{% endif %}
+
+<!-- ACTIONS -->
+
+<div class="mt-4">
+
+<a href="{% url 'adminpanel:admin_edit_product' product.id %}" class="btn btn-warning">
+✏ Edit
+</a>
+
+{% if product.status == "pending" %}
+<a href="{% url 'adminpanel:approve_product' product.id %}" class="btn btn-success">
+✓ Approve
+</a>
+{% endif %}
+
+<a href="{% url 'adminpanel:delete_product' product.id %}"
+class="btn btn-danger"
+onclick="return confirm('Delete product?')">
+🗑 Delete
+</a>
+
+</div>
+
+{% endblock %}

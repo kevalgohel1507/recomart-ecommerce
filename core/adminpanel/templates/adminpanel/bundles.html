@@ -1,0 +1,508 @@
+{% extends "adminpanel/base.html" %}
+{% block content %}
+
+<div class="ds-page-header">
+  <div>
+    <div class="ds-page-title">Bundles</div>
+    <div class="ds-breadcrumb"><a href="/adminpanel/dashboard/">Dashboard</a> / Bundles</div>
+  </div>
+</div>
+
+{% if messages %}
+  {% for msg in messages %}
+  <div style="margin-bottom:16px;padding:12px 18px;border-radius:10px;font-size:14px;font-weight:600;
+    background:{% if msg.tags == 'error' %}#fee2e2;color:#dc2626{% else %}#dcfce7;color:#16a34a{% endif %};">
+    {{ msg }}
+  </div>
+  {% endfor %}
+{% endif %}
+
+<style>
+.bb-builder{padding:0;overflow:hidden;}
+.bb-builder-form{display:grid;grid-template-columns:minmax(0,1.5fr) 360px;gap:0;}
+.bb-main{padding:28px;border-right:1px solid var(--border);background:linear-gradient(180deg,#ffffff 0%,#fbfcff 100%);}
+.bb-sidebar{padding:28px;background:#f8faff;display:flex;flex-direction:column;gap:16px;}
+.bb-step{border:1px solid var(--border);border-radius:18px;padding:20px;background:#fff;box-shadow:0 6px 20px rgba(67,97,238,.05);margin-bottom:18px;}
+.bb-step:last-child{margin-bottom:0;}
+.bb-step-head{display:flex;align-items:flex-start;gap:14px;margin-bottom:16px;}
+.bb-step-num{width:36px;height:36px;border-radius:12px;background:var(--bluelight);color:var(--blue);font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.bb-step-title{font-size:15px;font-weight:800;color:var(--text);margin-bottom:2px;}
+.bb-step-copy{font-size:12px;line-height:1.55;color:var(--muted);}
+.bb-field-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.bb-field{display:flex;flex-direction:column;gap:7px;}
+.bb-field-label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;}
+.bb-input,.bb-select{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:12px;font-size:14px;font-family:inherit;outline:none;background:#fff;transition:border-color var(--tr),box-shadow var(--tr);}
+.bb-input:focus,.bb-select:focus,.bb-search:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(67,97,238,.12);}
+.bb-toggle{display:flex;align-items:center;gap:10px;padding-top:26px;}
+.bb-toggle input{width:18px;height:18px;accent-color:var(--blue);}
+.bb-toggle label{font-size:14px;font-weight:600;color:var(--text);cursor:pointer;}
+.bb-hint{font-size:12px;color:var(--muted);margin-top:8px;}
+.bb-search-wrap{position:relative;margin-bottom:14px;}
+.bb-search-wrap i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#94a3b8;font-size:13px;}
+.bb-search{width:100%;padding:12px 14px 12px 40px;border:1.5px solid var(--border);border-radius:12px;font-size:14px;font-family:inherit;outline:none;background:#fff;transition:border-color var(--tr),box-shadow var(--tr);}
+.bb-product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;max-height:460px;overflow:auto;padding-right:4px;}
+.bb-product-card{display:block;position:relative;border:1.5px solid var(--border);border-radius:18px;padding:14px;background:#fff;cursor:pointer;transition:border-color var(--tr),transform var(--tr),box-shadow var(--tr);}
+.bb-product-card:hover{transform:translateY(-2px);border-color:#c7d2fe;box-shadow:0 10px 24px rgba(67,97,238,.08);}
+.bb-product-card.is-selected{border-color:var(--blue);background:#f8faff;box-shadow:0 10px 24px rgba(67,97,238,.1);}
+.bb-product-card.is-main{border-color:#f59e0b;background:#fff8eb;box-shadow:0 10px 24px rgba(245,158,11,.14);}
+.bb-product-card[hidden]{display:none;}
+.bb-product-check{position:absolute;top:14px;right:14px;width:18px;height:18px;accent-color:var(--blue);}
+.bb-card-top{display:flex;gap:12px;align-items:center;min-height:74px;}
+.bb-card-thumb{width:60px;height:60px;border-radius:14px;overflow:hidden;background:#eef2ff;border:1px solid #dde5ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.bb-card-thumb img{width:100%;height:100%;object-fit:cover;}
+.bb-card-thumb i{font-size:18px;color:#8fa3d5;}
+.bb-card-name{font-size:14px;font-weight:700;color:var(--text);line-height:1.35;margin-bottom:4px;}
+.bb-card-sub{font-size:12px;color:var(--muted);line-height:1.45;}
+.bb-main-pill{display:inline-flex;align-items:center;gap:6px;background:#fff3cd;color:#b45309;font-size:10px;font-weight:800;padding:5px 10px;border-radius:999px;margin-top:10px;text-transform:uppercase;letter-spacing:.5px;}
+.bb-main-pill i{font-size:10px;}
+.bb-price-rows{display:flex;flex-direction:column;gap:12px;}
+.bb-price-empty{padding:18px;border:1px dashed #cbd5e1;border-radius:14px;background:#f8fafc;color:var(--muted);font-size:13px;line-height:1.6;text-align:center;}
+.bb-price-row{display:grid;grid-template-columns:minmax(0,1fr) 180px;gap:14px;align-items:center;padding:14px 16px;border:1px solid var(--border);border-radius:16px;background:#fbfcff;}
+.bb-price-row-main{border-color:#fed7aa;background:#fff7ed;}
+.bb-price-name{font-size:14px;font-weight:700;color:var(--text);line-height:1.4;}
+.bb-price-meta{font-size:12px;color:var(--muted);margin-top:4px;}
+.bb-price-input{width:100%;padding:11px 12px;border:1.5px solid var(--border);border-radius:12px;font-size:14px;font-family:inherit;outline:none;text-align:right;}
+.bb-price-input:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(67,97,238,.12);}
+.bb-summary-card{border:1px solid var(--border);border-radius:18px;background:#fff;padding:18px;box-shadow:0 8px 24px rgba(67,97,238,.06);}
+.bb-summary-title{font-size:15px;font-weight:800;color:var(--text);margin-bottom:6px;}
+.bb-summary-copy{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:14px;}
+.bb-summary-list{display:flex;flex-direction:column;gap:10px;}
+.bb-summary-row{display:flex;align-items:center;justify-content:space-between;font-size:13px;color:var(--muted);}
+.bb-summary-row strong{font-size:14px;color:var(--text);}
+.bb-summary-row.total{margin-top:6px;padding-top:12px;border-top:1px solid var(--border);font-size:14px;font-weight:800;color:var(--text);}
+.bb-summary-row.total strong{font-size:22px;color:#16a34a;}
+.bb-badge-count{display:inline-flex;align-items:center;gap:6px;background:#e8edff;color:var(--blue);font-size:12px;font-weight:700;padding:7px 10px;border-radius:999px;margin-bottom:12px;}
+.bb-submit{margin-top:auto;display:flex;flex-direction:column;gap:12px;}
+.bb-readonly{background:#f8fafc;font-weight:700;color:#16a34a;}
+.bb-note{font-size:12px;color:var(--muted);line-height:1.6;}
+@media(max-width:1100px){
+  .bb-builder-form{grid-template-columns:1fr;}
+  .bb-main{border-right:none;border-bottom:1px solid var(--border);}
+}
+@media(max-width:720px){
+  .bb-main,.bb-sidebar{padding:18px;}
+  .bb-field-grid{grid-template-columns:1fr;}
+  .bb-toggle{padding-top:0;}
+  .bb-product-grid{grid-template-columns:1fr;max-height:none;}
+  .bb-price-row{grid-template-columns:1fr;}
+}
+</style>
+
+<!-- CREATE BUNDLE FORM -->
+<div class="admin-card bb-builder" style="margin-bottom:24px;">
+  <form method="post" action="{% url 'adminpanel:create_bundle' %}" id="bundleCreateForm" class="bb-builder-form">
+    {% csrf_token %}
+
+    <div class="bb-main">
+      <div class="ds-section-header" style="margin-bottom:22px;">
+        <div class="ds-section-title"><i class="fa fa-layer-group" style="color:var(--blue);margin-right:8px;"></i>Create New Bundle</div>
+      </div>
+
+      <div class="bb-step">
+        <div class="bb-step-head">
+          <div class="bb-step-num">1</div>
+          <div>
+            <div class="bb-step-title">Bundle basics</div>
+            <div class="bb-step-copy">Give the offer a clear name and decide whether it should be active on product pages.</div>
+          </div>
+        </div>
+        <div class="bb-field-grid">
+          <div class="bb-field">
+            <label class="bb-field-label" for="bbBundleName">Bundle Name *</label>
+            <input class="bb-input" type="text" id="bbBundleName" name="name" required placeholder="e.g. Phone + Charger Combo">
+          </div>
+          <div class="bb-toggle">
+            <input type="checkbox" name="is_active" id="is_active_create" checked>
+            <label for="is_active_create">Active bundle</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="bb-step">
+        <div class="bb-step-head">
+          <div class="bb-step-num">2</div>
+          <div>
+            <div class="bb-step-title">Choose the main product</div>
+            <div class="bb-step-copy">This is the primary product for the offer. It is always included in the bundle automatically.</div>
+          </div>
+        </div>
+        <div class="bb-field">
+          <label class="bb-field-label" for="bbMainProduct">Main Product *</label>
+          <select class="bb-select" name="main_product" id="bbMainProduct" required>
+            <option value="">Select main product</option>
+            {% for p in all_products %}
+            <option value="{{ p.id }}">{{ p.name }}</option>
+            {% endfor %}
+          </select>
+          <div class="bb-hint">After selecting the main product, choose any additional bundle products below.</div>
+        </div>
+      </div>
+
+      <div class="bb-step">
+        <div class="bb-step-head">
+          <div class="bb-step-num">3</div>
+          <div>
+            <div class="bb-step-title">Select bundle products</div>
+            <div class="bb-step-copy">Pick the supporting products to include with the main product. You can search the catalog and build the bundle visually.</div>
+          </div>
+        </div>
+
+        <div class="bb-search-wrap">
+          <i class="fa fa-search"></i>
+          <input type="text" class="bb-search" id="bbProductSearch" placeholder="Search approved products by name">
+        </div>
+
+        <div class="bb-product-grid" id="bbProductGrid">
+          {% for p in all_products %}
+          {% with fv=p.variants.first %}
+          <label class="bb-product-card" data-product-id="{{ p.id }}" data-name="{{ p.name|lower }}" data-product-name="{{ p.name|escape }}" data-default-price="{% if fv %}{{ fv.price }}{% else %}0{% endif %}">
+            <input class="bb-product-check" type="checkbox" name="products" value="{{ p.id }}">
+            <div class="bb-card-top">
+              <div class="bb-card-thumb">
+                {% if p.image and p.image.0 %}
+                <img src="/media/{{ p.image.0 }}" alt="{{ p.name }}">
+                {% else %}
+                <i class="fa fa-box-open"></i>
+                {% endif %}
+              </div>
+              <div>
+                <div class="bb-card-name">{{ p.name }}</div>
+                <div class="bb-card-sub">
+                  {% if fv %}
+                  Suggested price: ₹{{ fv.price }}
+                  {% else %}
+                  No variant price found. Enter bundle item price manually.
+                  {% endif %}
+                </div>
+                <div class="bb-main-pill" hidden><i class="fa fa-star"></i> Main product</div>
+              </div>
+            </div>
+          </label>
+          {% endwith %}
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="bb-step">
+        <div class="bb-step-head">
+          <div class="bb-step-num">4</div>
+          <div>
+            <div class="bb-step-title">Enter item prices</div>
+            <div class="bb-step-copy">For each selected product, set a discounted price. Bundle total is the sum of discounted prices only.</div>
+          </div>
+        </div>
+
+        <div class="bb-price-rows" id="bbPriceRows">
+          <div class="bb-price-empty">Select the main product and optional bundle products to start pricing this bundle.</div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="bb-sidebar">
+      <div class="bb-summary-card">
+        <div class="bb-badge-count"><i class="fa fa-cubes"></i> <span id="bbSelectedCount">0</span> product(s) selected</div>
+        <div class="bb-summary-title">Price summary</div>
+        <div class="bb-summary-copy">Original prices come from product variant prices. Discounted prices are saved per product in bundle relation.</div>
+
+        <div class="bb-summary-list">
+          <div class="bb-summary-row"><span>Original total</span><strong id="bbOriginalTotal">₹0.00</strong></div>
+          <div class="bb-summary-row"><span>Discounted total</span><strong id="bbDiscountedTotal">₹0.00</strong></div>
+          <div class="bb-summary-row"><span>You save</span><strong id="bbSavings">₹0.00</strong></div>
+          <div class="bb-summary-row total"><span>Bundle price</span><strong id="bbGrandTotal">₹0.00</strong></div>
+        </div>
+      </div>
+
+      <div class="bb-summary-card">
+        <div class="bb-field" style="margin-bottom:0;">
+          <label class="bb-field-label" for="bundlePriceInput">Calculated Bundle Price (₹) *</label>
+          <input class="bb-input bb-readonly" type="number" name="bundle_price" id="bundlePriceInput" required min="0" step="0.01" readonly value="">
+        </div>
+      </div>
+
+      <div class="bb-submit">
+        <button type="submit" class="ds-btn ds-btn-primary" style="justify-content:center;"><i class="fa fa-plus"></i> Create Bundle</button>
+        <div class="bb-note">Saves bundle details plus per-product discounted prices in the bundle-products relation table.</div>
+      </div>
+    </aside>
+  </form>
+</div>
+
+<!-- BUNDLES LIST -->
+{% if bundles %}
+<div class="admin-card" style="padding:0;">
+  <table class="ds-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Bundle Name</th>
+        <th>Products</th>
+        <th>Bundle Price</th>
+        <th>Status</th>
+        <th>Created</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for bundle in bundles %}
+      <tr>
+        <td style="color:var(--muted);font-size:12px;">{{ forloop.counter }}</td>
+        <td style="font-weight:700;">{{ bundle.name }}</td>
+        <td>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;">
+            {% for p in bundle.products.all %}
+            <span style="background:#e8edff;color:var(--blue);font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;">{{ p.name }}</span>
+            {% empty %}
+            <span style="color:var(--muted);font-size:13px;">—</span>
+            {% endfor %}
+          </div>
+        </td>
+        <td style="font-weight:700;color:#16a34a;font-size:15px;">₹{{ bundle.bundle_price }}</td>
+        <td>
+          {% if bundle.is_active %}
+          <span class="ds-badge ds-badge-green">Active</span>
+          {% else %}
+          <span class="ds-badge" style="background:#f1f5f9;color:#64748b;">Inactive</span>
+          {% endif %}
+        </td>
+        <td style="font-size:13px;color:var(--muted);">{{ bundle.created_at|date:"M d, Y" }}</td>
+        <td style="display:flex;gap:8px;align-items:center;">
+          <a href="{% url 'adminpanel:edit_bundle' bundle.id %}" class="ds-btn ds-btn-outline ds-btn-sm"><i class="fa fa-pen"></i> Edit</a>
+          <form method="post" action="{% url 'adminpanel:delete_bundle' bundle.id %}" style="display:inline;"
+            onsubmit="return confirm('Delete bundle \'{{ bundle.name }}\'? This cannot be undone.');">
+            {% csrf_token %}
+            <button type="submit" class="ds-btn ds-btn-danger ds-btn-sm"><i class="fa fa-trash"></i></button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="admin-card" style="text-align:center;padding:60px;color:var(--muted);">
+  <i class="fa fa-boxes-stacked" style="font-size:42px;opacity:.15;display:block;margin-bottom:14px;"></i>
+  No bundles yet. Use the form above to create the first one.
+</div>
+{% endif %}
+
+<script>
+(function(){
+  const form = document.getElementById('bundleCreateForm');
+  if(!form) return;
+
+  const mainSelect = document.getElementById('bbMainProduct');
+  const nameInput = document.getElementById('bbBundleName');
+  const searchInput = document.getElementById('bbProductSearch');
+  const productCards = Array.from(document.querySelectorAll('.bb-product-card'));
+  const priceRows = document.getElementById('bbPriceRows');
+  const bundlePriceInput = document.getElementById('bundlePriceInput');
+  const selectedCountEl = document.getElementById('bbSelectedCount');
+  const originalTotalEl = document.getElementById('bbOriginalTotal');
+  const discountedTotalEl = document.getElementById('bbDiscountedTotal');
+  const savingsEl = document.getElementById('bbSavings');
+  const grandTotalEl = document.getElementById('bbGrandTotal');
+  const discountedState = {};
+
+  function formatMoney(value){
+    return '₹' + (Number(value) || 0).toFixed(2);
+  }
+
+  function parseMoney(value){
+    const parsed = parseFloat(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+
+  function escapeHtml(value){
+    return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function getMainCard(){
+    return productCards.find(card => card.dataset.productId === mainSelect.value) || null;
+  }
+
+  function getSelectedCards(){
+    const selected = [];
+    const mainCard = getMainCard();
+    if(mainCard) selected.push(mainCard);
+
+    productCards.forEach(card => {
+      const check = card.querySelector('.bb-product-check');
+      if(check && check.checked && card !== mainCard){
+        selected.push(card);
+      }
+    });
+
+    return selected;
+  }
+
+  function syncMainCardState(){
+    const mainId = mainSelect.value;
+
+    productCards.forEach(card => {
+      const check = card.querySelector('.bb-product-check');
+      const pill = card.querySelector('.bb-main-pill');
+      const isMain = Boolean(mainId) && card.dataset.productId === mainId;
+
+      card.classList.toggle('is-main', isMain);
+      if(pill) pill.hidden = !isMain;
+
+      if(check){
+        if(isMain){
+          check.checked = false;
+          check.disabled = true;
+        } else {
+          check.disabled = false;
+        }
+        card.classList.toggle('is-selected', isMain || check.checked);
+      }
+    });
+  }
+
+  function updateSummary(){
+    const selectedCards = getSelectedCards();
+    let originalTotal = 0;
+    let discountedTotal = 0;
+
+    selectedCards.forEach(function(card){
+      const productId = card.dataset.productId;
+      const oldPrice = parseMoney(card.dataset.defaultPrice);
+      const input = priceRows.querySelector(`.bb-price-input[data-product-id="${productId}"]`);
+      const discounted = input ? parseMoney(input.value) : 0;
+
+      originalTotal += oldPrice > 0 ? oldPrice : discounted;
+      discountedTotal += discounted;
+    });
+
+    const savings = Math.max(originalTotal - discountedTotal, 0);
+    const grandTotal = discountedTotal;
+
+    selectedCountEl.textContent = String(selectedCards.length);
+    originalTotalEl.textContent = formatMoney(originalTotal);
+    discountedTotalEl.textContent = formatMoney(discountedTotal);
+    savingsEl.textContent = formatMoney(savings);
+    grandTotalEl.textContent = formatMoney(grandTotal);
+    bundlePriceInput.value = selectedCards.length ? grandTotal.toFixed(2) : '';
+  }
+
+  function renderPriceRows(){
+    const selectedCards = getSelectedCards();
+
+    if(!selectedCards.length){
+      priceRows.innerHTML = '<div class="bb-price-empty">Select the main product and optional bundle products to start pricing this bundle.</div>';
+      updateSummary();
+      return;
+    }
+
+    priceRows.innerHTML = selectedCards.map((card, index) => {
+      const productId = card.dataset.productId;
+      const productName = card.dataset.productName;
+      const defaultPrice = parseMoney(card.dataset.defaultPrice);
+      const currentValue = Object.prototype.hasOwnProperty.call(discountedState, productId)
+        ? discountedState[productId]
+        : (defaultPrice > 0 ? defaultPrice.toFixed(2) : '');
+
+      discountedState[productId] = currentValue;
+
+      return `
+        <div class="bb-price-row${index === 0 ? ' bb-price-row-main' : ''}">
+          <div>
+            <div class="bb-price-name">${escapeHtml(productName)}</div>
+            <div class="bb-price-meta">${index === 0 ? 'Main product' : 'Bundle product'}${defaultPrice > 0 ? ` • Original ₹${defaultPrice.toFixed(2)}` : ' • Original price not available'}</div>
+          </div>
+          <div>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              required
+              class="bb-price-input"
+              name="discounted_price_${productId}"
+              data-product-id="${productId}"
+              value="${escapeHtml(currentValue)}"
+              placeholder="Discounted price"
+            >
+          </div>
+        </div>`;
+    }).join('');
+
+    priceRows.querySelectorAll('.bb-price-input').forEach(input => {
+      input.addEventListener('input', function(){
+        discountedState[this.dataset.productId] = this.value;
+        updateSummary();
+      });
+    });
+
+    updateSummary();
+  }
+
+  mainSelect.addEventListener('change', function(){
+    syncMainCardState();
+
+    const selectedOption = this.options[this.selectedIndex];
+    if(selectedOption && selectedOption.value && !nameInput.value.trim()){
+      nameInput.value = selectedOption.text + ' Bundle';
+    }
+
+    renderPriceRows();
+  });
+
+  productCards.forEach(card => {
+    const check = card.querySelector('.bb-product-check');
+    if(!check) return;
+
+    check.addEventListener('change', function(){
+      card.classList.toggle('is-selected', this.checked || card.classList.contains('is-main'));
+      renderPriceRows();
+    });
+  });
+
+  searchInput.addEventListener('input', function(){
+    const term = this.value.trim().toLowerCase();
+    productCards.forEach(card => {
+      card.hidden = term && !card.dataset.name.includes(term);
+    });
+  });
+
+  form.addEventListener('submit', function(e){
+    syncMainCardState();
+    renderPriceRows();
+
+    if(!mainSelect.value){
+      e.preventDefault();
+      alert('Select the main product before creating the bundle.');
+      mainSelect.focus();
+      return;
+    }
+
+    const selectedCards = getSelectedCards();
+    if(!selectedCards.length){
+      e.preventDefault();
+      alert('Select at least the main product to create this bundle.');
+      return;
+    }
+
+    const invalidInput = Array.from(priceRows.querySelectorAll('.bb-price-input')).find(input => parseMoney(input.value) <= 0);
+    if(invalidInput){
+      e.preventDefault();
+      alert('Enter a valid discounted price for every selected product.');
+      invalidInput.focus();
+      return;
+    }
+
+    if(!bundlePriceInput.value || parseMoney(bundlePriceInput.value) <= 0){
+      e.preventDefault();
+      alert('Bundle price could not be calculated. Check the selected item prices.');
+    }
+  });
+
+  syncMainCardState();
+  renderPriceRows();
+})();
+</script>
+
+{% endblock %}

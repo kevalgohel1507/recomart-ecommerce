@@ -1,0 +1,431 @@
+{% extends "vendor/vendor_base.html" %}
+{% block vendor_content %}
+
+<style>
+
+/* ===== CONTAINER ===== */
+.vendor-card{
+  max-width:1000px;
+  margin:auto;
+  background:#ffffff;
+  padding:40px;
+  border-radius:18px;
+  box-shadow:0 15px 40px rgba(0,0,0,.08);
+}
+
+.step-badge{
+  display:inline-block;
+  padding:4px 12px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.04em;
+  background:#eff6ff;
+  color:#2563eb;
+  text-transform:uppercase;
+  margin-bottom:10px;
+}
+
+.vendor-card h2{
+  text-align:left;
+  font-size:22px;
+  font-weight:700;
+  margin:6px 0 6px;
+  color:#1e293b;
+}
+
+.page-subtext{
+  font-size:12.5px;
+  color:#64748b;
+  margin-bottom:28px;
+  line-height:1.6;
+}
+
+/* ===== GRID ===== */
+.form-grid{
+  display:grid;
+  grid-template-columns:1.1fr .9fr;
+  gap:30px;
+}
+
+@media(max-width:768px){
+  .form-grid{ grid-template-columns:1fr; }
+}
+
+/* ===== SECTION TITLE ===== */
+.form-section-title{
+  font-size:11px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  color:#94a3b8;
+  margin-bottom:14px;
+  padding-bottom:6px;
+  border-bottom:1px solid #f1f5f9;
+}
+
+/* ===== INPUTS ===== */
+.form-group{
+  margin-bottom:18px;
+}
+
+.form-group label{
+  display:block;
+  font-size:13px;
+  font-weight:600;
+  margin-bottom:6px;
+  color:#334155;
+}
+
+.form-group small{
+  display:block;
+  font-size:11px;
+  color:#94a3b8;
+  margin-top:4px;
+  line-height:1.5;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea{
+  width:100%;
+  padding:11px 14px;
+  border-radius:10px;
+  border:1px solid #e2e8f0;
+  font-size:14px;
+  transition:.2s;
+  box-sizing:border-box;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus{
+  border-color:#2563eb;
+  box-shadow:0 0 0 3px rgba(37,99,235,.15);
+  outline:none;
+}
+
+textarea{
+  resize:vertical;
+  min-height:90px;
+}
+
+/* ===== IMAGE UPLOAD ===== */
+.image-preview{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:10px;
+}
+
+.image-preview img{
+  width:85px;
+  height:85px;
+  object-fit:cover;
+  border-radius:8px;
+  border:2px solid #e2e8f0;
+}
+
+.upload-btn{
+  width:85px;
+  height:85px;
+  border:2px dashed #2563eb;
+  border-radius:8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  font-size:24px;
+  color:#2563eb;
+  transition:.2s;
+}
+
+.upload-btn:hover{ background:#eff6ff; }
+
+/* ===== ATTRIBUTES BOX ===== */
+.attr-box{
+  margin-top:12px;
+  padding:16px 18px;
+  background:#f8fafc;
+  border-radius:12px;
+  border:1px solid #e2e8f0;
+}
+
+.attr-box-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:10px;
+}
+
+.attr-box-header span{
+  font-size:12px;
+  font-weight:700;
+  color:#0f172a;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+
+.attr-box-header small{
+  font-size:11px;
+  color:#64748b;
+}
+
+.attr-box p{
+  font-size:12.5px;
+  color:#64748b;
+  margin:0 0 8px;
+  line-height:1.6;
+}
+
+.attr-loader{
+  font-size:12px;
+  color:#2563eb;
+  display:none;
+}
+
+/* ===== NEXT-STEP HINT ===== */
+.next-hint{
+  margin-top:16px;
+  padding:12px 16px;
+  background:#f0fdf4;
+  border:1px solid #86efac;
+  border-radius:10px;
+  font-size:12px;
+  color:#166534;
+  line-height:1.6;
+}
+
+.next-hint strong{ display:block; margin-bottom:3px; }
+
+/* ===== BUTTON ===== */
+.submit-btn{
+  margin-top:30px;
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  background:linear-gradient(135deg,#2563eb,#22c55e);
+  color:white;
+  font-weight:700;
+  font-size:15px;
+  cursor:pointer;
+  transition:.25s;
+}
+
+.submit-btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 10px 25px rgba(0,0,0,.15);
+}
+
+.required{ color:#ef4444; }
+
+</style>
+
+<div class="vendor-card">
+
+  <div class="step-badge">Step 1 of 2 · Basic Product Info</div>
+  <h2>Add New Product</h2>
+  <p class="page-subtext">
+    Fill in the basic product info and upload your main images here.
+    In the <strong>next step</strong> you will add variants (color, RAM, storage, size …)
+    with separate images, prices and stock for each combination.
+  </p>
+
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="form-grid">
+
+      <!-- ===== LEFT COLUMN: BASIC DETAILS ===== -->
+      <div>
+        <div class="form-section-title">Basic details</div>
+
+        <div class="form-group">
+          <label>Product Name <span class="required">*</span></label>
+          <input name="name" required placeholder="e.g. Apple iPhone 15">
+        </div>
+
+        <div class="form-group">
+          <label>Category <span class="required">*</span></label>
+          <select name="category" id="categorySelect" required>
+            <option value="">Select Category</option>
+            {% for node in category_tree %}
+              {% include "vendor/category_option.html" with node=node range="" %}
+            {% endfor %}
+          </select>
+          <small>Category-specific attributes will appear on the right once you pick one.</small>
+        </div>
+
+        <div class="form-group">
+          <label>Brand</label>
+          <input name="brand" placeholder="e.g. Apple, Samsung, Nike …">
+        </div>
+
+        <div class="form-group">
+          <label>Short Description</label>
+          <input name="short_description" placeholder="One-line summary shown on listing cards">
+        </div>
+
+        <div class="form-group">
+          <label>Full Description</label>
+          <textarea id="product-description" name="description" rows="4"
+                    placeholder="Key features, box contents, warranty info &hellip;"></textarea>
+        </div>
+
+        <div class="next-hint">
+          <strong>What happens next?</strong>
+          After saving you will be taken to the <em>Add Variants</em> page where you enter each
+          color / size combination, upload variant images and set individual prices &amp; stock.
+        </div>
+      </div>
+
+      <!-- ===== RIGHT COLUMN: IMAGES + ATTRIBUTES ===== -->
+      <div>
+        <div class="form-section-title">Main images</div>
+
+        <div class="form-group">
+          <label>Product Images</label>
+          <div class="image-preview" id="preview"></div>
+          <div class="upload-btn" onclick="document.getElementById('images').click()">+</div>
+          <input type="file" id="images" name="images" multiple hidden
+                 onchange="previewImages(this)">
+          <small>
+            These are the <strong>default images</strong> shown before any variant is selected.
+            You can upload variant-specific images (e.g. per color) in the next step.
+          </small>
+        </div>
+
+        <div class="attr-box">
+          <div class="attr-box-header">
+            <span>Category attributes</span>
+            <small id="attrCatLabel">Select a category first</small>
+          </div>
+          <p id="attrHint">
+            After you choose a category above, extra attributes (model number, material, display
+            size, etc.) will appear here. These apply to the whole product, not per variant.
+          </p>
+          <span class="attr-loader" id="attrLoader">Loading attributes…</span>
+          <div id="attrFields"></div>
+        </div>
+      </div>
+
+    </div><!-- /form-grid -->
+
+    <button class="submit-btn">Save &amp; Continue → Add Variants</button>
+
+  </form>
+</div>
+
+<script>
+
+/* ===== IMAGE PREVIEW ===== */
+function previewImages(input){
+  const preview = document.getElementById("preview");
+  preview.innerHTML = "";
+  Array.from(input.files).forEach(file => {
+    const img = document.createElement("img");
+    img.src = URL.createObjectURL(file);
+    preview.appendChild(img);
+  });
+}
+
+/* ===== CATEGORY ATTRIBUTES AJAX (logic unchanged) ===== */
+document.getElementById("categorySelect").addEventListener("change", function(){
+  const cid    = this.value;
+  const fields = document.getElementById("attrFields");
+  const hint   = document.getElementById("attrHint");
+  const loader = document.getElementById("attrLoader");
+  const catLbl = document.getElementById("attrCatLabel");
+
+  fields.innerHTML = "";
+  hint.style.display   = "none";
+  loader.style.display = "none";
+
+  if(!cid){
+    hint.style.display = "block";
+    catLbl.textContent = "Select a category first";
+    return;
+  }
+
+  loader.style.display = "inline";
+  catLbl.textContent   = "Loading…";
+
+  fetch("/vendor/get-category-attributes/?category=" + cid)
+    .then(res => res.json())
+    .then(attrs => {
+      loader.style.display = "none";
+
+      if(!attrs.length){
+        hint.textContent   = "No extra attributes for this category. Continue to the next step to add variants.";
+        hint.style.display = "block";
+        catLbl.textContent = "No extra fields";
+        return;
+      }
+
+      catLbl.textContent = attrs.length + " field" + (attrs.length > 1 ? "s" : "") + " loaded";
+
+      attrs.forEach(attr => {
+        const wrapper = document.createElement("div");
+        wrapper.classList.add("form-group");
+
+        const label = document.createElement("label");
+        label.innerHTML = attr.name + (attr.is_required ? ' <span class="required">*</span>' : '');
+        wrapper.appendChild(label);
+
+        let field;
+
+        if(attr.values && attr.values.length){
+          field = document.createElement("select");
+          field.name = "attr_" + attr.slug;
+          if(attr.is_required) field.required = true;
+
+          const blank = document.createElement("option");
+          blank.value = "";
+          blank.textContent = "Select " + attr.name;
+          field.appendChild(blank);
+
+          attr.values.forEach(v => {
+            const opt = document.createElement("option");
+            opt.value = v;
+            opt.textContent = v;
+            field.appendChild(opt);
+          });
+        } else {
+          field = document.createElement("input");
+          field.name = "attr_" + attr.slug;
+          field.placeholder = "Enter " + attr.name;
+          if(attr.is_required) field.required = true;
+        }
+
+        wrapper.appendChild(field);
+
+        const helper = document.createElement("small");
+        helper.textContent = "Applies to the entire product (not per variant).";
+        wrapper.appendChild(helper);
+
+        fields.appendChild(wrapper);
+      });
+    })
+    .catch(() => {
+      loader.style.display = "none";
+      hint.textContent     = "Failed to load attributes. You can still continue to add variants.";
+      hint.style.display   = "block";
+      catLbl.textContent   = "Error";
+    });
+});
+
+</script>
+
+<script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+<script>
+if (window.CKEDITOR) {
+  CKEDITOR.replace('product-description', {
+    height: 240,
+    removePlugins: 'elementspath',
+    resize_enabled: true
+  });
+}
+</script>
+
+{% endblock %}

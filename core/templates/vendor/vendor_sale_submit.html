@@ -1,0 +1,154 @@
+{% extends "vendor/vendor_base.html" %}
+{% block vendor_content %}
+<style>
+.vss-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:32px;max-width:640px;margin:0 auto;}
+.vss-field{margin-bottom:20px;}
+.vss-label{display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:7px;}
+.vss-input,.vss-select,.vss-textarea{
+  width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:9px;
+  font-family:'Inter',sans-serif;font-size:14px;color:var(--text);background:#f9fafb;outline:none;transition:.2s;
+}
+.vss-input:focus,.vss-select:focus,.vss-textarea:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.1);}
+.vss-textarea{resize:vertical;min-height:90px;}
+#img-preview{display:none;margin-top:12px;border-radius:10px;max-height:220px;border:1px solid var(--border);}
+</style>
+
+<div class="vp-content" style="padding:28px;">
+  <!-- Header -->
+  <div style="max-width:640px;margin:0 auto 20px;">
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:space-between;">
+      <div>
+        <div style="font-size:20px;font-weight:700;">Submit Ad</div>
+        <div style="font-size:13px;color:var(--muted);">{{ sale.title }} &mdash; {{ sale.start_datetime|date:"M d" }} to {{ sale.end_datetime|date:"M d, Y" }}</div>
+      </div>
+      <a href="/vendor/sales/" class="vp-btn vp-btn-outline"><i class="fa fa-arrow-left"></i> Back</a>
+    </div>
+  </div>
+
+  {% if messages %}
+    {% for msg in messages %}
+    <div style="max-width:640px;margin:0 auto 16px;padding:12px 16px;border-radius:9px;background:{% if msg.tags == 'error' %}#fee2e2{% elif msg.tags == 'warning' %}#fef9c3{% else %}#dcfce7{% endif %};font-size:13px;font-weight:600;color:{% if msg.tags == 'error' %}#dc2626{% elif msg.tags == 'warning' %}#a16207{% else %}#15803d{% endif %};">
+      {{ msg }}
+    </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="vss-card">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="hidden" name="product_type" id="product_type_input" value="existing">
+
+      <!-- Tab Switcher -->
+      <div style="display:flex;gap:0;margin-bottom:24px;border:1.5px solid var(--border);border-radius:10px;overflow:hidden;">
+        <button type="button" id="tab-existing"
+          onclick="switchTab('existing')"
+          style="flex:1;padding:10px;font-size:13px;font-weight:600;background:#2563eb;color:#fff;border:none;cursor:pointer;transition:.2s;">
+          <i class="fa fa-box"></i> Existing Product
+        </button>
+        <button type="button" id="tab-new"
+          onclick="switchTab('new')"
+          style="flex:1;padding:10px;font-size:13px;font-weight:600;background:#f9fafb;color:#64748b;border:none;cursor:pointer;transition:.2s;">
+          <i class="fa fa-plus"></i> New Product
+        </button>
+      </div>
+
+      <!-- Existing Product Panel -->
+      <div id="panel-existing">
+        {% if vendor_products %}
+        <div class="vss-field">
+          <label class="vss-label" for="product_id">Select Product <span style="color:#ef4444;">*</span></label>
+          <select name="product_id" id="product_id" class="vss-select">
+            <option value="">-- Choose a product --</option>
+            {% for p in vendor_products %}
+            <option value="{{ p.id }}">{{ p.name }}</option>
+            {% endfor %}
+          </select>
+          <div style="font-size:12px;color:var(--muted);margin-top:5px;">Only your approved products appear here.</div>
+        </div>
+        {% else %}
+        <div style="padding:18px;background:#f9fafb;border-radius:9px;font-size:13px;color:var(--muted);margin-bottom:16px;">
+          You have no approved products yet. Use the <strong>New Product</strong> tab to add one directly.
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- New Product Panel -->
+      <div id="panel-new" style="display:none;">
+        <div style="padding:12px 16px;background:#fef9c3;border-radius:9px;font-size:12px;color:#92400e;margin-bottom:16px;">
+          <i class="fa fa-info-circle"></i> The new product will be submitted for admin approval. Your ad will go live once both the product and ad are approved.
+        </div>
+        <div class="vss-field">
+          <label class="vss-label" for="new_name">Product Name <span style="color:#ef4444;">*</span></label>
+          <input type="text" name="new_name" id="new_name" class="vss-input" placeholder="e.g. Nike Air Max 2024">
+        </div>
+        <div class="vss-field">
+          <label class="vss-label" for="new_category">Category</label>
+          <select name="new_category" id="new_category" class="vss-select">
+            <option value="">-- Select category (optional) --</option>
+            {% for cat in categories %}
+            <option value="{{ cat.id }}">{{ cat.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="vss-field">
+          <label class="vss-label" for="new_description">Description</label>
+          <textarea name="new_description" id="new_description" class="vss-textarea" placeholder="Brief product description..."></textarea>
+        </div>
+      </div>
+
+      <div class="vss-field">
+        <label class="vss-label" for="ad_image">Ad Image <span style="color:#ef4444;">*</span></label>
+        <input type="file" name="ad_image" id="ad_image" accept="image/*" class="vss-input" required onchange="previewImage(this)">
+        <img id="img-preview" src="" alt="Preview">
+        <div style="font-size:12px;color:var(--muted);margin-top:5px;">Upload an eye-catching promotional image for your product. Recommended: 800×600 or wider.</div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="vss-field" style="margin-bottom:0;">
+          <label class="vss-label" for="sale_price">Sale Price (₹) <span style="color:#ef4444;">*</span></label>
+          <input type="number" name="sale_price" id="sale_price" class="vss-input" placeholder="e.g. 999.00" step="0.01" min="0" required>
+          <div style="font-size:12px;color:var(--muted);margin-top:5px;">Your discounted price for this sale.</div>
+        </div>
+        <div class="vss-field" style="margin-bottom:0;">
+          <label class="vss-label" for="quantity">Quantity <span style="color:#ef4444;">*</span></label>
+          <input type="number" name="quantity" id="quantity" class="vss-input" placeholder="e.g. 50" min="1" required>
+          <div style="font-size:12px;color:var(--muted);margin-top:5px;">Stock available for this sale.</div>
+        </div>
+      </div>
+
+      <div class="vss-field">
+        <label class="vss-label" for="note">Note <span style="color:var(--muted);font-weight:400;">(optional)</span></label>
+        <textarea name="note" id="note" class="vss-textarea" placeholder="Any special offer, discount details, or message for the admin..."></textarea>
+      </div>
+
+      <div style="display:flex;gap:12px;margin-top:8px;">
+        <button type="submit" class="vp-btn vp-btn-primary" style="flex:1;justify-content:center;">
+          <i class="fa fa-paper-plane"></i> Submit Ad
+        </button>
+        <a href="/vendor/sales/" class="vp-btn vp-btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function switchTab(type) {
+  document.getElementById('product_type_input').value = type;
+  var isNew = type === 'new';
+  document.getElementById('panel-existing').style.display = isNew ? 'none' : 'block';
+  document.getElementById('panel-new').style.display = isNew ? 'block' : 'none';
+  document.getElementById('tab-existing').style.background = isNew ? '#f9fafb' : '#2563eb';
+  document.getElementById('tab-existing').style.color = isNew ? '#64748b' : '#fff';
+  document.getElementById('tab-new').style.background = isNew ? '#2563eb' : '#f9fafb';
+  document.getElementById('tab-new').style.color = isNew ? '#fff' : '#64748b';
+}
+function previewImage(input){
+  const img=document.getElementById('img-preview');
+  if(input.files&&input.files[0]){
+    const reader=new FileReader();
+    reader.onload=e=>{img.src=e.target.result;img.style.display='block';};
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+</script>
+{% endblock %}

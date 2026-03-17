@@ -1,0 +1,188 @@
+{% extends "adminpanel/base.html" %}
+{% block content %}
+
+<style>
+
+/* ================= PAGE ================= */
+
+.page-wrapper{
+    padding:40px;
+    font-family:'Inter',sans-serif;
+}
+
+.page-title{
+    font-size:28px;
+    font-weight:700;
+    margin-bottom:25px;
+    color:#0f172a;
+}
+
+/* ================= CARD ================= */
+
+.table-card{
+    background:white;
+    padding:25px;
+    border-radius:18px;
+    box-shadow:0 12px 30px rgba(0,0,0,.06);
+    overflow:hidden;
+}
+
+/* ================= TABLE ================= */
+
+.vendor-table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+.vendor-table th{
+    background:#111827;
+    color:white;
+    padding:14px;
+    text-align:left;
+    font-weight:600;
+    letter-spacing:.3px;
+}
+
+.vendor-table td{
+    padding:14px;
+    border-bottom:1px solid #e5e7eb;
+    color:#334155;
+}
+
+/* zebra rows */
+.vendor-table tbody tr:nth-child(even){
+    background:#f8fafc;
+}
+
+/* hover animation */
+.vendor-table tbody tr{
+    transition:.25s ease;
+}
+
+.vendor-table tbody tr:hover{
+    background:#eef2ff;
+    transform:scale(1.01);
+}
+
+/* ================= STATUS BADGES ================= */
+
+.status{
+    padding:5px 12px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:600;
+    display:inline-block;
+}
+
+.pending{
+    background:#fef3c7;
+    color:#b45309;
+}
+
+.completed{
+    background:#dcfce7;
+    color:#15803d;
+}
+
+.cancelled{
+    background:#fee2e2;
+    color:#b91c1c;
+}
+
+.shipped{
+    background:#e0f2fe;
+    color:#0369a1;
+}
+
+/* ================= EMPTY STATE ================= */
+
+.empty{
+    text-align:center;
+    padding:25px;
+    color:#64748b;
+    font-weight:500;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media(max-width:768px){
+
+.vendor-table th,
+.vendor-table td{
+    padding:10px;
+    font-size:13px;
+}
+
+.page-wrapper{
+    padding:20px;
+}
+
+}
+
+</style>
+
+
+<div class="page-wrapper">
+
+<h2 class="page-title">Orders</h2>
+
+<div class="table-card">
+
+<table class="vendor-table">
+
+<thead>
+<tr>
+    <th>ID</th>
+    <th>User</th>
+    <th>Product</th>
+    <th>Qty</th>
+    <th>Total</th>
+    <th>Status</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for o in orders %}
+<tr>
+
+<td><strong>#{{ o.id }}</strong></td>
+
+<td>{{ o.customer.username }}</td>
+
+<td>{{ o.product.name }}</td>
+
+<td>{{ o.quantity }}</td>
+
+<td>₹{{ o.total }}</td>
+
+<td>
+<span class="status
+{% if o.status == 'Pending' %}pending
+{% elif o.status == 'Completed' %}completed
+{% elif o.status == 'Shipped' %}shipped
+{% else %}cancelled
+{% endif %}
+">
+{{ o.status }}
+</span>
+</td>
+
+</tr>
+{% empty %}
+<tr>
+<td colspan="6" class="empty">
+No orders found 📦
+</td>
+</tr>
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+{% endblock %}

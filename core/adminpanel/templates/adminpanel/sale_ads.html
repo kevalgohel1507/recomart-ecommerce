@@ -1,0 +1,100 @@
+{% extends "adminpanel/base.html" %}
+{% block content %}
+
+<style>
+.sa-filter-bar{display:flex;align-items:center;gap:10px;margin-bottom:24px;flex-wrap:wrap;}
+.sa-filter-btn{padding:7px 18px;border-radius:20px;font-size:13px;font-weight:600;text-decoration:none;border:1.5px solid var(--border);color:var(--muted);background:#fff;transition:all var(--tr);}
+.sa-filter-btn:hover{border-color:var(--blue);color:var(--blue);}
+.sa-filter-btn.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+.sa-cnt{display:inline-block;margin-left:6px;padding:1px 7px;background:rgba(255,255,255,.3);border-radius:20px;font-size:11px;}
+.sa-filter-btn:not(.active) .sa-cnt{background:var(--bluelight);color:var(--blue);}
+
+.sa-ad-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:14px;display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:start;box-shadow:0 1px 5px rgba(67,97,238,.05);}
+.sa-ad-img{width:110px;height:110px;object-fit:cover;border-radius:10px;border:1px solid var(--border);cursor:pointer;transition:transform .2s;}
+.sa-ad-img:hover{transform:scale(1.05);}
+.sa-vendor{font-weight:700;font-size:14px;color:var(--text);}
+.sa-product{font-size:13px;color:var(--blue);font-weight:600;margin-top:3px;}
+.sa-note{font-size:13px;color:var(--muted);margin-top:8px;font-style:italic;}
+.sa-actions{display:flex;flex-direction:column;gap:8px;align-items:flex-end;}
+.sa-status{display:inline-block;padding:3px 11px;border-radius:20px;font-size:11px;font-weight:700;}
+.sa-status.pending{background:#fef9c3;color:#ca8a04;}
+.sa-status.approved{background:#dcfce7;color:#16a34a;}
+
+/* Lightbox */
+#sa-lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:9999;align-items:center;justify-content:center;}
+#sa-lightbox.show{display:flex;}
+#sa-lightbox img{max-width:90vw;max-height:88vh;border-radius:14px;}
+#sa-lb-close{position:absolute;top:18px;right:26px;font-size:32px;color:#fff;cursor:pointer;}
+</style>
+
+<div class="ds-page-header">
+  <div>
+    <div class="ds-page-title">Ad Submissions — {{ sale.title }}</div>
+    <div class="ds-breadcrumb">
+      <a href="/adminpanel/dashboard/">Dashboard</a> /
+      <a href="/adminpanel/sales/">Sales</a> /
+      {{ sale.title }} / Ads
+    </div>
+  </div>
+  <a href="/adminpanel/sales/" class="ds-btn ds-btn-outline"><i class="fa fa-arrow-left"></i> Back to Sales</a>
+</div>
+
+<!-- Sale info strip -->
+<div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px 24px;margin-bottom:22px;display:flex;gap:24px;flex-wrap:wrap;font-size:13px;">
+  <div><span style="color:var(--muted);font-weight:600;">Start:</span> {{ sale.start_datetime|date:"M d, Y H:i" }}</div>
+  <div><span style="color:var(--muted);font-weight:600;">End:</span>   {{ sale.end_datetime|date:"M d, Y H:i" }}</div>
+  <div><span style="color:var(--muted);font-weight:600;">Banner:</span> {{ sale.banner_text|default:"—" }}</div>
+</div>
+
+<!-- Filter bar -->
+<div class="sa-filter-bar">
+  <a href="?status=pending"  class="sa-filter-btn {% if status_filter == 'pending' %}active{% endif %}">
+    Pending <span class="sa-cnt">{{ pending_count }}</span>
+  </a>
+  <a href="?status=approved" class="sa-filter-btn {% if status_filter == 'approved' %}active{% endif %}">
+    Approved <span class="sa-cnt">{{ approved_count }}</span>
+  </a>
+</div>
+
+{% if ads %}
+  {% for ad in ads %}
+  <div class="sa-ad-card">
+    <img class="sa-ad-img" src="{{ ad.ad_image.url }}" onclick="saLb('{{ ad.ad_image.url }}')" alt="Ad">
+    <div>
+      <div class="sa-vendor"><i class="fa fa-store" style="color:var(--blue);margin-right:6px;"></i>{{ ad.vendor.username }}</div>
+      <div class="sa-product"><i class="fa fa-box-open" style="margin-right:5px;"></i>{{ ad.product.name }}</div>
+      <div style="font-size:13px;color:var(--text);margin-top:6px;">
+        <i class="fa fa-tag" style="color:var(--blue);margin-right:4px;"></i><strong>₹{{ ad.sale_price }}</strong>
+        &nbsp;&nbsp;<i class="fa fa-cubes" style="color:var(--blue);margin-right:4px;"></i>Qty: <strong>{{ ad.quantity }}</strong>
+      </div>
+      {% if ad.note %}<div class="sa-note">"{{ ad.note }}"</div>{% endif %}
+      <div style="font-size:12px;color:var(--muted);margin-top:8px;">Submitted: {{ ad.created_at|date:"M d, Y H:i" }}</div>
+    </div>
+    <div class="sa-actions">
+      <span class="sa-status {% if ad.is_approved %}approved{% else %}pending{% endif %}">
+        {% if ad.is_approved %}Approved{% else %}Pending{% endif %}
+      </span>
+      {% if not ad.is_approved %}
+        <a href="{% url 'adminpanel:approve_sale_ad' ad.id %}" class="ds-btn ds-btn-primary ds-btn-sm"><i class="fa fa-check"></i> Approve</a>
+      {% else %}
+        <a href="{% url 'adminpanel:reject_sale_ad' ad.id %}" class="ds-btn ds-btn-outline ds-btn-sm"><i class="fa fa-eye-slash"></i> Reject</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+{% else %}
+  <div style="text-align:center;padding:60px;color:var(--muted);">
+    <i class="fa fa-image" style="font-size:40px;opacity:.15;display:block;margin-bottom:14px;"></i>
+    No {% if status_filter == 'approved' %}approved{% else %}pending{% endif %} ad submissions.
+  </div>
+{% endif %}
+
+<!-- Lightbox -->
+<div id="sa-lightbox"><span id="sa-lb-close">&times;</span><img id="sa-lb-img" src=""></div>
+<script>
+function saLb(url){ document.getElementById('sa-lb-img').src=url; document.getElementById('sa-lightbox').classList.add('show'); }
+document.getElementById('sa-lb-close').onclick=()=>document.getElementById('sa-lightbox').classList.remove('show');
+document.getElementById('sa-lightbox').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show');});
+</script>
+
+{% endblock %}

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Checkout Payment</title>
+
+```
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<style>
+    body{
+        font-family: Arial, sans-serif;
+        background:#f4f6f9;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        height:100vh;
+    }
+
+    .payment-card{
+        background:white;
+        padding:40px;
+        border-radius:10px;
+        text-align:center;
+        box-shadow:0px 4px 20px rgba(0,0,0,0.1);
+        width:400px;
+    }
+
+    h2{
+        margin-bottom:20px;
+    }
+
+    .price{
+        font-size:28px;
+        color:#2c3e50;
+        margin-bottom:25px;
+    }
+
+    button{
+        background:#3399cc;
+        border:none;
+        color:white;
+        padding:12px 25px;
+        font-size:16px;
+        border-radius:6px;
+        cursor:pointer;
+    }
+
+    button:hover{
+        background:#2d89b6;
+    }
+</style>
+```
+
+</head>
+<body>
+
+<div class="payment-card">
+
+```
+<h2>Complete Your Payment</h2>
+
+<div class="price">
+    ₹{{ payment.amount|floatformat:2|divisibleby:100 }}
+</div>
+
+<button id="pay-btn">Pay Now</button>
+```
+
+</div>
+
+<script>
+
+var options = {
+
+    "key": "{{ razorpay_key }}",
+
+    "amount": "{{ payment.amount }}",
+
+    "currency": "INR",
+
+    "name": "Recomart Ecommerce",
+
+    "description": "Order Payment",
+
+    "order_id": "{{ payment.id }}",
+
+    "handler": function (response){
+
+        var form = document.createElement("form");
+
+        form.method = "POST";
+
+        form.action = "/orders/payment-success/";
+
+        var csrf = document.createElement("input");
+        csrf.type = "hidden";
+        csrf.name = "csrfmiddlewaretoken";
+        csrf.value = "{{ csrf_token }}";
+        form.appendChild(csrf);
+
+
+        var order_id = document.createElement("input");
+        order_id.type = "hidden";
+        order_id.name = "razorpay_order_id";
+        order_id.value = response.razorpay_order_id;
+        form.appendChild(order_id);
+
+
+        var payment_id = document.createElement("input");
+        payment_id.type = "hidden";
+        payment_id.name = "razorpay_payment_id";
+        payment_id.value = response.razorpay_payment_id;
+        form.appendChild(payment_id);
+
+
+        var signature = document.createElement("input");
+        signature.type = "hidden";
+        signature.name = "razorpay_signature";
+        signature.value = response.razorpay_signature;
+        form.appendChild(signature);
+
+
+        document.body.appendChild(form);
+        form.submit();
+    },
+
+    "theme": {
+        "color": "#3399cc"
+    }
+
+};
+
+var rzp = new Razorpay(options);
+
+document.getElementById("pay-btn").onclick = function(e){
+
+    rzp.open();
+
+    e.preventDefault();
+
+}
+
+</script>
+
+</body>
+</html>

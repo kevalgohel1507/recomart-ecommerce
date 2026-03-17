@@ -1,0 +1,182 @@
+﻿{% extends "adminpanel/base.html" %}
+{% block content %}
+
+<style>
+.ds-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;margin-bottom:26px;}
+.ds-stat{background:white;border-radius:14px;border:1px solid var(--border);padding:22px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow);transition:transform .22s ease,box-shadow .22s ease;position:relative;overflow:hidden;}
+.ds-stat:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(67,97,238,.13);}
+.ds-stat-top{display:flex;align-items:flex-start;justify-content:space-between;}
+.ds-stat-label{font-size:13px;font-weight:500;color:var(--muted);}
+.ds-stat-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.si-blue{background:#e8edff;color:#4361ee;}
+.si-yellow{background:#fef9c3;color:#ca8a04;}
+.si-green{background:#dcfce7;color:#16a34a;}
+.si-purple{background:#f5f3ff;color:#7c3aed;}
+.ds-stat-val{font-size:2rem;font-weight:800;color:var(--text);letter-spacing:-.5px;line-height:1;}
+.ds-stat-sub{font-size:12px;font-weight:600;color:#16a34a;display:flex;align-items:center;gap:4px;}
+.ds-grid-2{display:grid;grid-template-columns:2fr 1fr;gap:18px;margin-bottom:18px;}
+@media(max-width:900px){.ds-grid-2{grid-template-columns:1fr;}}
+.ds-card{background:white;border-radius:14px;border:1px solid var(--border);padding:22px;box-shadow:var(--shadow);}
+.ds-os{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+.os-c{background:#dcfce7;color:#16a34a;}
+.os-p{background:#fef9c3;color:#ca8a04;}
+.os-o{background:#e8edff;color:#4361ee;}
+.ds-alert-row{display:flex;align-items:center;gap:10px;background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:11px 14px;font-size:13px;color:#c2410c;margin-bottom:10px;}
+.ds-alert-row i{flex-shrink:0;}
+.ds-quick-g{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.ds-ql{display:flex;align-items:center;gap:9px;padding:12px 14px;border-radius:10px;background:#f8faff;border:1.5px solid var(--border);text-decoration:none;font-size:13px;font-weight:600;color:var(--text);transition:all .2s;}
+.ds-ql:hover{background:var(--bluelight);border-color:var(--blue);color:var(--blue);}
+.ds-ql i{font-size:15px;color:var(--blue);}
+.ds-bar-wrap{display:flex;align-items:flex-end;gap:6px;height:120px;padding:0 2px;}
+.ds-bar{flex:1;border-radius:6px 6px 0 0;background:linear-gradient(180deg,#4361ee,#a5b4fc);opacity:.75;transition:opacity .2s;cursor:pointer;}
+.ds-bar:hover{opacity:1;}
+</style>
+
+<!-- PAGE HEADER -->
+<div class="ds-page-header">
+  <div>
+    <div class="ds-page-title">Dashboard</div>
+    <div class="ds-breadcrumb"><a href="/adminpanel/dashboard/">Home</a> / Overview</div>
+  </div>
+  <a href="/adminpanel/orders/" class="ds-btn ds-btn-primary"><i class="fa fa-cart-shopping"></i> View Orders</a>
+</div>
+
+<!-- STAT CARDS -->
+<div class="ds-stats">
+  <div class="ds-stat">
+    <div class="ds-stat-top">
+      <div class="ds-stat-label">Total Products</div>
+      <div class="ds-stat-icon si-blue"><i class="fa fa-box-open"></i></div>
+    </div>
+    <div class="ds-stat-val">{{ products }}</div>
+    <div class="ds-stat-sub"><i class="fa fa-arrow-trend-up"></i> Active listings</div>
+  </div>
+  <div class="ds-stat">
+    <div class="ds-stat-top">
+      <div class="ds-stat-label">Total Orders</div>
+      <div class="ds-stat-icon si-yellow"><i class="fa fa-cart-shopping"></i></div>
+    </div>
+    <div class="ds-stat-val">{{ orders }}</div>
+    <div class="ds-stat-sub"><i class="fa fa-arrow-trend-up"></i> All time</div>
+  </div>
+  <div class="ds-stat">
+    <div class="ds-stat-top">
+      <div class="ds-stat-label">Total Users</div>
+      <div class="ds-stat-icon si-green"><i class="fa fa-users"></i></div>
+    </div>
+    <div class="ds-stat-val">{{ users }}</div>
+    <div class="ds-stat-sub"><i class="fa fa-arrow-trend-up"></i> Registered</div>
+  </div>
+  <div class="ds-stat">
+    <div class="ds-stat-top">
+      <div class="ds-stat-label">Categories</div>
+      <div class="ds-stat-icon si-purple"><i class="fa fa-layer-group"></i></div>
+    </div>
+    <div class="ds-stat-val">{{ categories }}</div>
+    <div class="ds-stat-sub"><i class="fa fa-arrow-trend-up"></i> Active</div>
+  </div>
+</div>
+
+<!-- CHART + LOW STOCK -->
+<div class="ds-grid-2">
+  <div class="ds-card">
+    <div class="ds-section-header">
+      <span class="ds-section-title">Weekly Sales Overview</span>
+      <span class="ds-badge ds-badge-blue">This Week</span>
+    </div>
+    <div class="ds-bar-wrap" id="dsChart"></div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;padding:6px 2px 0;">
+      <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+    </div>
+    <div style="margin-top:14px;display:flex;gap:20px;flex-wrap:wrap;">
+      <span style="font-size:12px;color:var(--muted);">Orders <strong style="color:var(--text);margin-left:4px;">{{ orders }}</strong></span>
+      <span style="font-size:12px;color:var(--muted);">Products <strong style="color:var(--text);margin-left:4px;">{{ products }}</strong></span>
+      <span style="font-size:12px;color:var(--muted);">Users <strong style="color:var(--text);margin-left:4px;">{{ users }}</strong></span>
+    </div>
+  </div>
+  <div class="ds-card">
+    <div class="ds-section-header"><span class="ds-section-title">&#9888; Low Stock Alerts</span></div>
+    {% for v in low_stock %}
+    <div class="ds-alert-row"><i class="fa fa-triangle-exclamation"></i><span>{{ v.product.name }} ({{ v.sku }}) &mdash; <strong>{{ v.stock }}</strong> left</span></div>
+    {% empty %}
+    <div style="text-align:center;padding:28px 0;color:var(--muted);">
+      <i class="fa fa-circle-check" style="font-size:26px;color:#22c55e;"></i>
+      <div style="margin-top:8px;font-size:13px;">All stock levels healthy!</div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- ORDERS + USERS + QUICK ACTIONS -->
+<div class="ds-grid-2">
+  <div class="ds-card">
+    <div class="ds-section-header">
+      <span class="ds-section-title">Recent Orders</span>
+      <a href="/adminpanel/orders/" class="ds-btn ds-btn-outline ds-btn-sm">View All</a>
+    </div>
+    <table class="ds-table">
+      <thead><tr><th>#ID</th><th>Customer</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+      {% for order in recent_orders %}
+      <tr>
+        <td style="font-weight:600;">#{{ order.id }}</td>
+        <td>{{ order.customer.username }}</td>
+        <td><span class="ds-os {% if order.status == 'Completed' %}os-c{% elif order.status == 'Pending' %}os-p{% else %}os-o{% endif %}">{{ order.status }}</span></td>
+        <td><a href="/adminpanel/orders/" class="ds-btn ds-btn-outline ds-btn-sm">View</a></td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="4" style="text-align:center;color:var(--muted);padding:24px;">No orders yet</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:18px;">
+    <div class="ds-card">
+      <div class="ds-section-header">
+        <span class="ds-section-title">Recent Users</span>
+        <a href="/adminpanel/users/" class="ds-btn ds-btn-outline ds-btn-sm">View All</a>
+      </div>
+      <table class="ds-table">
+        <thead><tr><th>User</th><th>Joined</th></tr></thead>
+        <tbody>
+        {% for u in recent_users %}
+        <tr>
+          <td style="display:flex;align-items:center;gap:8px;">
+            <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#4361ee,#3a0ca3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:white;flex-shrink:0;">{{ u.username|first|upper }}</div>
+            {{ u.username }}
+          </td>
+          <td style="font-size:12px;color:var(--muted);">{{ u.date_joined|date:"d M Y" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="2" style="text-align:center;color:var(--muted);">No users</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="ds-card">
+      <div class="ds-section-title" style="margin-bottom:14px;">Quick Actions</div>
+      <div class="ds-quick-g">
+        <a href="/adminpanel/products/" class="ds-ql"><i class="fa fa-box-open"></i> Products</a>
+        <a href="/adminpanel/orders/" class="ds-ql"><i class="fa fa-cart-shopping"></i> Orders</a>
+        <a href="/adminpanel/categories/" class="ds-ql"><i class="fa fa-layer-group"></i> Categories</a>
+        <a href="/adminpanel/users/" class="ds-ql"><i class="fa fa-users"></i> Users</a>
+        <a href="/adminpanel/vendors/" class="ds-ql"><i class="fa fa-store"></i> Vendors</a>
+        <a href="/adminpanel/category-attributes/" class="ds-ql"><i class="fa fa-sliders"></i> Attributes</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var h=[40,65,85,55,72,90,60],c=['#818cf8','#6366f1','#4361ee','#4f46e5','#4361ee','#4361ee','#818cf8'];
+  var w=document.getElementById('dsChart');if(!w)return;
+  h.forEach(function(v,i){
+    var b=document.createElement('div');b.className='ds-bar';
+    b.style.height='0';b.style.background='linear-gradient(180deg,'+c[i]+',#c7d2fe)';
+    w.appendChild(b);
+    setTimeout(function(){b.style.transition='height .55s cubic-bezier(.4,0,.2,1)';b.style.height=v+'%';},100+i*70);
+  });
+})();
+</script>
+{% endblock %}

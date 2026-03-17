@@ -1,0 +1,147 @@
+{% extends "adminpanel/base.html" %}
+{% block content %}
+
+<style>
+    .wrapper {
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        gap: 30px;
+    }
+
+    .panel {
+        background: white;
+        border-radius: 14px;
+        padding: 20px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, .08);
+    }
+
+    .cat-item {
+        padding: 10px;
+        border-radius: 8px;
+        margin-bottom: 6px;
+        cursor: pointer;
+    }
+
+    .cat-item:hover {
+        background: #f1f5f9
+    }
+
+    .cat-active {
+        background: #2563eb;
+        color: white;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th,
+    td {
+        padding: 12px;
+        border-bottom: 1px solid #eee;
+        text-align: left;
+    }
+
+    th {
+        background: #f8fafc
+    }
+
+    .save-btn {
+        margin-top: 20px;
+        background: #22c55e;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 8px;
+        color: white;
+        font-weight: 600;
+    }
+</style>
+
+<h2>Category → Attribute Mapping</h2>
+
+<div class="wrapper">
+
+    <!-- LEFT : CATEGORIES -->
+
+    <div class="panel">
+
+        <h4>Categories</h4>
+
+        {% for c in categories %}
+        <a href="?category={{ c.id }}" style="text-decoration:none">
+            <div class="cat-item {% if selected_category and selected_category.id == c.id %}cat-active{% endif %}">
+                {{ c.name }}
+            </div>
+        </a>
+        {% endfor %}
+
+    </div>
+
+    <!-- RIGHT : ATTRIBUTES -->
+
+    <div class="panel">
+
+        {% if selected_category %}
+
+        <h4>Attributes for: {{ selected_category.name }}</h4>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <input type="hidden" name="category" value="{{ selected_category.id }}">
+
+            <table class="table table-bordered">
+
+                <tr>
+                    <th>Select</th>
+                    <th>Attribute Name</th>
+                </tr>
+
+                {% for a in attributes %}
+                <tr>
+                    <td>
+                        <input type="checkbox" name="attributes" value="{{ a.id }}" {% if a.id in selected_attribute_ids %}checked{% endif %}>
+                    </td>
+                    <td>{{ a.name }}</td>
+                </tr>
+                {% endfor %}
+
+            </table>
+
+            <button type="submit" class="btn btn-success mt-3">
+                Save Mapping
+            </button>
+
+        </form>
+
+        {% else %}
+        <p>Select a category from left.</p>
+        {% endif %}
+
+    </div>
+
+</div>
+{% if messages %}
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+
+    const form = document.getElementById("categoryAttributeForm");
+
+    form.addEventListener("submit", function(e){
+
+        const category = document.getElementById("category").value;
+        const attributes = document.getElementById("attributes");
+
+        if(category === "" || attributes.selectedOptions.length === 0){
+            e.preventDefault();
+            alert("Please select Category and at least one Attribute!");
+        }
+
+    });
+
+});
+</script>
+{% endif %}
+
+{% endblock %}

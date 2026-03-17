@@ -1,0 +1,14 @@
+<div class="category-bar">
+
+{% for c in categories %}
+
+<a href="/?category={{ c.id }}" class="cat-item">
+
+    <img src="{{ c.icon.url }}">
+    <span>{{ c.name }}</span>
+
+</a>
+
+{% endfor %}
+
+</div>

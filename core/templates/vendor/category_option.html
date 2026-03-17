@@ -1,0 +1,8 @@
+<option value="{{ node.category.id }}">
+{% for i in range %}&nbsp;&nbsp;{% endfor %}
+{{ node.category.name }}
+</option>
+
+{% for child in node.children %}
+{% include "vendor/category_option.html" with node=child range=range|add:".." %}
+{% endfor %}

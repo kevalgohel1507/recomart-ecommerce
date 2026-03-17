@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+
+.success-wrapper{
+    min-height:70vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#f3f4f6;
+}
+
+.success-card{
+    background:white;
+    padding:50px 40px;
+    border-radius:16px;
+    text-align:center;
+    width:100%;
+    max-width:500px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.1);
+}
+
+/* CHECK ICON */
+
+.success-icon{
+    width:90px;
+    height:90px;
+    margin:0 auto 20px;
+    border-radius:50%;
+    background:#22c55e;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:46px;
+}
+
+/* TEXT */
+
+.success-card h2{
+    margin:10px 0;
+    font-size:26px;
+    color:#111827;
+}
+
+.success-card p{
+    color:#6b7280;
+    font-size:15px;
+    margin-bottom:30px;
+}
+
+/* BUTTON */
+
+.success-btn{
+    display:block;
+    width:100%;
+    background:#2563eb;
+    color:white;
+    padding:14px;
+    border-radius:10px;
+    text-decoration:none;
+    font-weight:600;
+    transition:0.2s;
+}
+
+.success-btn:hover{
+    background:#1e40af;
+}
+
+</style>
+
+<div class="success-wrapper">
+
+<div class="success-card">
+
+<div class="success-icon">✓</div>
+
+<h2>Order Placed Successfully!</h2>
+
+<p>
+Your order has been sent to the vendor.<br>
+You will receive updates shortly.
+</p>
+
+<a href="{% url 'order_bill' %}" class="success-btn" style="background:#4f46e5;margin-bottom:12px;">
+    &#128424; See the Bill
+</a>
+
+<a href="/orders/my-orders/" class="success-btn" style="background:#22c55e;margin-bottom:12px;">
+    View My Orders
+</a>
+
+<a href="/" class="success-btn">Continue Shopping</a>
+
+</div>
+
+</div>
+
+{% endblock %}

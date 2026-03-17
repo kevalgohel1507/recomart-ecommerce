@@ -1,0 +1,329 @@
+﻿{% extends 'base.html' %}
+{% block content %}
+
+<style>
+
+/* ================= PAGE ================= */
+
+.page-wrapper {
+  padding: 40px;
+  font-family: 'Inter', sans-serif;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 25px;
+  color: #0f172a;
+}
+
+/* ================= CARD ================= */
+
+.table-card {
+  background: white;
+  padding: 32px;
+  border-radius: 18px;
+  box-shadow: 0 12px 30px rgba(0,0,0,.06);
+  margin-bottom: 24px;
+}
+
+.card-section-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: .6px;
+  text-transform: uppercase;
+  margin: 0 0 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+/* ================= INFO GRID ================= */
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.info-box {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px 18px;
+  transition: .2s;
+}
+.info-box:hover {
+  border-color: #e8735a;
+  box-shadow: 0 4px 14px rgba(232,115,90,.10);
+  transform: translateY(-2px);
+}
+
+.info-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-bottom: 5px;
+}
+
+.info-value {
+  font-size: 15px;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0;
+  word-break: break-word;
+}
+
+/* ================= STATUS BADGE ================= */
+
+.status-badge-active {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #dcfce7;
+  color: #15803d;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 20px;
+}
+.status-badge-active::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  background: #15803d;
+  border-radius: 50%;
+}
+
+/* ================= ACTION BUTTONS ================= */
+
+.actions-row {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  flex: 1;
+  min-width: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 13px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: .25s;
+  border: 1.5px solid;
+  font-family: 'Inter', sans-serif;
+}
+.action-btn svg {
+  width: 17px;
+  height: 17px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  flex-shrink: 0;
+}
+
+.btn-change-pw {
+  background: #fff;
+  color: #e8735a;
+  border-color: #e8735a;
+}
+.btn-change-pw:hover {
+  background: #e8735a;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(232,115,90,.3);
+}
+
+.btn-orders {
+  background: #fff;
+  color: #2563eb;
+  border-color: #2563eb;
+}
+.btn-orders:hover {
+  background: #2563eb;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(37,99,235,.25);
+}
+
+.btn-logout {
+  background: #fff;
+  color: #ef4444;
+  border-color: #ef4444;
+}
+.btn-logout:hover {
+  background: #ef4444;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(239,68,68,.25);
+}
+
+/* ================= STATS ================= */
+
+.stats-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.stat-card {
+  flex: 1;
+  min-width: 160px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 22px;
+  text-align: center;
+  transition: .25s;
+}
+
+.stat-card:hover {
+  border-color: #e8735a;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(232,115,90,.12);
+}
+
+.stat-icon-wrap {
+  width: 46px;
+  height: 46px;
+  background: #fff5f3;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+}
+
+.stat-icon-wrap svg {
+  width: 22px;
+  height: 22px;
+  stroke: #e8735a;
+  fill: none;
+  stroke-width: 2;
+}
+
+.stat-card h3 {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.stat-card p {
+  margin: 0;
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* ================= PROFILE HEADER ================= */
+
+.profile-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+@media (max-width: 640px) {
+  .page-wrapper { padding: 16px; }
+  .page-title { font-size: 22px; }
+  .table-card { padding: 16px; }
+  .info-grid { grid-template-columns: 1fr; }
+  .actions-row { flex-direction: column; }
+  .action-btn { min-width: 100%; }
+  .stat-card { min-width: 120px; padding: 16px; }
+}
+
+</style>
+
+<div class="page-wrapper">
+
+  <div class="profile-top">
+    <h2 class="page-title" style="margin:0;">My Profile</h2>
+    <span class="status-badge-active">Active Account</span>
+  </div>
+
+  <!-- USER INFO -->
+  <div class="table-card">
+    <p class="card-section-title">Account Information</p>
+    <div class="info-grid">
+      <div class="info-box">
+        <span class="info-label">Username</span>
+        <p class="info-value">{{ request.user.username }}</p>
+      </div>
+      <div class="info-box">
+        <span class="info-label">Email</span>
+        <p class="info-value">{{ request.user.email }}</p>
+      </div>
+      <div class="info-box">
+        <span class="info-label">Role</span>
+        <p class="info-value">{{ request.user.userprofile.role|title }}</p>
+      </div>
+      <div class="info-box">
+        <span class="info-label">Member Since</span>
+        <p class="info-value">{{ request.user.date_joined|date:"F Y" }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUICK ACTIONS -->
+  <div class="table-card">
+    <p class="card-section-title">Quick Actions</p>
+    <div class="actions-row">
+      <a href="/accounts/change-password/" class="action-btn btn-change-pw">
+        <svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+        Change Password
+      </a>
+      <a href="/orders/my-orders/" class="action-btn btn-orders">
+        <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        My Orders
+      </a>
+      <a href="{% url 'logout' %}" class="action-btn btn-logout">
+        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Logout
+      </a>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="table-card">
+    <p class="card-section-title">Account Status</p>
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+        </div>
+        <h3>Verified</h3>
+        <p>Account confirmed</p>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="10"/></svg>
+        </div>
+        <h3>Active</h3>
+        <p>Regular member</p>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon-wrap">
+          <svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+        </div>
+        <h3>Secure</h3>
+        <p>Protected account</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}

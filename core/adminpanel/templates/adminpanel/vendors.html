@@ -1,0 +1,169 @@
+{% extends "adminpanel/base.html" %}
+{% block content %}
+
+<style>
+.vendor-page-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 24px;
+}
+
+.vendor-grid-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.vendor-grid-table thead tr {
+    background: #f8fafc;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.vendor-grid-table th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    color: #475569;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.vendor-grid-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+    vertical-align: middle;
+}
+
+.vendor-grid-table tr:last-child td {
+    border-bottom: none;
+}
+
+.vendor-grid-table tbody tr:hover {
+    background: #f8faff;
+}
+
+.vendor-badge {
+    display: inline-block;
+    background: #dbeafe;
+    color: #1d4ed8;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.chat-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #2563eb;
+    color: white;
+    padding: 7px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    transition: .2s ease;
+}
+
+.chat-btn:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37,99,235,.35);
+}
+
+.chat-btn svg {
+    width: 15px;
+    height: 15px;
+}
+
+.no-vendors {
+    text-align: center;
+    padding: 40px;
+    color: #94a3b8;
+    font-size: 15px;
+}
+
+.avatar-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #e0e7ff;
+    color: #4f46e5;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+}
+</style>
+
+<div class="vendor-page-title">Vendors</div>
+
+<table class="vendor-grid-table">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Vendor</th>
+            <th>Shop Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Address</th>
+            <th>Joined</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for v in vendor_users %}
+        <tr>
+            <td>{{ v.id }}</td>
+            <td>
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <span class="avatar-circle">{{ v.username|upper|slice:":1" }}</span>
+                    <span>{{ v.username }}</span>
+                </div>
+            </td>
+            <td>
+                {% if v.vendorprofile %}
+                    {{ v.vendorprofile.shop_name }}
+                {% else %}
+                    <span style="color:#94a3b8;">—</span>
+                {% endif %}
+            </td>
+            <td>{{ v.email }}</td>
+            <td>
+                {% if v.vendorprofile %}
+                    {{ v.vendorprofile.phone }}
+                {% else %}
+                    <span style="color:#94a3b8;">—</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if v.vendorprofile %}
+                    {{ v.vendorprofile.address }}
+                {% else %}
+                    <span style="color:#94a3b8;">—</span>
+                {% endif %}
+            </td>
+            <td>{{ v.date_joined|date:"d M Y" }}</td>
+            <td>
+                <a href="{% url 'adminpanel:vendor_chat' v.id %}" class="chat-btn">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    Chat
+                </a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="8" class="no-vendors">No vendors have registered yet.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

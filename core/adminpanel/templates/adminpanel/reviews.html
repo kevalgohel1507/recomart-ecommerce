@@ -1,0 +1,160 @@
+{% extends "adminpanel/base.html" %}
+{% block content %}
+
+<style>
+.rv-filter-bar{display:flex;align-items:center;gap:10px;margin-bottom:24px;flex-wrap:wrap;}
+.rv-filter-btn{padding:7px 18px;border-radius:20px;font-size:13px;font-weight:600;text-decoration:none;border:1.5px solid var(--border);color:var(--muted);background:#fff;transition:all var(--tr);}
+.rv-filter-btn:hover{border-color:var(--blue);color:var(--blue);}
+.rv-filter-btn.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+.rv-badge-cnt{display:inline-block;margin-left:6px;padding:1px 7px;background:rgba(255,255,255,.3);border-radius:20px;font-size:11px;}
+.rv-filter-btn:not(.active) .rv-badge-cnt{background:var(--bluelight);color:var(--blue);}
+
+/* Review card */
+.rv-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px 22px;margin-bottom:14px;display:grid;grid-template-columns:1fr auto;gap:16px;align-items:start;box-shadow:0 1px 5px rgba(67,97,238,.05);}
+.rv-card-left{}
+.rv-top{display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap;}
+.rv-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--bluedark));color:#fff;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.rv-username{font-weight:700;font-size:14px;color:var(--text);}
+.rv-product-tag{font-size:12px;color:var(--blue);background:var(--bluelight);padding:3px 10px;border-radius:20px;font-weight:600;text-decoration:none;}
+.rv-date{font-size:12px;color:var(--muted);margin-left:auto;}
+.rv-stars{display:inline-flex;gap:2px;margin-bottom:6px;}
+.rv-stars .s{font-size:15px;color:#e5e7eb;}
+.rv-stars .s.on{color:#f59e0b;}
+.rv-comment{font-size:14px;color:#374151;line-height:1.65;}
+.rv-images{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.rv-images img{width:66px;height:66px;object-fit:cover;border-radius:8px;border:1px solid var(--border);cursor:pointer;transition:transform .2s;}
+.rv-images img:hover{transform:scale(1.07);}
+
+/* Actions */
+.rv-actions{display:flex;flex-direction:column;gap:8px;align-items:flex-end;}
+
+/* Status pill */
+.rv-status{display:inline-block;padding:3px 11px;border-radius:20px;font-size:11px;font-weight:700;}
+.rv-status.pending{background:#fef9c3;color:#ca8a04;}
+.rv-status.approved{background:#dcfce7;color:#16a34a;}
+
+/* Lightbox */
+#adm-lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:9999;align-items:center;justify-content:center;}
+#adm-lightbox.show{display:flex;}
+#adm-lightbox img{max-width:90vw;max-height:88vh;border-radius:14px;}
+#adm-lb-close{position:absolute;top:18px;right:26px;font-size:32px;color:#fff;cursor:pointer;font-weight:300;line-height:1;}
+</style>
+
+<!-- Page header -->
+<div class="ds-page-header">
+  <div>
+    <div class="ds-page-title">Reviews</div>
+    <div class="ds-breadcrumb"><a href="/adminpanel/dashboard/">Dashboard</a> / Reviews</div>
+  </div>
+</div>
+
+<!-- Stats row -->
+<div style="display:flex;gap:14px;margin-bottom:22px;flex-wrap:wrap;">
+  <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px 24px;min-width:160px;box-shadow:0 1px 5px rgba(67,97,238,.05);">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);">Pending</div>
+    <div style="font-size:28px;font-weight:800;color:#ca8a04;margin-top:2px;">{{ total_pending }}</div>
+  </div>
+  <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px 24px;min-width:160px;box-shadow:0 1px 5px rgba(67,97,238,.05);">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);">Approved</div>
+    <div style="font-size:28px;font-weight:800;color:#16a34a;margin-top:2px;">{{ total_approved }}</div>
+  </div>
+</div>
+
+<!-- Filter bar -->
+<div class="rv-filter-bar">
+  <a href="?status=pending"  class="rv-filter-btn {% if status_filter == 'pending' %}active{% endif %}">
+    Pending <span class="rv-badge-cnt">{{ total_pending }}</span>
+  </a>
+  <a href="?status=approved" class="rv-filter-btn {% if status_filter == 'approved' %}active{% endif %}">
+    Approved <span class="rv-badge-cnt">{{ total_approved }}</span>
+  </a>
+</div>
+
+{% if reviews %}
+  {% for review in reviews %}
+  <div class="rv-card">
+    <div class="rv-card-left">
+      <div class="rv-top">
+        <div class="rv-avatar">{{ review.user.username|first|upper }}</div>
+        <div>
+          <div class="rv-username">{{ review.user.get_full_name|default:review.user.username }}</div>
+          <div style="font-size:12px;color:var(--muted);">@{{ review.user.username }}</div>
+        </div>
+        <a href="/adminpanel/products/{{ review.product.id }}/" class="rv-product-tag">{{ review.product.name }}</a>
+        <div class="rv-date">{{ review.created|date:"M d, Y" }}</div>
+      </div>
+
+      <div class="rv-stars">
+        {% for i in "12345" %}
+          <span class="s {% if forloop.counter <= review.rating %}on{% endif %}">&#9733;</span>
+        {% endfor %}
+        <span style="font-size:12px;color:var(--muted);margin-left:6px;">{{ review.rating }}/5</span>
+      </div>
+
+      <p class="rv-comment">{{ review.comment }}</p>
+
+      {% if review.image or review.extra_images.exists %}
+      <div class="rv-images">
+        {% if review.image %}
+          <img src="{{ review.image.url }}" onclick="admLb('{{ review.image.url }}')" alt="">
+        {% endif %}
+        {% for ei in review.extra_images.all %}
+          <img src="{{ ei.image.url }}" onclick="admLb('{{ ei.image.url }}')" alt="">
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="rv-actions">
+      <span class="rv-status {% if review.approved %}approved{% else %}pending{% endif %}">
+        {% if review.approved %}Approved{% else %}Pending{% endif %}
+      </span>
+
+      {% if not review.approved %}
+      <a href="{% url 'adminpanel:approve_review' review.id %}?next={{ request.get_full_path|urlencode }}"
+         class="ds-btn ds-btn-primary ds-btn-sm" style="white-space:nowrap;">
+        <i class="fa fa-check"></i> Approve
+      </a>
+      {% else %}
+      <a href="{% url 'adminpanel:reject_review' review.id %}?next={{ request.get_full_path|urlencode }}"
+         class="ds-btn ds-btn-outline ds-btn-sm" style="white-space:nowrap;">
+        <i class="fa fa-eye-slash"></i> Reject
+      </a>
+      {% endif %}
+
+      <a href="{% url 'adminpanel:delete_review' review.id %}"
+         class="ds-btn ds-btn-danger ds-btn-sm"
+         onclick="return confirm('Permanently delete this review?')"
+         style="white-space:nowrap;">
+        <i class="fa fa-trash"></i> Delete
+      </a>
+    </div>
+  </div>
+  {% endfor %}
+
+{% else %}
+  <div style="text-align:center;padding:60px 0;color:var(--muted);">
+    <i class="fa fa-star" style="font-size:40px;opacity:.2;display:block;margin-bottom:14px;"></i>
+    No {% if status_filter == 'approved' %}approved{% else %}pending{% endif %} reviews found.
+  </div>
+{% endif %}
+
+<!-- Lightbox -->
+<div id="adm-lightbox"><span id="adm-lb-close">&times;</span><img id="adm-lb-img" src=""></div>
+
+<script>
+function admLb(url){
+  document.getElementById('adm-lb-img').src = url;
+  document.getElementById('adm-lightbox').classList.add('show');
+}
+document.getElementById('adm-lb-close').onclick = () => document.getElementById('adm-lightbox').classList.remove('show');
+document.getElementById('adm-lightbox').addEventListener('click', function(e){ if(e.target===this) this.classList.remove('show'); });
+
+/* Redirect approve/reject back to same filtered page */
+document.querySelectorAll('.rv-actions a[href*="approve"], .rv-actions a[href*="reject"]').forEach(a=>{
+  const base = a.href.split('?')[0];
+  a.href = base;
+});
+</script>
+
+{% endblock %}

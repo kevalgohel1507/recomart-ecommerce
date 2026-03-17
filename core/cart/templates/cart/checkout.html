@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+.addr-steps{display:flex;align-items:center;gap:0;max-width:1100px;margin:30px auto 0;padding:0 20px;}
+.step{flex:1;text-align:center;font-size:12px;font-weight:700;padding:8px 4px;border-bottom:3px solid #e0e0e0;color:#aaa;}
+.step.active{border-color:#2563eb;color:#2563eb;}
+.step.done{border-color:#22c55e;color:#22c55e;}
+.co-wrap{max-width:1100px;margin:20px auto 40px;padding:0 20px;display:grid;grid-template-columns:1fr 380px;gap:28px;}
+@media(max-width:800px){.co-wrap{grid-template-columns:1fr;}}
+.co-card{background:white;padding:28px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.08);}
+.co-section-title{font-size:17px;font-weight:700;margin:0 0 18px;color:#1a1a1a;padding-bottom:10px;border-bottom:2px solid #f0f0f0;}
+.co-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.co-field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+.co-field.full{grid-column:1/-1;}
+.co-field label{font-size:13px;font-weight:600;color:#444;}
+.co-input{width:100%;padding:11px 14px;border-radius:6px;border:1px solid #ddd;font-size:14px;box-sizing:border-box;transition:border .2s;}
+.co-input:focus{outline:none;border-color:#2563eb;}
+.co-divider{border:none;border-top:1px solid #f0f0f0;margin:20px 0;}
+.pay-options{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:4px;}
+.pay-opt{display:none;}
+.pay-label{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 10px;border:2px solid #e5e7eb;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;color:#555;transition:.2s;text-align:center;}
+.pay-label .pay-icon{font-size:22px;}
+.pay-opt:checked + .pay-label{border-color:#2563eb;background:#eff6ff;color:#2563eb;}
+.pay-upi-fields{display:none;margin-top:12px;}
+.co-item-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f0f0f0;}
+.co-item-img{width:56px;height:56px;object-fit:contain;border-radius:6px;background:#f5f5f5;padding:4px;flex-shrink:0;}
+.co-item-name{font-size:14px;font-weight:600;color:#1a1a1a;}
+.co-item-sub{font-size:12px;color:#888;}
+.co-item-price{margin-left:auto;font-weight:700;color:#1a1a1a;white-space:nowrap;}
+.co-price-line{display:flex;justify-content:space-between;font-size:14px;padding:8px 0;color:#555;}
+.co-price-line.total{font-size:16px;font-weight:800;color:#1a1a1a;border-top:2px solid #f0f0f0;padding-top:14px;margin-top:4px;}
+.co-place-btn{width:100%;background:#fb641b;color:white;padding:14px;border:none;border-radius:6px;font-weight:700;font-size:16px;cursor:pointer;margin-top:20px;transition:.2s;}
+.co-place-btn:hover{background:#e85c0d;}
+</style>
+
+<div class="addr-steps">
+  <div class="step done">1. ADDRESS</div>
+  <div class="step active">2. REVIEW & PAY</div>
+</div>
+
+<form method="POST" action="{% url 'checkout' %}">
+{% csrf_token %}
+<div class="co-wrap">
+
+  <!-- LEFT: ADDRESS SUMMARY + PAYMENT -->
+  <div>
+    <div class="co-card" style="margin-bottom:20px;">
+      <div class="co-section-title" style="display:flex;justify-content:space-between;align-items:center;">
+        <span>Delivering to</span>
+        <a href="{% url 'checkout_address' %}" style="font-size:13px;font-weight:600;color:#2563eb;text-decoration:none;">Change</a>
+      </div>
+      <div style="font-size:14px;color:#333;line-height:1.7;">
+        <strong>{{ address.full_name }}</strong> &nbsp;|&nbsp; {{ address.phone }}<br>
+        {{ address.address }}<br>
+        {{ address.city }}, {{ address.state }} &mdash; {{ address.pincode }}
+      </div>
+    </div>
+
+    <div class="co-card">
+      <div class="co-section-title">Payment Method</div>
+      <div class="pay-options">
+        <input type="radio" class="pay-opt" name="payment" id="pay-cod" value="COD" checked>
+        <label class="pay-label" for="pay-cod">Cash on Delivery</label>
+
+        <input type="radio" class="pay-opt" name="payment" id="pay-upi" value="UPI">
+        <label class="pay-label" for="pay-upi">UPI</label>
+
+        <input type="radio" class="pay-opt" name="payment" id="pay-card" value="CARD">
+        <label class="pay-label" for="pay-card">Card</label>
+      </div>
+
+      <div class="pay-upi-fields" id="upiFields">
+        <hr class="co-divider">
+        <div class="co-field">
+          <label>UPI ID</label>
+          <input class="co-input" name="upi_id" placeholder="yourname@upi" id="upiIdInput">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: ORDER SUMMARY -->
+  <div class="co-card" style="align-self:start;">
+    <div class="co-section-title">Order Summary</div>
+
+    {% for item in items %}
+    <div class="co-item-row">
+      {% if item.variant.images.first %}
+        <img class="co-item-img" src="{{ item.variant.images.first.image.url }}" alt="{{ item.product.name }}">
+      {% elif item.product.image %}
+        <img class="co-item-img" src="/media/{{ item.product.image.0 }}" alt="{{ item.product.name }}">
+      {% else %}
+        <div class="co-item-img"></div>
+      {% endif %}
+      <div>
+        <div class="co-item-name">{{ item.product.name }}</div>
+        <div class="co-item-sub">Qty: {{ item.qty }} &nbsp;|&nbsp; &#8377;{{ item.price }} each</div>
+      </div>
+      <div class="co-item-price">&#8377;{{ item.subtotal }}</div>
+    </div>
+    {% endfor %}
+
+    <div style="margin-top:14px;">
+      <div class="co-price-line"><span>Subtotal</span><span>&#8377;{{ subtotal }}</span></div>
+      <div class="co-price-line"><span>Platform Fee (5%)</span><span>&#8377;{{ platform_fee }}</span></div>
+      <div class="co-price-line"><span>GST on Platform Fee (18%)</span><span>&#8377;{{ gst_on_platform }}</span></div>
+      <div class="co-price-line"><span>Delivery</span><span>&#8377;{{ shipping }}</span></div>
+      <div class="co-price-line total"><span>Total</span><span>&#8377;{{ total }}</span></div>
+    </div>
+
+    <button class="co-place-btn">REVIEW &amp; PLACE ORDER</button>
+  </div>
+
+</div>
+</form>
+
+<script>
+document.querySelectorAll('.pay-opt').forEach(function(r){
+  r.addEventListener('change', function(){
+    var upi = document.getElementById('upiFields');
+    var upiIn = document.getElementById('upiIdInput');
+    if(this.value === 'UPI'){
+      upi.style.display = 'block';
+      upiIn.required = true;
+    } else {
+      upi.style.display = 'none';
+      upiIn.required = false;
+    }
+  });
+});
+</script>
+
+{% endblock %}

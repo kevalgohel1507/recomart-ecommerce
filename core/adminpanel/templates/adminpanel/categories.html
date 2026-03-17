@@ -1,0 +1,379 @@
+{% extends "adminpanel/base.html" %}
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+/* ================= GLOBAL ================= */
+
+.page-wrapper{
+    font-family:'Poppins',sans-serif;
+    background:#f4f6f9;
+}
+
+.page-title{
+    font-size:28px;
+    font-weight:600;
+    margin-bottom:25px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+/* ================= SECTION ================= */
+
+.section{
+    background:white;
+    padding:28px;
+    border-radius:18px;
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
+    margin-bottom:35px;
+    transition:.3s;
+}
+
+.section:hover{
+    transform:translateY(-4px);
+    box-shadow:0 20px 40px rgba(0,0,0,.12);
+}
+
+.section h4{
+    margin-bottom:18px;
+}
+
+/* ================= FORM ================= */
+
+.form-row{
+    display:grid;
+    grid-template-columns:2fr 2fr 2fr 1fr;
+    gap:15px;
+    align-items:center;
+}
+
+input,select{
+    width:100%;
+    padding:12px;
+    border-radius:10px;
+    border:1px solid #e3e3e3;
+}
+
+input:focus,select:focus{
+    outline:none;
+    border-color:#000;
+    box-shadow:0 0 0 3px rgba(0,0,0,.06);
+}
+
+/* ================= BUTTON ================= */
+
+button{
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    background:linear-gradient(135deg,#000,#333);
+    color:white;
+    font-weight:600;
+    cursor:pointer;
+}
+
+button:hover{
+    transform:translateY(-2px);
+    box-shadow:0 10px 20px rgba(0,0,0,.25);
+}
+
+/* ================= TABLE ================= */
+
+.table-wrapper{
+    margin-top:25px;
+    overflow-x:auto;
+    border-radius:12px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:700px;
+}
+
+thead{
+    background:#111;
+    color:white;
+    position:sticky;
+    top:0;
+}
+
+th,td{
+    padding:14px;
+}
+
+tbody tr{
+    border-bottom:1px solid #eee;
+    transition:.25s;
+}
+
+tbody tr:hover{
+    background:#f5f8ff;
+    transform:translateX(4px);
+}
+
+/* ================= ACTION BUTTONS ================= */
+
+.actions{
+    display:flex;
+    gap:10px;
+}
+
+.action-btn{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    padding:6px 14px;
+    border-radius:8px;
+    font-size:13px;
+    color:white;
+    text-decoration:none;
+}
+
+.action-btn svg{
+    width:14px;
+    height:14px;
+}
+
+.edit{ background:#2d8cff; }
+.delete{ background:#ff4d4d; }
+
+/* ================= DELETE MODAL ================= */
+
+.modal-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.55);
+    backdrop-filter:blur(5px);
+    display:none;
+    justify-content:center;
+    align-items:center;
+    z-index:999;
+}
+
+.modal{
+    background:white;
+    padding:40px;
+    border-radius:18px;
+    width:420px;
+    text-align:center;
+    animation:modalSlide .4s ease;
+}
+
+.modal-buttons{
+    margin-top:20px;
+    display:flex;
+    gap:12px;
+}
+
+.cancel-btn{
+    flex:1;
+    background:#eee;
+    border:none;
+    padding:12px;
+    border-radius:10px;
+}
+
+.confirm-btn{
+    flex:1;
+    background:#ff4d4d;
+    color:white;
+    border:none;
+    padding:12px;
+    border-radius:10px;
+}
+
+@keyframes modalSlide{
+    from{opacity:0; transform:translateY(60px) scale(.9);}
+    to{opacity:1; transform:translateY(0);}
+}
+
+@media(max-width:900px){
+    .form-row{
+        grid-template-columns:1fr;
+    }
+}
+
+</style>
+
+<div class="page-wrapper">
+
+<h2 class="page-title">Categories & Attributes</h2>
+
+<!-- ================= CATEGORY BOX ================= -->
+
+<div class="section">
+
+<h4>Add Category</h4>
+
+<form method="post" enctype="multipart/form-data">
+{% csrf_token %}
+
+<div class="form-row">
+
+<input name="name" placeholder="Category name" required>
+
+<select name="parent">
+<option value="">&#8212; No Parent (Top Level)</option>
+{% for item in category_tree %}
+<option value="{{ item.cat.id }}">{{ item.indent }} {{ item.cat.name }}</option>
+{% endfor %}
+</select>
+
+<!-- <input type="file" name="icon"> -->
+
+<button name="add_category">Add</button>
+
+</div>
+</form>
+
+<div class="table-wrapper">
+
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Parent</th>
+<th>Actions</th>
+</tr>
+</thead>
+
+<tbody>
+{% for c in categories %}
+<tr>
+<td>#{{ c.id }}</td>
+<td><strong>{{ c.name }}</strong></td>
+<td>{% if c.parent %}{{ c.parent.name }}{% else %}-{% endif %}</td>
+
+<td class="actions">
+
+<a href="{% url 'adminpanel:edit_category' c.id %}" class="action-btn edit">
+✏ Edit
+</a>
+
+<button class="action-btn delete"
+onclick="openDeleteModal({{ c.id }}, '{{ c.name }}')">
+🗑 Delete
+</button>
+
+</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+</div>
+</div>
+
+<!-- ================= ATTRIBUTE BOX ================= -->
+
+<div class="section">
+
+<h4>Add Attribute</h4>
+
+<form method="post">
+{% csrf_token %}
+
+<div class="form-row">
+
+<input name="attribute" placeholder="Attribute name (e.g. Generic Name, Country of Origin...)" required>
+
+<select name="attr_section" style="padding:8px 12px;border:1px solid #d1d5db;border-radius:6px;font-size:14px;">
+  <option value="specs">Specifications</option>
+  <option value="manufacturer">Manufacturer Info</option>
+</select>
+
+<div></div>
+
+<button name="add_attribute">Add</button>
+
+</div>
+
+</form>
+
+<div class="table-wrapper">
+
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Attribute</th>
+<th>Section</th>
+<th>Actions</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for a in attributes %}
+<tr>
+<td>#{{ a.id }}</td>
+<td><strong>{{ a.name }}</strong></td>
+<td><span style="font-size:12px;padding:3px 8px;border-radius:12px;background:{% if a.section == 'manufacturer' %}#fef3c7{% else %}#dbeafe{% endif %};color:{% if a.section == 'manufacturer' %}#92400e{% else %}#1e40af{% endif %};">{{ a.get_section_display }}</span></td>
+
+<td class="actions">
+<a href="{% url 'adminpanel:edit_attribute' a.id %}" class="action-btn edit">✏ Edit</a>
+<a href="{% url 'adminpanel:delete_attribute' a.id %}" class="action-btn delete">🗑 Delete</a>
+</td>
+
+</tr>
+{% endfor %}
+
+</tbody>
+</table>
+
+</div>
+</div>
+
+</div>
+
+<!-- ================= DELETE MODAL ================= -->
+
+<div id="deleteModal" class="modal-overlay">
+
+<div class="modal">
+
+<h3>Delete Category</h3>
+<p id="deleteText"></p>
+
+<form method="post" id="deleteForm">
+{% csrf_token %}
+
+<div class="modal-buttons">
+<button type="button" class="cancel-btn" onclick="closeModal()">Cancel</button>
+<button type="submit" class="confirm-btn">Yes Delete</button>
+</div>
+
+</form>
+
+</div>
+</div>
+
+<script>
+
+function openDeleteModal(id,name){
+    document.getElementById("deleteModal").style.display="flex";
+    document.getElementById("deleteText").innerHTML=
+        `Are you sure you want to delete <b>${name}</b>?`;
+
+    document.getElementById("deleteForm").action=
+        "/adminpanel/categories/delete/"+id+"/";
+}
+
+function closeModal(){
+    document.getElementById("deleteModal").style.display="none";
+}
+
+window.onclick=function(e){
+    if(e.target.id==="deleteModal"){
+        closeModal();
+    }
+}
+
+</script>
+
+{% endblock %}

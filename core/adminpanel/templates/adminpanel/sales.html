@@ -1,0 +1,73 @@
+{% extends "adminpanel/base.html" %}
+{% block content %}
+
+<div class="ds-page-header">
+  <div>
+    <div class="ds-page-title">Sales</div>
+    <div class="ds-breadcrumb"><a href="/adminpanel/dashboard/">Dashboard</a> / Sales</div>
+  </div>
+  <a href="{% url 'adminpanel:create_sale' %}" class="ds-btn ds-btn-primary"><i class="fa fa-plus"></i> Create Sale</a>
+</div>
+
+{% if sales %}
+<div class="admin-card" style="padding:0;">
+  <table class="ds-table">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Banner Text</th>
+        <th>Start</th>
+        <th>End</th>
+        <th>Status</th>
+        <th>Ads</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for sale in sales %}
+      <tr>
+        <td style="font-weight:700;">{{ sale.title }}</td>
+        <td style="color:var(--muted);font-size:13px;">{{ sale.banner_text|default:"—" }}</td>
+        <td style="font-size:13px;">{{ sale.start_datetime|date:"M d, Y H:i" }}</td>
+        <td style="font-size:13px;">{{ sale.end_datetime|date:"M d, Y H:i" }}</td>
+        <td>
+          {% if sale.is_live %}
+            <span class="ds-badge ds-badge-green">🔴 Live</span>
+          {% elif sale.is_upcoming %}
+            <span class="ds-badge ds-badge-yellow">⏳ Upcoming</span>
+          {% elif sale.is_active %}
+            <span class="ds-badge ds-badge-blue">Ended</span>
+          {% else %}
+            <span class="ds-badge" style="background:#f1f5f9;color:#64748b;">Inactive</span>
+          {% endif %}
+        </td>
+        <td>
+          <a href="{% url 'adminpanel:admin_sale_ads' sale.id %}" class="ds-btn ds-btn-outline ds-btn-sm">
+            <i class="fa fa-image"></i> {{ sale.advertisements.count }} Ads
+          </a>
+        </td>
+        <td style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <a href="{% url 'adminpanel:edit_sale' sale.id %}" class="ds-btn ds-btn-outline ds-btn-sm"><i class="fa fa-pen"></i> Edit</a>
+          {% if sale.is_active and not sale.end_datetime or sale.is_live or sale.is_upcoming %}
+          <form method="post" action="{% url 'adminpanel:end_sale' sale.id %}" style="display:inline;" onsubmit="return confirm('End this sale immediately? This cannot be undone.');">
+            {% csrf_token %}
+            <button type="submit" class="ds-btn ds-btn-sm" style="background:#f97316;color:#fff;border:none;cursor:pointer;"><i class="fa fa-stop-circle"></i> End Sale</button>
+          </form>
+          {% endif %}
+          <a href="{% url 'adminpanel:delete_sale' sale.id %}"
+             class="ds-btn ds-btn-danger ds-btn-sm"
+             onclick="return confirm('Delete this sale?')"><i class="fa fa-trash"></i></a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="admin-card" style="text-align:center;padding:60px;color:var(--muted);">
+  <i class="fa fa-tags" style="font-size:42px;opacity:.15;display:block;margin-bottom:14px;"></i>
+  No sales yet. <a href="{% url 'adminpanel:create_sale' %}" style="color:var(--blue);font-weight:700;">Create the first one →</a>
+</div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,859 @@
+﻿{% extends "vendor/vendor_base.html" %}
+{% block vendor_content %}
+
+<style>
+/* ─────────────────────── FLIPKART SELLER HUB THEME ─────────────────────── */
+:root{
+  --fk-orange:#fb641b;
+  --fk-blue:#2874f0;
+  --fk-blue-dk:#1a5fd4;
+  --fk-green:#388e3c;
+  --fk-bg:#f1f3f6;
+  --fk-card:#fff;
+  --fk-text:#212121;
+  --fk-sub:#878787;
+  --fk-border:#e0e0e0;
+  --fk-yellow:#ffe500;
+}
+
+/* PAGE */
+.fk-wrap{max-width:1100px;margin:0 auto;padding:0 0 56px;font-family:'Segoe UI',Arial,sans-serif;color:var(--fk-text);}
+
+/* ── STEP PROGRESS BAR ── */
+.fk-step-bar{
+  background:linear-gradient(90deg,var(--fk-blue) 0%,var(--fk-blue-dk) 100%);
+  padding:14px 28px;display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:12px;
+}
+.fk-step-bar .step-title{
+  color:#fff;font-size:1.05rem;font-weight:700;letter-spacing:.2px;
+  display:flex;align-items:center;gap:10px;
+}
+.fk-step-bar .step-title i{opacity:.8;}
+.fk-step-pills{display:flex;align-items:center;gap:0;}
+.fk-step-pill{
+  display:flex;align-items:center;gap:8px;
+  padding:7px 18px;font-size:.8rem;font-weight:700;
+  color:rgba(255,255,255,.6);letter-spacing:.3px;
+}
+.fk-step-pill .pill-num{
+  border-radius:50%;width:22px;height:22px;display:inline-flex;
+  align-items:center;justify-content:center;font-size:.75rem;
+}
+.fk-step-pill.done{color:rgba(255,255,255,.7);}
+.fk-step-pill.done .pill-num{background:rgba(255,255,255,.3);color:#fff;}
+.fk-step-pill.active{color:#fff;}
+.fk-step-pill.active .pill-num{background:var(--fk-orange);color:#fff;}
+.fk-step-divider{color:rgba(255,255,255,.3);margin:0 2px;}
+
+/* ── PRODUCT CONTEXT BAR ── */
+.fk-context{
+  background:#fff;border-bottom:1px solid var(--fk-border);
+  padding:13px 28px;display:flex;align-items:center;
+  justify-content:space-between;flex-wrap:wrap;gap:10px;
+}
+.fk-context-left{display:flex;align-items:center;gap:12px;}
+.fk-product-thumb{
+  width:52px;height:52px;border-radius:6px;
+  border:1px solid var(--fk-border);background:#f1f3f6;
+  display:flex;align-items:center;justify-content:center;color:#ccc;font-size:1.4rem;
+}
+.fk-product-info .pname{font-weight:700;font-size:.97rem;color:var(--fk-text);}
+.fk-product-info .pcat{font-size:.8rem;color:var(--fk-sub);margin-top:2px;}
+.fk-status-chip{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 12px;border-radius:20px;font-size:.76rem;font-weight:700;
+  letter-spacing:.4px;text-transform:uppercase;
+}
+.fk-status-chip.approved{background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;}
+.fk-status-chip.pending {background:#fff8e1;color:#f57f17;border:1px solid #ffe082;}
+.fk-status-chip.rejected{background:#ffebee;color:#c62828;border:1px solid #ef9a9a;}
+
+/* ── MAIN BODY ── */
+.fk-body{padding:20px 28px;}
+
+/* ── ALERT ── */
+.fk-alert{
+  padding:11px 16px;border-radius:6px;margin-bottom:16px;
+  font-size:.88rem;font-weight:600;display:flex;align-items:center;gap:8px;
+}
+.fk-alert.success{background:#e8f5e9;color:#2e7d32;border-left:4px solid #4caf50;}
+.fk-alert.error  {background:#ffebee;color:#c62828;border-left:4px solid #f44336;}
+
+/* ── SECTION CARD ── */
+.fk-section{
+  background:var(--fk-card);border:1px solid var(--fk-border);
+  border-radius:4px;margin-bottom:12px;overflow:hidden;
+}
+.fk-section-head{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 20px;border-bottom:1px solid #f1f3f6;
+  background:#fafafa;
+}
+.fk-sec-num{
+  background:var(--fk-blue);color:#fff;border-radius:50%;
+  width:26px;height:26px;display:inline-flex;align-items:center;
+  justify-content:center;font-size:.82rem;font-weight:700;flex-shrink:0;
+}
+.fk-section-head h3{font-size:.97rem;font-weight:700;color:var(--fk-text);margin:0;}
+.fk-section-head .sec-sub{font-size:.78rem;color:var(--fk-sub);margin-left:auto;}
+.fk-section-body{padding:20px;}
+
+/* ── FORM GRID ── */
+.fk-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+@media(max-width:640px){.fk-grid{grid-template-columns:1fr;}}
+.fk-attr-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:640px){.fk-attr-grid{grid-template-columns:1fr;}}
+
+.fk-field{margin-bottom:18px;}
+.fk-field label{display:block;font-size:.82rem;font-weight:700;color:#444;margin-bottom:6px;}
+.fk-field input,.fk-field select{
+  width:100%;padding:10px 14px;
+  border:1px solid var(--fk-border);border-radius:3px;
+  font-size:.92rem;color:var(--fk-text);background:#fff;
+  transition:border .18s,box-shadow .18s;box-sizing:border-box;
+}
+.fk-field input:focus,.fk-field select:focus{
+  border-color:var(--fk-blue);outline:none;
+  box-shadow:0 0 0 2px rgba(40,116,240,.12);
+}
+.fk-req{color:#f44336;margin-left:2px;}
+.fk-hint{font-size:.75rem;color:var(--fk-sub);margin-top:4px;line-height:1.5;}
+
+/* ── TIP BOX ── */
+.fk-tip{
+  background:#fffde7;border:1px solid #fff176;border-radius:4px;
+  padding:12px 16px;font-size:.82rem;color:#5d4037;line-height:1.65;
+  display:flex;gap:10px;align-items:flex-start;margin-bottom:20px;
+}
+.fk-tip i{color:#f9a825;margin-top:2px;flex-shrink:0;}
+
+/* ── WHAT HAPPENS NEXT BOX ── */
+.fk-next-hint{
+  background:#e3f2fd;border:1px solid #90caf9;border-radius:4px;
+  padding:14px 18px;font-size:.83rem;color:#0d47a1;line-height:1.7;
+  margin-top:18px;
+}
+.fk-next-hint strong{display:block;margin-bottom:4px;font-size:.88rem;}
+
+/* ── COMBO TRIGGER BAR ── */
+.fk-combo-bar{
+  background:#e8f5e9;border:1px solid #a5d6a7;border-radius:4px;
+  padding:14px 18px;display:none;align-items:center;
+  justify-content:space-between;gap:12px;flex-wrap:wrap;
+  margin-top:16px;
+}
+.fk-combo-bar.visible{display:flex;}
+.fk-combo-bar p{font-size:.85rem;color:#2e7d32;font-weight:600;margin:0;}
+.fk-combo-btn{
+  padding:9px 20px;background:var(--fk-orange);color:#fff;
+  border:none;border-radius:3px;font-size:.85rem;font-weight:700;
+  cursor:pointer;white-space:nowrap;letter-spacing:.3px;
+}
+.fk-combo-btn:hover{background:#e55b14;}
+
+/* ── MODAL ── */
+.fk-modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.45);
+  z-index:9999;display:none;align-items:center;justify-content:center;padding:20px;
+}
+.fk-modal-overlay.open{display:flex;}
+.fk-modal{
+  background:#fff;border-radius:4px;width:100%;max-width:640px;
+  max-height:88vh;display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:0 8px 40px rgba(0,0,0,.22);
+}
+.fk-modal-head{
+  background:var(--fk-blue);color:#fff;
+  padding:16px 22px;display:flex;align-items:center;justify-content:space-between;
+}
+.fk-modal-head h3{font-size:1rem;font-weight:700;margin:0;}
+.fk-modal-head button{background:none;border:none;color:rgba(255,255,255,.8);font-size:1.3rem;cursor:pointer;padding:0;}
+.fk-modal-body{flex:1;overflow-y:auto;padding:20px;}
+.fk-modal-foot{
+  padding:14px 20px;border-top:1px solid var(--fk-border);
+  display:flex;justify-content:flex-end;gap:10px;background:#fafafa;
+}
+.fk-modal-note{
+  background:#fff8e1;border:1px solid #ffe082;border-radius:4px;
+  padding:10px 14px;font-size:.8rem;color:#5d4037;
+  margin-bottom:16px;display:flex;gap:8px;align-items:flex-start;
+}
+.fk-modal-note i{color:#f9a825;flex-shrink:0;margin-top:1px;}
+.fk-combo-row{
+  background:#fafafa;border:1px solid var(--fk-border);
+  border-radius:4px;padding:14px;margin-bottom:10px;
+}
+.fk-combo-row-label{
+  font-size:.82rem;font-weight:700;color:var(--fk-blue);
+  margin-bottom:10px;display:flex;align-items:center;gap:6px;
+}
+.combo-badge{
+  background:var(--fk-blue);color:#fff;border-radius:20px;
+  padding:2px 10px;font-size:.74rem;font-weight:700;
+}
+.fk-combo-inputs{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:480px){.fk-combo-inputs{grid-template-columns:1fr;}}
+
+/* ── IMAGE UPLOAD ── */
+.fk-img-zone{
+  border:2px dashed #b0bec5;border-radius:4px;padding:24px;
+  background:#fafafa;text-align:center;cursor:pointer;
+  transition:border-color .2s,background .2s;
+}
+.fk-img-zone:hover{border-color:var(--fk-blue);background:#e3f2fd;}
+.fk-img-zone i{font-size:2rem;color:#b0bec5;display:block;margin-bottom:8px;}
+.fk-img-zone p{font-size:.82rem;color:var(--fk-sub);margin:0;}
+.fk-img-preview{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;}
+.fk-img-preview img{width:80px;height:80px;object-fit:cover;border-radius:4px;border:1px solid var(--fk-border);}
+
+/* ── BUTTONS ── */
+.fk-btn-primary{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:12px 28px;background:var(--fk-orange);color:#fff;
+  border:none;border-radius:3px;font-size:.97rem;font-weight:700;
+  cursor:pointer;letter-spacing:.2px;transition:background .18s;
+}
+.fk-btn-primary:hover{background:#e55b14;}
+.fk-btn-secondary{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:12px 22px;background:#fff;color:#444;
+  border:1px solid var(--fk-border);border-radius:3px;
+  font-size:.9rem;font-weight:600;cursor:pointer;
+  text-decoration:none;transition:background .18s;
+}
+.fk-btn-secondary:hover{background:#f5f5f5;}
+.fk-btn-blue{
+  padding:9px 20px;background:var(--fk-blue);color:#fff;
+  border:none;border-radius:3px;font-size:.85rem;font-weight:700;cursor:pointer;
+}
+.fk-btn-blue:hover{background:var(--fk-blue-dk);}
+.fk-submit-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:6px;}
+
+/* ── EXISTING VARIANTS TABLE ── */
+.fk-table-wrap{overflow-x:auto;}
+.fk-table{width:100%;border-collapse:collapse;font-size:.86rem;}
+.fk-table thead tr{background:#e3f2fd;}
+.fk-table th{
+  padding:12px 16px;text-align:left;font-weight:700;
+  font-size:.77rem;text-transform:uppercase;letter-spacing:.4px;
+  color:var(--fk-blue);border-bottom:2px solid #90caf9;white-space:nowrap;
+}
+.fk-table td{padding:12px 16px;border-bottom:1px solid #f5f5f5;color:var(--fk-text);vertical-align:middle;}
+.fk-table tr:last-child td{border-bottom:none;}
+.fk-table tbody tr:hover{background:#fafafa;}
+.fk-sku-badge{
+  display:inline-block;padding:3px 10px;border-radius:3px;
+  font-size:.77rem;font-weight:700;background:#e8eaf6;color:#283593;
+  font-family:monospace;letter-spacing:.5px;
+}
+.fk-attr-chip{
+  display:inline-block;padding:2px 9px;margin:2px;
+  border-radius:3px;background:#f5f5f5;color:#333;
+  font-size:.78rem;font-weight:500;border:1px solid #e0e0e0;
+}
+.fk-attr-chip strong{color:var(--fk-blue);}
+.fk-price{font-weight:700;color:var(--fk-green);font-size:.93rem;}
+.stock-ok {font-weight:700;color:#2e7d32;}
+.stock-low{font-weight:700;color:#e65100;}
+.stock-out{font-weight:700;color:#c62828;}
+.fk-img-strip{display:flex;gap:6px;flex-wrap:wrap;}
+.fk-img-strip img{width:40px;height:40px;object-fit:cover;border-radius:3px;border:1px solid #e0e0e0;}
+.fk-no-img{font-size:.79rem;color:#bdbdbd;font-style:italic;}
+.fk-empty-row td{text-align:center;padding:40px;color:var(--fk-sub);}
+.fk-empty-row i{font-size:2rem;display:block;margin-bottom:8px;color:#e0e0e0;}
+
+/* ── ACTION BUTTONS ── */
+.btn-del{
+  padding:5px 10px;background:#fff;color:#c62828;
+  border:1px solid #ef9a9a;border-radius:3px;font-size:.78rem;
+  cursor:pointer;transition:background .15s;
+}
+.btn-del:hover{background:#ffebee;}
+.btn-edit{
+  padding:5px 10px;background:#fff;color:var(--fk-blue);
+  border:1px solid #90caf9;border-radius:3px;font-size:.78rem;
+  cursor:pointer;transition:background .15s;margin-right:4px;
+}
+.btn-edit:hover{background:#e3f2fd;}
+
+/* ── EDIT MODAL ── */
+.edit-modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.45);
+  z-index:10000;display:none;align-items:center;justify-content:center;padding:20px;
+}
+.edit-modal-overlay.open{display:flex;}
+.edit-modal{
+  background:#fff;border-radius:4px;width:100%;max-width:480px;
+  box-shadow:0 8px 40px rgba(0,0,0,.22);overflow:hidden;
+}
+.edit-modal-head{
+  background:var(--fk-blue);color:#fff;
+  padding:14px 20px;display:flex;align-items:center;justify-content:space-between;
+}
+.edit-modal-head h3{margin:0;font-size:.97rem;font-weight:700;}
+.edit-modal-head button{background:none;border:none;color:rgba(255,255,255,.8);font-size:1.3rem;cursor:pointer;}
+.edit-modal-body{padding:20px;}
+.edit-modal-foot{
+  padding:12px 20px;border-top:1px solid var(--fk-border);
+  display:flex;justify-content:flex-end;gap:10px;background:#fafafa;
+}
+</style>
+
+<div class="fk-wrap">
+
+  <!-- ── STEP PROGRESS BAR ── -->
+  <div class="fk-step-bar">
+    <div class="step-title">
+      <i class="fas fa-store"></i> Seller Hub — Add Product
+    </div>
+    <div class="fk-step-pills">
+      <div class="fk-step-pill done">
+        <span class="pill-num"><i class="fas fa-check" style="font-size:.6rem;"></i></span>
+        &nbsp;Basic Details
+      </div>
+      <span class="fk-step-divider">></span>
+      <div class="fk-step-pill active">
+        <span class="pill-num">2</span>
+        &nbsp;Variants &amp; Pricing
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PRODUCT CONTEXT BAR ── -->
+  <div class="fk-context">
+    <div class="fk-context-left">
+      <div class="fk-product-thumb">
+        <i class="fas fa-box"></i>
+      </div>
+      <div class="fk-product-info">
+        <div class="pname">{{ product.name }}</div>
+        <div class="pcat">
+          <i class="fas fa-tag" style="font-size:.72rem;margin-right:4px;color:var(--fk-sub);"></i>
+          {{ product.category }}
+        </div>
+      </div>
+    </div>
+    <span class="fk-status-chip {% if product.status == 'approved' %}approved{% elif product.status == 'rejected' %}rejected{% else %}pending{% endif %}">
+      <i class="fas fa-circle" style="font-size:.45rem;vertical-align:2px;"></i>
+      {{ product.status|upper }}
+    </span>
+  </div>
+
+  <div class="fk-body">
+
+    <!-- ── FLASH MESSAGES ── -->
+    {% if messages %}
+      {% for msg in messages %}
+        <div class="fk-alert {% if 'error' in msg.tags %}error{% else %}success{% endif %}">
+          <i class="fas {% if 'error' in msg.tags %}fa-times-circle{% else %}fa-check-circle{% endif %}"></i>
+          {{ msg }}
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <!-- ════════════════ ADD VARIANT FORM ════════════════ -->
+    <form method="POST" enctype="multipart/form-data" id="variantForm">
+      {% csrf_token %}
+
+      <!-- ── SECTION 1 · Variant Identity ── -->
+      <div class="fk-section">
+        <div class="fk-section-head">
+          <span class="fk-sec-num">1</span>
+          <h3>Variant Identity</h3>
+          <span class="sec-sub">SKU &amp; stock details</span>
+        </div>
+        <div class="fk-section-body">
+
+          <div class="fk-tip">
+            <i class="fas fa-lightbulb"></i>
+            <span>
+              <strong>What is a variant?</strong>
+              Each unique product configuration — e.g. <em>Blue / 8GB / 128GB</em> — is one variant with its own SKU, price and stock.
+              Fill the form and click <strong>Save &amp; Add Variant</strong> to create it.
+            </span>
+          </div>
+
+          <div class="fk-grid">
+            <div class="fk-field">
+              <label>SKU Code <span class="fk-req">*</span></label>
+              <input name="sku" required placeholder="e.g. IPHONE-GRN-8GB-128GB">
+              <p class="fk-hint">Unique identifier. Use UPPERCASE + hyphens. Must be different for every variant.</p>
+            </div>
+
+            <div class="fk-field" id="singlePriceDiv">
+              <label>Selling Price (&#8377;) <span class="fk-req">*</span></label>
+              <input name="price" id="singlePriceInput" type="number" step="0.01" min="0" required placeholder="0.00">
+              <p class="fk-hint">Price the buyer pays. Hidden when multiple combo values are detected.</p>
+            </div>
+          </div>
+
+          <div class="fk-field" id="singleStockDiv" style="max-width:320px;">
+            <label>Stock Quantity <span class="fk-req">*</span></label>
+            <input name="stock" id="singleStockInput" type="number" min="0" required placeholder="e.g. 50">
+            <p class="fk-hint">Available units for this single variant. Each combination gets its own stock in multi-mode.</p>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── SECTION 2 · Attributes ── -->
+      <div class="fk-section">
+        <div class="fk-section-head">
+          <span class="fk-sec-num">2</span>
+          <h3>Variant Attributes</h3>
+          <span class="sec-sub">{{ product.category }} — specific properties</span>
+        </div>
+        <div class="fk-section-body">
+
+          <div class="fk-tip">
+            <i class="fas fa-lightbulb"></i>
+            <span>
+              <strong>Bulk mode:</strong> Separate values with commas to create all combinations in one save.
+              Example — Color: <code>Red, Blue</code> &nbsp;|&nbsp; RAM: <code>8GB, 12GB</code> &nbsp;|&nbsp; Storage: <code>128GB, 256GB</code>
+              A <strong>pricing popup</strong> will appear so you can set price &amp; stock for each combo individually.
+            </span>
+          </div>
+
+          {% if attributes %}
+            <div class="fk-attr-grid">
+              {% for ca in attributes %}
+                <div class="fk-field">
+                  <label>
+                    {{ ca.attribute.name }}
+                    {% if ca.is_required %}<span class="fk-req">*</span>{% endif %}
+                  </label>
+                  <input
+                    class="attr-input"
+                    name="attr_{{ ca.attribute.slug }}"
+                    data-slug="{{ ca.attribute.slug }}"
+                    data-name="{{ ca.attribute.name }}"
+                    placeholder="{% if 'color' in ca.attribute.slug|lower %}e.g. Red, Blue, Green{% elif 'storage' in ca.attribute.slug|lower %}e.g. 128GB, 256GB{% elif 'ram' in ca.attribute.slug|lower %}e.g. 8GB, 12GB{% else %}Enter value{% endif %}"
+                    {% if ca.is_required %}required{% endif %}
+                  >
+                  <p class="fk-hint">Use commas for multiple values — triggers the pricing popup automatically</p>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div style="text-align:center;padding:28px;color:var(--fk-sub);border:1px dashed #e0e0e0;border-radius:4px;">
+              <i class="fas fa-layer-group" style="font-size:1.8rem;display:block;margin-bottom:8px;color:#e0e0e0;"></i>
+              No attributes configured for <strong>{{ product.category }}</strong> yet.
+              Ask admin to add them via <strong>Admin &#8594; Category Attributes</strong>.
+            </div>
+          {% endif %}
+
+          <!-- COMBO TRIGGER BAR -->
+          <div class="fk-combo-bar" id="comboTriggerBar">
+            <p>
+              <i class="fas fa-th" style="margin-right:6px;"></i>
+              <span id="comboCountLabel">0 combinations</span> detected — set price &amp; stock for each
+            </p>
+            <button type="button" class="fk-combo-btn" onclick="openComboModal()">
+              <i class="fas fa-rupee-sign" style="margin-right:5px;"></i> Set Prices &amp; Stock
+            </button>
+          </div>
+
+          <!-- Hidden fields for multi-combo POST -->
+          <input type="hidden" name="multi_attr"   id="multiAttrInput"  value="">
+          <input type="hidden" name="combo_count"  id="comboCountInput" value="0">
+          <div id="comboHiddenArea"></div>
+
+        </div>
+      </div>
+
+      <!-- ── SECTION 3 · Images ── -->
+      <div class="fk-section">
+        <div class="fk-section-head">
+          <span class="fk-sec-num">3</span>
+          <h3>Variant Images</h3>
+          <span class="sec-sub">Slideshow shown when buyer selects this variant</span>
+        </div>
+        <div class="fk-section-body">
+
+          <div class="fk-tip">
+            <i class="fas fa-lightbulb"></i>
+            <span>
+              Upload all images for <strong>this color / variant group</strong>.
+              These become the product image slideshow when the buyer selects this variant on the product page.
+              Supported: <strong>JPG, PNG, WEBP, AVIF</strong>. Recommended: at least 3 photos per variant.
+            </span>
+          </div>
+
+          <div class="fk-img-zone" onclick="document.getElementById('variantImages').click()">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <p>Click to upload &nbsp;&middot;&nbsp; <strong>Multiple files allowed</strong></p>
+            <p id="imgZoneStatus" style="margin-top:6px;color:var(--fk-blue);font-weight:600;display:none;"></p>
+          </div>
+          <div class="fk-img-preview" id="vImgPreview"></div>
+          <input type="file" id="variantImages" name="images" multiple hidden accept="image/*" onchange="previewVariantImages(this)">
+
+          <div class="fk-next-hint">
+            <strong><i class="fas fa-check-circle" style="color:#1565c0;margin-right:5px;"></i>After saving this variant:</strong>
+            You'll come back to this page to add the next variant group (e.g. next color).
+            Repeat until all variant combinations are listed in the <strong>Saved Variants</strong> table below.
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── SAVE BUTTONS ── -->
+      <div class="fk-submit-row" style="padding:0 2px;">
+        <button type="submit" class="fk-btn-primary">
+          <i class="fas fa-save"></i> Save &amp; Add Variant
+        </button>
+        <a href="{% url 'vendor_products' %}" class="fk-btn-secondary">
+          <i class="fas fa-check"></i> Done — Main Product Page
+        </a>
+      </div>
+
+    </form>
+    <!-- ════════════════ END FORM ════════════════ -->
+
+
+    <!-- ── EXISTING VARIANTS TABLE ── -->
+    <div class="fk-section" style="margin-top:28px;">
+      <div class="fk-section-head">
+        <span class="fk-sec-num" style="background:#388e3c;"><i class="fas fa-list-ul" style="font-size:.7rem;"></i></span>
+        <h3>Saved Variants</h3>
+        <span class="sec-sub" style="margin-left:auto;">
+          {{ variants|length }} SKU{{ variants|length|pluralize }} added
+        </span>
+      </div>
+      <div class="fk-section-body" style="padding:0;">
+        <div class="fk-table-wrap">
+          <table class="fk-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>SKU</th>
+                <th>Attributes</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Images</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for v in variants %}
+              <tr>
+                <td style="color:#bdbdbd;font-weight:600;">{{ forloop.counter }}</td>
+                <td><span class="fk-sku-badge">{{ v.sku }}</span></td>
+                <td>
+                  {% for av in v.attribute_values.all %}
+                    <span class="fk-attr-chip">
+                      <strong>{{ av.attribute.name }}:</strong> {{ av.value }}
+                    </span>
+                  {% empty %}
+                    <span style="color:#bdbdbd;font-style:italic;font-size:.82rem;">No attributes</span>
+                  {% endfor %}
+                </td>
+                <td><span class="fk-price">&#8377;{{ v.price }}</span></td>
+                <td>
+                  {% if v.stock > 10 %}
+                    <span class="stock-ok"><i class="fas fa-check-circle" style="font-size:.75rem;margin-right:3px;"></i>{{ v.stock }}</span>
+                  {% elif v.stock > 0 %}
+                    <span class="stock-low"><i class="fas fa-exclamation-triangle" style="font-size:.75rem;margin-right:3px;"></i>{{ v.stock }}</span>
+                  {% else %}
+                    <span class="stock-out"><i class="fas fa-times-circle" style="font-size:.75rem;margin-right:3px;"></i>0</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <div class="fk-img-strip">
+                    {% for img in v.images.all %}
+                      <img src="{{ img.image.url }}" alt="">
+                    {% empty %}
+                      <span class="fk-no-img"><i class="fas fa-images" style="margin-right:4px;"></i>None</span>
+                    {% endfor %}
+                  </div>
+                </td>
+                <td style="white-space:nowrap;">
+                  <button type="button" class="btn-edit"
+                    onclick="openEditModal({{ v.id }},'{{ v.sku|escapejs }}','{{ v.price }}','{{ v.stock }}')"
+                    title="Edit price / stock">
+                    <i class="fas fa-pen"></i> Edit
+                  </button>
+                  <form method="POST"
+                    action="{% url 'vendor_delete_variant' v.id %}"
+                    style="display:inline;"
+                    onsubmit="return confirm('Delete variant {{ v.sku|escapejs }}? This cannot be undone.');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-del" title="Delete variant">
+                      <i class="fas fa-trash"></i> Delete
+                    </button>
+                  </form>
+                </td>
+              </tr>
+              {% empty %}
+              <tr class="fk-empty-row">
+                <td colspan="7">
+                  <i class="fas fa-box-open"></i>
+                  No variants yet — fill the form above to add your first SKU.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /fk-body -->
+</div><!-- /fk-wrap -->
+
+
+<!-- ══════════════ EDIT VARIANT MODAL ══════════════ -->
+<div class="edit-modal-overlay" id="editModalOverlay">
+  <div class="edit-modal">
+    <div class="edit-modal-head">
+      <h3><i class="fas fa-pen" style="margin-right:8px;"></i>Edit Variant</h3>
+      <button onclick="document.getElementById('editModalOverlay').classList.remove('open')">&times;</button>
+    </div>
+    <form method="POST" id="editVariantForm" action="">
+      {% csrf_token %}
+      <div class="edit-modal-body">
+        <div class="fk-field">
+          <label>SKU</label>
+          <input name="sku" id="editSku" type="text" placeholder="SKU">
+          <p class="fk-hint">Must be unique across all variants.</p>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div class="fk-field">
+            <label>Price (&#8377;) <span class="fk-req">*</span></label>
+            <input name="price" id="editPrice" type="number" step="0.01" min="0" required placeholder="0.00">
+          </div>
+          <div class="fk-field">
+            <label>Stock <span class="fk-req">*</span></label>
+            <input name="stock" id="editStock" type="number" min="0" required placeholder="0">
+          </div>
+        </div>
+      </div>
+      <div class="edit-modal-foot">
+        <button type="button" class="fk-btn-secondary"
+          onclick="document.getElementById('editModalOverlay').classList.remove('open')">
+          Cancel
+        </button>
+        <button type="submit" class="fk-btn-blue">
+          <i class="fas fa-save" style="margin-right:5px;"></i> Save Changes
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<!-- ══════════════ COMBO PRICE/STOCK MODAL ══════════════ -->
+<div class="fk-modal-overlay" id="comboModalOverlay">
+  <div class="fk-modal">
+    <div class="fk-modal-head">
+      <h3><i class="fas fa-rupee-sign" style="margin-right:8px;"></i>Set Price &amp; Stock per Combination</h3>
+      <button onclick="closeComboModal()" title="Close">&times;</button>
+    </div>
+    <div class="fk-modal-body">
+      <div class="fk-modal-note">
+        <i class="fas fa-info-circle"></i>
+        <span>Leave <strong>Price</strong> empty to skip that combination (no variant created in DB). Each combination gets its own stock count.</span>
+      </div>
+      <div id="modalComboRows"><!-- filled by JS --></div>
+    </div>
+    <div class="fk-modal-foot">
+      <button type="button" class="fk-btn-secondary" onclick="closeComboModal()">
+        <i class="fas fa-times" style="font-size:.8rem;"></i> Close
+      </button>
+      <button type="button" class="fk-btn-blue" onclick="confirmCombos()">
+        <i class="fas fa-check" style="margin-right:5px;"></i> Confirm &amp; Close
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+/* ─── Image preview ─── */
+function previewVariantImages(input){
+  const row = document.getElementById('vImgPreview');
+  const st  = document.getElementById('imgZoneStatus');
+  row.innerHTML = '';
+  [...input.files].forEach(file => {
+    const img = document.createElement('img');
+    img.src = URL.createObjectURL(file);
+    row.appendChild(img);
+  });
+  st.textContent = input.files.length + ' file' + (input.files.length>1?'s':'') + ' selected — click to change';
+  st.style.display = input.files.length ? '' : 'none';
+}
+
+/* ─── Cartesian product helper ─── */
+function cartesian(arrays){
+  return arrays.reduce(function(acc,arr){
+    return acc.flatMap(function(a){ return arr.map(function(b){ return a.concat([b]); }); });
+  }, [[]]);
+}
+
+/* ─── State: preserve typed prices/stocks across modal open/close ─── */
+var _currentCombos = [];
+
+/* ─── Detect multi-values and update UI ─── */
+function updatePriceSection(){
+  var multiAttrInp  = document.getElementById('multiAttrInput');
+  var comboCountInp = document.getElementById('comboCountInput');
+  var singlePDiv    = document.getElementById('singlePriceDiv');
+  var singlePInp    = document.getElementById('singlePriceInput');
+  var singleSDiv    = document.getElementById('singleStockDiv');
+  var triggerBar    = document.getElementById('comboTriggerBar');
+  var comboLabel    = document.getElementById('comboCountLabel');
+
+  var multiAttrs = [];
+  document.querySelectorAll('.attr-input').forEach(function(inp){
+    var vals = inp.value.split(',').map(function(v){return v.trim();}).filter(function(v){return v;});
+    if(vals.length >= 2) multiAttrs.push({slug:inp.dataset.slug, name:inp.dataset.name, vals:vals});
+  });
+
+  if(!multiAttrs.length){
+    multiAttrInp.value=''; comboCountInp.value='0';
+    _currentCombos=[];
+    singlePDiv.style.display=''; singlePInp.required=true;
+    singleSDiv.style.display='';
+    document.getElementById('singleStockInput').required=true;
+    triggerBar.classList.remove('visible');
+    return;
+  }
+
+  singlePDiv.style.display='none'; singlePInp.required=false; singlePInp.value='';
+  singleSDiv.style.display='none';
+  document.getElementById('singleStockInput').required=false;
+  multiAttrInp.value = multiAttrs.map(function(a){return a.slug;}).join(',');
+
+  var combos = cartesian(multiAttrs.map(function(a){return a.vals;}));
+  comboCountInp.value = combos.length;
+  comboLabel.textContent = combos.length + ' combination' + (combos.length!==1?'s':'');
+  triggerBar.classList.add('visible');
+
+  var newCombos = combos.map(function(combo){
+    var slugValues = {};
+    multiAttrs.forEach(function(attr,j){ slugValues[attr.slug]=combo[j]; });
+    var key = JSON.stringify(slugValues);
+    var existing = _currentCombos.find(function(c){ return JSON.stringify(c.slugValues)===key; });
+    return {slugValues:slugValues, price:existing?existing.price:'', stock:existing?existing.stock:''};
+  });
+  _currentCombos = newCombos;
+
+  if(_currentCombos.some(function(c){return !c.price;})){
+    openComboModal();
+  }
+}
+
+/* ─── Open modal ─── */
+function openComboModal(){
+  var overlay = document.getElementById('comboModalOverlay');
+  var rows    = document.getElementById('modalComboRows');
+  rows.innerHTML = '';
+
+  var multiAttrs = [];
+  document.querySelectorAll('.attr-input').forEach(function(inp){
+    var vals = inp.value.split(',').map(function(v){return v.trim();}).filter(function(v){return v;});
+    if(vals.length>=2) multiAttrs.push({slug:inp.dataset.slug, name:inp.dataset.name});
+  });
+
+  _currentCombos.forEach(function(combo,i){
+    var labelParts = multiAttrs.map(function(a){return combo.slugValues[a.slug]||'';}).filter(function(v){return v;});
+    var labelStr   = labelParts.join(' + ');
+
+    var div = document.createElement('div');
+    div.className = 'fk-combo-row';
+    div.innerHTML =
+      '<div class="fk-combo-row-label">'
+        +'<span class="combo-badge">'+(i+1)+'</span> '+labelStr
+      +'</div>'
+      +'<div class="fk-combo-inputs">'
+        +'<div class="fk-field" style="margin:0;">'
+          +'<label style="margin-bottom:4px;">Price (₹)</label>'
+          +'<input id="mp_price_'+i+'" type="number" step="0.01" min="0" placeholder="Leave empty to skip" value="'+(combo.price||'')+'" style="padding:9px 12px;border:1px solid #e0e0e0;border-radius:3px;width:100%;box-sizing:border-box;font-size:.9rem;">'
+        +'</div>'
+        +'<div class="fk-field" style="margin:0;">'
+          +'<label style="margin-bottom:4px;">Stock</label>'
+          +'<input id="mp_stock_'+i+'" type="number" min="0" placeholder="0" value="'+(combo.stock||'')+'" style="padding:9px 12px;border:1px solid #e0e0e0;border-radius:3px;width:100%;box-sizing:border-box;font-size:.9rem;">'
+        +'</div>'
+      +'</div>';
+    rows.appendChild(div);
+  });
+
+  overlay.classList.add('open');
+}
+
+/* ─── Save typed values back to state ─── */
+function saveModalValues(){
+  _currentCombos.forEach(function(combo,i){
+    var pInp = document.getElementById('mp_price_'+i);
+    var sInp = document.getElementById('mp_stock_'+i);
+    if(pInp) combo.price = pInp.value.trim();
+    if(sInp) combo.stock = sInp.value.trim();
+  });
+}
+
+/* ─── Close modal ─── */
+function closeComboModal(){
+  saveModalValues();
+  document.getElementById('comboModalOverlay').classList.remove('open');
+}
+
+/* ─── Confirm & sync ─── */
+function confirmCombos(){
+  saveModalValues();
+  syncHiddenInputs();
+  document.getElementById('comboModalOverlay').classList.remove('open');
+}
+
+/* ─── Write hidden inputs into form ─── */
+function syncHiddenInputs(){
+  var area = document.getElementById('comboHiddenArea');
+  area.innerHTML = '';
+
+  var multiAttrs = [];
+  document.querySelectorAll('.attr-input').forEach(function(inp){
+    var vals = inp.value.split(',').map(function(v){return v.trim();}).filter(function(v){return v;});
+    if(vals.length>=2) multiAttrs.push({slug:inp.dataset.slug});
+  });
+
+  _currentCombos.forEach(function(combo,i){
+    function mk(n,v){ var h=document.createElement('input'); h.type='hidden'; h.name=n; h.value=v; area.appendChild(h); }
+    mk('price_'+i, combo.price||'');
+    mk('stock_'+i, combo.stock||'0');
+    multiAttrs.forEach(function(a){ mk('combo_'+i+'_'+a.slug, combo.slugValues[a.slug]||''); });
+  });
+}
+
+/* ─── Open edit modal ─── */
+function openEditModal(variantId, sku, price, stock){
+  var form = document.getElementById('editVariantForm');
+  form.action = '/vendor/variant/edit/' + variantId + '/';
+  document.getElementById('editSku').value   = sku;
+  document.getElementById('editPrice').value = price;
+  document.getElementById('editStock').value = stock;
+  document.getElementById('editModalOverlay').classList.add('open');
+}
+
+/* ─── Attach listeners ─── */
+document.addEventListener('DOMContentLoaded', function(){
+  document.querySelectorAll('.attr-input').forEach(function(inp){
+    inp.addEventListener('input', updatePriceSection);
+    inp.addEventListener('blur',  updatePriceSection);
+  });
+
+  document.getElementById('variantForm').addEventListener('submit', function(e){
+    var multiAttr = document.getElementById('multiAttrInput').value;
+    if(multiAttr){
+      syncHiddenInputs();
+      var hasPrice = _currentCombos.some(function(c){ return c.price && parseFloat(c.price)>0; });
+      if(!hasPrice){
+        e.preventDefault();
+        alert('Please set a price for at least one combination.');
+        openComboModal();
+        return false;
+      }
+    }
+  });
+});
+</script>
+
+{% endblock vendor_content %}

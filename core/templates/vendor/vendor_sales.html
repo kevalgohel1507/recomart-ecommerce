@@ -1,0 +1,100 @@
+{% extends "vendor/vendor_base.html" %}
+{% block vendor_content %}
+<style>
+.vs-sale-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin-bottom:14px;}
+.vs-sale-title{font-weight:700;font-size:16px;color:var(--text);}
+.vs-sale-meta{font-size:13px;color:var(--muted);margin-top:4px;}
+.vs-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+.vs-badge.live{background:#dcfce7;color:#16a34a;}
+.vs-badge.upcoming{background:#dbeafe;color:#2563eb;}
+.vs-sale-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;}
+
+.vs-notif-card{background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;gap:14px;font-size:13px;}
+.vs-notif-icon{width:36px;height:36px;border-radius:50%;background:#2563eb;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;}
+
+.vs-ad-row{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--border);}
+.vs-ad-row:last-child{border-bottom:none;}
+.vs-ad-img{width:60px;height:60px;object-fit:cover;border-radius:9px;border:1px solid var(--border);}
+.vs-ad-status{margin-left:auto;}.
+</style>
+
+<div class="vp-content" style="padding:28px;">
+
+  <!-- Notifications -->
+  {% if notifications %}
+  <div style="margin-bottom:28px;">
+    <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:12px;"><i class="fa fa-bell" style="color:#f59e0b;margin-right:7px;"></i>Sale Notifications</div>
+    {% for n in notifications %}
+    <div class="vs-notif-card">
+      <div class="vs-notif-icon"><i class="fa fa-tag"></i></div>
+      <div>
+        <div style="font-weight:600;">{{ n.sale.title }}</div>
+        <div style="color:var(--muted);">{{ n.sale.banner_text }} &mdash; Sale runs {{ n.sale.start_datetime|date:"M d, Y H:i" }} to {{ n.sale.end_datetime|date:"M d, Y H:i" }}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px;">Received {{ n.created_at|date:"M d, Y" }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Active / Upcoming Sales -->
+  <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:12px;"><i class="fa fa-fire" style="color:#ef4444;margin-right:7px;"></i>Active & Upcoming Sales</div>
+
+  {% if active_sales %}
+    {% for sale in active_sales %}
+    <div class="vs-sale-card">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+        <div>
+          <div class="vs-sale-title">{{ sale.title }}</div>
+          <div class="vs-sale-meta">{{ sale.banner_text }}</div>
+          <div class="vs-sale-meta" style="margin-top:4px;">
+            {{ sale.start_datetime|date:"M d, Y H:i" }} &rarr; {{ sale.end_datetime|date:"M d, Y H:i" }}
+          </div>
+        </div>
+        <div>
+          {% if sale.is_live %}<span class="vs-badge live">🔴 Live</span>
+          {% else %}<span class="vs-badge upcoming">⏳ Upcoming</span>{% endif %}
+        </div>
+      </div>
+      {% if sale.description %}
+        <div style="font-size:13px;color:var(--muted);margin-top:10px;">{{ sale.description }}</div>
+      {% endif %}
+
+      <!-- Existing ads for this sale -->
+      {% with existing=my_ads %}
+        {% for ad in existing %}{% if ad.sale.id == sale.id %}
+        <div style="margin-top:14px;padding:14px;background:#f8fafc;border-radius:10px;border:1px solid var(--border);">
+          <div style="font-weight:600;font-size:13px;margin-bottom:10px;"><i class="fa fa-image" style="color:var(--accent);"></i> Your Submitted Ads for This Sale</div>
+          <div class="vs-ad-row">
+            <img class="vs-ad-img" src="{{ ad.ad_image.url }}" alt="">
+            <div>
+              <div style="font-weight:600;font-size:13px;">{{ ad.product.name }}</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:2px;">Price: <strong>₹{{ ad.sale_price }}</strong> &nbsp;|&nbsp; Qty: <strong>{{ ad.quantity }}</strong></div>
+              {% if ad.note %}<div style="font-size:12px;color:var(--muted);margin-top:2px;">&ldquo;{{ ad.note }}&rdquo;</div>{% endif %}
+            </div>
+            <div class="vs-ad-status">
+              {% if ad.is_approved %}
+                <span class="vs-badge live">Approved</span>
+              {% else %}
+                <span class="vs-badge" style="background:#fef9c3;color:#ca8a04;">Pending Review</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endif %}{% endfor %}
+      {% endwith %}
+
+      <div class="vs-sale-actions">
+        <a href="/vendor/sales/{{ sale.id }}/submit/" class="vp-btn vp-btn-primary"><i class="fa fa-plus"></i> Submit Ad for This Sale</a>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div style="text-align:center;padding:50px;color:var(--muted);">
+      <i class="fa fa-calendar-xmark" style="font-size:36px;opacity:.2;display:block;margin-bottom:12px;"></i>
+      No active or upcoming sales at the moment.
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,232 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Recomart Admin Panel</title>
+<!-- FAVICON — inline SVG matching the recomart logo -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='14' fill='%232b2b2b'/%3E%3Cpolyline points='8,22 28,22 36,58 72,58' stroke='%23c0a898' stroke-width='5' fill='none'/%3E%3Ccircle cx='46' cy='74' r='8' fill='%23c0a898'/%3E%3Ccircle cx='68' cy='74' r='8' fill='%23c0a898'/%3E%3Ccircle cx='48' cy='26' r='10' stroke='%23c0a898' stroke-width='4' fill='none'/%3E%3Ccircle cx='62' cy='36' r='10' stroke='%23c0a898' stroke-width='4' fill='none'/%3E%3Ccircle cx='48' cy='46' r='10' stroke='%23c0a898' stroke-width='4' fill='none'/%3E%3C/svg%3E">
+<link rel="shortcut icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='14' fill='%232b2b2b'/%3E%3Cpolyline points='8,22 28,22 36,58 72,58' stroke='%23c0a898' stroke-width='5' fill='none'/%3E%3Ccircle cx='46' cy='74' r='8' fill='%23c0a898'/%3E%3Ccircle cx='68' cy='74' r='8' fill='%23c0a898'/%3E%3Ccircle cx='48' cy='26' r='10' stroke='%23c0a898' stroke-width='4' fill='none'/%3E%3Ccircle cx='62' cy='36' r='10' stroke='%23c0a898' stroke-width='4' fill='none'/%3E%3Ccircle cx='48' cy='46' r='10' stroke='%23c0a898' stroke-width='4' fill='none'/%3E%3C/svg%3E">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% load static %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --sw:240px;--hh:64px;
+  --blue:#4361ee;--bluedark:#3a0ca3;--bluelight:#e8edff;
+  --bg:#f0f2ff;--white:#fff;--text:#1e293b;--muted:#64748b;--border:#e8ecf4;
+  --radius:12px;--shadow:0 2px 16px rgba(67,97,238,.08);--tr:.22s ease;
+}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-thumb{background:#c7d2fe;border-radius:6px;}
+
+.ds-shell{display:flex;height:100vh;overflow:hidden;width:100%;}
+
+/* SIDEBAR */
+.ds-sidebar{
+  width:var(--sw);background:var(--white);height:100vh;
+  display:flex;flex-direction:column;border-right:1px solid var(--border);
+  flex-shrink:0;overflow-y:auto;overflow-x:hidden;z-index:200;
+}
+.ds-logo{padding:20px 20px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);}
+.ds-logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--blue),var(--bluedark));border-radius:10px;display:flex;align-items:center;justify-content:center;}
+.ds-logo-icon i{color:white;font-size:15px;}
+.ds-logo-text{font-size:1.1rem;font-weight:800;color:var(--text);letter-spacing:-.3px;}
+.ds-logo-text span{color:var(--blue);}
+.ds-nav-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#94a3b8;padding:18px 20px 6px;}
+.ds-nav-item{
+  display:flex;align-items:center;gap:12px;padding:10px 20px;
+  text-decoration:none;color:var(--muted);font-size:14px;font-weight:500;
+  transition:all var(--tr);position:relative;white-space:nowrap;
+}
+.ds-nav-item i{width:20px;text-align:center;font-size:15px;flex-shrink:0;}
+.ds-nav-item:hover{background:var(--bluelight);color:var(--blue);}
+.ds-nav-item.active{background:linear-gradient(90deg,var(--bluelight),rgba(67,97,238,.06));color:var(--blue);font-weight:600;}
+.ds-nav-item.active::before{content:'';position:absolute;left:0;top:6px;bottom:6px;width:3px;background:var(--blue);border-radius:0 3px 3px 0;}
+.ds-nav-badge{margin-left:auto;background:var(--blue);color:white;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;}
+.ds-sidebar-footer{margin-top:auto;padding:16px 20px;border-top:1px solid var(--border);}
+.ds-sidebar-user{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--radius);cursor:default;}
+.ds-sidebar-user:hover{background:var(--bluelight);}
+.ds-sidebar-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--bluedark));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:white;flex-shrink:0;}
+.ds-sidebar-uname{font-size:13px;font-weight:600;color:var(--text);}
+.ds-sidebar-urole{font-size:11px;color:var(--muted);}
+
+/* RIGHT PANE */
+.ds-right{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+
+/* HEADER */
+.ds-header{height:var(--hh);background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:14px;flex-shrink:0;z-index:100;}
+.ds-ham{width:36px;height:36px;border-radius:8px;border:none;background:transparent;cursor:pointer;display:flex;flex-direction:column;justify-content:center;gap:4px;padding:6px;flex-shrink:0;transition:background var(--tr);}
+.ds-ham:hover{background:var(--bluelight);}
+.ds-ham span{display:block;height:2px;background:var(--muted);border-radius:2px;}
+.ds-search{flex:1;max-width:380px;position:relative;}
+.ds-search input{width:100%;padding:9px 14px 9px 38px;border:1.5px solid var(--border);border-radius:40px;font-size:13px;font-family:inherit;outline:none;background:#f8faff;color:var(--text);transition:border-color var(--tr);}
+.ds-search input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(67,97,238,.1);}
+.ds-search input::placeholder{color:#94a3b8;}
+.ds-search i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#94a3b8;font-size:13px;pointer-events:none;}
+.ds-hdr-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.ds-hicon{position:relative;width:38px;height:38px;border-radius:10px;background:#f8faff;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all var(--tr);text-decoration:none;color:var(--muted);}
+.ds-hicon:hover{background:var(--bluelight);border-color:var(--blue);color:var(--blue);}
+.ds-hicon i{font-size:15px;}
+.ds-hbadge{position:absolute;top:-4px;right:-4px;width:16px;height:16px;border-radius:50%;background:#ef4444;color:white;font-size:8px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid white;}
+.ds-huser{display:flex;align-items:center;gap:8px;padding:6px 10px 6px 6px;border-radius:40px;border:1.5px solid var(--border);background:#f8faff;cursor:pointer;transition:all var(--tr);position:relative;}
+.ds-huser:hover{border-color:var(--blue);background:var(--bluelight);}
+.ds-huser-av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--bluedark));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:white;flex-shrink:0;}
+.ds-huser-name{font-size:13px;font-weight:600;color:var(--text);}
+.ds-huser-role{font-size:11px;color:var(--muted);}
+.ds-huser-caret{font-size:11px;color:var(--muted);margin-left:4px;}
+.ds-huser-menu{position:absolute;top:calc(100% + 8px);right:0;background:white;border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 16px 48px rgba(0,0,0,.12);min-width:160px;padding:6px;display:none;z-index:500;}
+.ds-huser:hover .ds-huser-menu{display:block;}
+.ds-huser-menu a{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:500;color:var(--text);transition:all var(--tr);}
+.ds-huser-menu a:hover{background:var(--bluelight);color:var(--blue);}
+.ds-huser-menu a.danger{color:#ef4444;}
+.ds-huser-menu a.danger:hover{background:#fee2e2;}
+
+/* MAIN */
+.ds-main{flex:1;overflow-y:auto;overflow-x:hidden;padding:28px 28px 40px;}
+
+/* PAGE HEADER */
+.ds-page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+.ds-page-title{font-size:1.5rem;font-weight:800;color:var(--text);letter-spacing:-.4px;}
+.ds-breadcrumb{font-size:12px;color:var(--muted);}
+.ds-breadcrumb a{color:var(--blue);text-decoration:none;}
+
+/* CONTENT CARD */
+.admin-card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--border);padding:28px;min-height:200px;}
+
+/* TABLE */
+.ds-table{width:100%;border-collapse:collapse;}
+.ds-table th{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);padding:12px 16px;background:#f8faff;border-bottom:1px solid var(--border);text-align:left;}
+.ds-table td{padding:13px 16px;font-size:14px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.ds-table tr:last-child td{border-bottom:none;}
+.ds-table tbody tr:hover{background:#fafaff;}
+
+/* BADGES */
+.ds-badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+.ds-badge-blue{background:#e8edff;color:var(--blue);}
+.ds-badge-green{background:#dcfce7;color:#16a34a;}
+.ds-badge-yellow{background:#fef9c3;color:#ca8a04;}
+.ds-badge-red{background:#fee2e2;color:#dc2626;}
+
+/* BUTTONS */
+.ds-btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:9px;font-size:13px;font-weight:600;text-decoration:none;border:none;cursor:pointer;font-family:inherit;transition:all var(--tr);}
+.ds-btn-primary{background:var(--blue);color:white;box-shadow:0 4px 14px rgba(67,97,238,.3);}
+.ds-btn-primary:hover{background:#3451d1;transform:translateY(-1px);}
+.ds-btn-outline{background:white;color:var(--blue);border:1.5px solid var(--blue);}
+.ds-btn-outline:hover{background:var(--bluelight);}
+.ds-btn-danger{background:#fee2e2;color:#dc2626;border:1.5px solid #fecaca;}
+.ds-btn-danger:hover{background:#fecaca;}
+.ds-btn-sm{padding:6px 12px;font-size:12px;border-radius:7px;}
+
+/* SECTION HEADER */
+.ds-section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.ds-section-title{font-size:16px;font-weight:700;color:var(--text);}
+
+@media(max-width:768px){
+  .ds-sidebar{position:fixed;left:0;top:0;bottom:0;transform:translateX(-100%);box-shadow:4px 0 24px rgba(0,0,0,.1);}
+  .ds-sidebar.open{transform:translateX(0);}
+  .ds-main{padding:20px 16px 40px;}
+  .ds-header{padding:0 16px;}
+}
+</style>
+</head>
+
+<body>
+<div class="ds-shell">
+
+<!-- SIDEBAR -->
+<aside class="ds-sidebar" id="dsSidebar">
+  <div class="ds-logo">
+    <div class="ds-logo-icon"><i class="fa fa-bolt"></i></div>
+    <span class="ds-logo-text">RE<span>COMART</span></span>
+  </div>
+
+  <span class="ds-nav-label">Main Menu</span>
+  <a href="/adminpanel/dashboard/" class="ds-nav-item {% if request.path == '/adminpanel/dashboard/' %}active{% endif %}"><i class="fa fa-gauge-high"></i> Dashboard</a>
+  <a href="/adminpanel/categories/" class="ds-nav-item {% if request.path == '/adminpanel/categories/' %}active{% endif %}"><i class="fa fa-layer-group"></i> Categories</a>
+  <a href="/adminpanel/products/" class="ds-nav-item {% if request.path == '/adminpanel/products/' %}active{% endif %}"><i class="fa fa-box-open"></i> Products</a>
+  <a href="/adminpanel/orders/" class="ds-nav-item {% if request.path == '/adminpanel/orders/' %}active{% endif %}"><i class="fa fa-cart-shopping"></i> Orders<span class="ds-nav-badge">!</span></a>
+
+  <span class="ds-nav-label">People</span>
+  <a href="/adminpanel/users/" class="ds-nav-item {% if request.path == '/adminpanel/users/' %}active{% endif %}"><i class="fa fa-users"></i> Users</a>
+  <a href="/adminpanel/vendors/" class="ds-nav-item {% if '/adminpanel/vendors' in request.path %}active{% endif %}"><i class="fa fa-store"></i> Vendors</a>
+
+  <span class="ds-nav-label">Content</span>
+  <a href="/adminpanel/sales/" class="ds-nav-item {% if '/adminpanel/sales' in request.path %}active{% endif %}"><i class="fa fa-tags"></i> Sales</a>
+  <a href="/adminpanel/bundles/" class="ds-nav-item {% if '/adminpanel/bundles' in request.path %}active{% endif %}"><i class="fa fa-boxes-stacked"></i> Bundles</a>
+
+  <span class="ds-nav-label">Config</span>
+  <a href="/adminpanel/category-attributes/" class="ds-nav-item {% if request.path == '/adminpanel/category-attributes/' %}active{% endif %}"><i class="fa fa-sliders"></i> Attributes</a>
+
+  <div class="ds-sidebar-footer">
+    <div class="ds-sidebar-user">
+      <div class="ds-sidebar-av">{{ request.user.username|first|upper }}</div>
+      <div>
+        <div class="ds-sidebar-uname">{{ request.user.username }}</div>
+        <div class="ds-sidebar-urole">Admin</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- RIGHT PANE -->
+<div class="ds-right">
+  <header class="ds-header">
+    <button class="ds-ham" onclick="document.getElementById('dsSidebar').classList.toggle('open')">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="ds-search">
+      <i class="fa fa-magnifying-glass"></i>
+      <input type="text" placeholder="Search...">
+    </div>
+    <div class="ds-hdr-right">
+      <a href="/adminpanel/orders/" class="ds-hicon" title="Orders">
+        <i class="fa fa-bell"></i>
+        <span class="ds-hbadge">!</span>
+      </a>
+      <a href="/adminpanel/dashboard/" class="ds-hicon" title="Dashboard">
+        <i class="fa fa-table-cells-large"></i>
+      </a>
+      <div class="ds-huser" tabindex="0">
+        <div class="ds-huser-av">{{ request.user.username|first|upper }}</div>
+        <div>
+          <div class="ds-huser-name">{{ request.user.username }}</div>
+          <div class="ds-huser-role">Admin</div>
+        </div>
+        <i class="fa fa-chevron-down ds-huser-caret"></i>
+        <div class="ds-huser-menu">
+          <a href="/adminpanel/dashboard/"><i class="fa fa-gauge-high"></i> Dashboard</a>
+          <a href="#"><i class="fa fa-user"></i> Profile</a>
+          <a href="{% url 'logout' %}" class="danger"><i class="fa fa-right-from-bracket"></i> Logout</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="ds-main">
+    {% if messages %}
+    <div style="margin-bottom:18px;">
+      {% for msg in messages %}
+      <div style="padding:12px 18px;border-radius:10px;font-size:13.5px;font-weight:600;margin-bottom:8px;
+        {% if msg.tags == 'success' %}background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0;
+        {% elif msg.tags == 'error' %}background:#fee2e2;color:#dc2626;border:1px solid #fecaca;
+        {% else %}background:var(--bluelight);color:var(--blue);border:1px solid #c7d2fe;{% endif %}
+        display:flex;align-items:center;gap:10px;">
+        <i class="fa {% if msg.tags == 'success' %}fa-check-circle{% elif msg.tags == 'error' %}fa-exclamation-circle{% else %}fa-info-circle{% endif %}"></i>
+        {{ msg }}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% block content %}
+    {% endblock %}
+  </main>
+</div>
+
+</div>
+</body>
+</html>

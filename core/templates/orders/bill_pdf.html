@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Recomart Tax Invoice</title>
+<style>
+  @page {
+    size: A4;
+    margin: 18mm 16mm 18mm 16mm;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: Arial, sans-serif;
+    font-size: 11pt;
+    color: #111;
+    background: #fff;
+  }
+
+  /* ===== TOP BAR ===== */
+  .topbar-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 6pt;
+  }
+  .topbar-left  { color: #0055aa; font-weight: 700; font-size: 11pt; text-transform: uppercase; }
+  .topbar-right { font-size: 9.5pt; font-weight: 700; color: #444; text-transform: uppercase; text-align: right; }
+
+  /* ===== BRAND HEADER ===== */
+  .brand-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-top: 1pt solid #111;
+    border-bottom: 1pt solid #111;
+    padding: 10pt 0;
+    margin-bottom: 0;
+  }
+  .brand-table td { padding: 10pt 0; vertical-align: middle; }
+  .brand-name  { font-size: 26pt; font-weight: 900; color: #111; }
+  .brand-sub   { font-size: 9pt; color: #444; margin-top: 4pt; line-height: 1.6; }
+  .brand-logo  { font-size: 30pt; font-weight: 900; color: #ff9900; text-align: right; }
+  .brand-logo span { color: #111; }
+
+  /* ===== META ROW ===== */
+  .meta-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-bottom: 0.5pt solid #aaa;
+    padding: 7pt 0;
+    font-size: 10pt;
+  }
+  .meta-table td { padding: 7pt 0; }
+  .meta-table b { font-weight: 700; }
+
+  /* ===== 3-COL INFO ===== */
+  .info-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+  .info-table td {
+    border: 0.5pt solid #bbb;
+    padding: 8pt 10pt;
+    font-size: 9.5pt;
+    vertical-align: top;
+    width: 33.33%;
+  }
+  .info-label {
+    font-size: 8.5pt;
+    font-weight: 700;
+    color: #555;
+    text-transform: uppercase;
+    margin-bottom: 4pt;
+  }
+
+  /* ===== SUPPLY ROW ===== */
+  .supply-row {
+    font-size: 10pt;
+    padding: 5pt 0 8pt;
+    border-bottom: 0.5pt solid #bbb;
+  }
+
+  /* ===== ITEMS TABLE ===== */
+  .items-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8pt;
+    font-size: 9.5pt;
+  }
+  .items-table thead tr {
+    background: #f0f0f0;
+  }
+  .items-table th {
+    border: 0.5pt solid #bbb;
+    padding: 6pt 8pt;
+    text-align: left;
+    font-weight: 700;
+    font-size: 9pt;
+  }
+  .items-table th.r { text-align: right; }
+  .items-table td {
+    border: 0.5pt solid #ccc;
+    padding: 8pt 8pt;
+    vertical-align: top;
+  }
+  .items-table td.r { text-align: right; }
+  .item-name { font-weight: 700; margin-bottom: 2pt; }
+  .item-meta { font-size: 8.5pt; color: #555; line-height: 1.5; }
+
+  /* ===== TOTALS ===== */
+  .totals-outer {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0;
+  }
+  .totals-box {
+    width: 48%;
+    font-size: 10pt;
+  }
+  .tot-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .tot-table td {
+    padding: 5pt 8pt;
+    border-bottom: 0.5pt solid #eee;
+    font-size: 10pt;
+  }
+  .tot-table td.r { text-align: right; }
+  .tot-grand td {
+    padding: 8pt 8pt;
+    background: #f5f5f5;
+    border-top: 1.5pt solid #111;
+    border-bottom: 0.5pt solid #bbb;
+    font-size: 13pt;
+    font-weight: 800;
+  }
+  .tot-grand td.r { text-align: right; }
+  .payable-row {
+    text-align: right;
+    font-weight: 700;
+    font-size: 10pt;
+    padding: 6pt 8pt;
+    border-bottom: 0.5pt solid #bbb;
+  }
+
+  /* ===== FOOTER GRID ===== */
+  .footer-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 14pt;
+  }
+  .footer-table td {
+    border: 0.5pt solid #ccc;
+    padding: 10pt 12pt;
+    font-size: 9.5pt;
+    vertical-align: top;
+    width: 33.33%;
+    line-height: 1.7;
+  }
+  .footer-table td.sign { text-align: center; }
+  .footer-label {
+    font-size: 8.5pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #555;
+    margin-bottom: 6pt;
+  }
+
+  .sign-box {
+    display: block;
+    width: 80pt;
+    height: 60pt;
+    border: 1.5pt solid #4f46e5;
+    line-height: 60pt;
+    text-align: center;
+    font-size: 9pt;
+    font-weight: 700;
+    color: #4f46e5;
+    margin: 4pt auto 5pt auto;
+  }
+
+  /* ===== NOTES & T&C ===== */
+  .notes-section {
+    margin-top: 14pt;
+    padding-top: 10pt;
+    border-top: 0.5pt solid #ccc;
+    font-size: 9.5pt;
+    line-height: 1.7;
+    color: #333;
+  }
+  .notes-section h5 { font-weight: 700; font-size: 10pt; color: #111; margin-bottom: 4pt; }
+  .notes-section ol { padding-left: 16pt; margin-top: 4pt; }
+</style>
+</head>
+<body>
+
+  <!-- Top label row -->
+  <table class="topbar-table">
+    <tr>
+      <td class="topbar-left">TAX INVOICE</td>
+      <td class="topbar-right">ORIGINAL FOR RECIPIENT</td>
+    </tr>
+  </table>
+
+  <!-- Brand header -->
+  <table class="brand-table">
+    <tr>
+      <td>
+        <div class="brand-name">Recomart</div>
+        <div class="brand-sub">
+          GSTIN: 24AABCR1234F1ZX<br>
+          Shop No. 12, Digital Plaza, SG Highway, Ahmedabad, Gujarat &ndash; 380054<br>
+          <strong>Mobile</strong> 9999999999 &nbsp;&nbsp;
+          <strong>Email</strong> support@recomart.com
+        </div>
+      </td>
+      <td style="text-align:right;">
+        <span class="brand-logo">reco<span>mart</span></span>
+      </td>
+    </tr>
+  </table>
+
+  <!-- Invoice meta -->
+  <table class="meta-table">
+    <tr>
+      <td><b>Invoice #:</b> RM-{{ orders.0.id|stringformat:"06d" }}</td>
+      <td style="text-align:center;"><b>Invoice Date:</b> {{ orders.0.created|date:"d M Y" }}</td>
+      <td style="text-align:right;"><b>Due Date:</b> {{ orders.0.created|date:"d M Y" }}</td>
+    </tr>
+  </table>
+
+  <!-- 3-column info -->
+  <table class="info-table">
+    <tr>
+      <td>
+        <div class="info-label">Customer Details</div>
+        <strong>{{ customer.get_full_name|default:customer.username }}</strong><br>
+        Ph: {{ customer.username }}<br>
+        {{ customer.email }}
+      </td>
+      <td>
+        <div class="info-label">Billing Address</div>
+        {{ address }}
+      </td>
+      <td>
+        <div class="info-label">Shipping Address</div>
+        {{ address }}
+      </td>
+    </tr>
+  </table>
+
+  <!-- Supply & payment row -->
+  <div class="supply-row">
+    <strong>Place of Supply:</strong> Gujarat (24) &nbsp;&nbsp;&nbsp;
+    <strong>Payment Method:</strong> {{ payment }}
+  </div>
+
+  <!-- Items table -->
+  <table class="items-table">
+    <thead>
+      <tr>
+        <th style="width:24pt;">#</th>
+        <th>Item</th>
+        <th class="r" style="width:70pt;">Rate / Item</th>
+        <th class="r" style="width:30pt;">Qty</th>
+        <th class="r" style="width:80pt;">Taxable Value</th>
+        <th class="r" style="width:80pt;">Tax Amount</th>
+        <th class="r" style="width:70pt;">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in orders %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>
+          <div class="item-name">{{ order.product.name }}</div>
+          {% if order.variant %}
+          <div class="item-meta">
+            {% if order.variant.size %}Size: {{ order.variant.size }}<br>{% endif %}
+            {% if order.variant.color %}Color: {{ order.variant.color }}{% endif %}
+          </div>
+          {% endif %}
+        </td>
+        <td class="r">&#8377;{{ order.variant.price }}</td>
+        <td class="r">{{ order.quantity }}</td>
+        <td class="r">&#8377;{{ order.total }}</td>
+        <td class="r" style="color:#555;">Incl.</td>
+        <td class="r"><strong>&#8377;{{ order.total }}</strong></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- Totals -->
+  <table class="totals-outer">
+    <tr>
+      <td style="width:52%;"></td>
+      <td class="totals-box">
+        <table class="tot-table">
+          <tr><td>Subtotal</td><td class="r">&#8377;{{ subtotal }}</td></tr>
+          <tr><td>Platform Fee (5%)</td><td class="r">&#8377;{{ platform_fee }}</td></tr>
+          <tr><td>IGST 18% (on Platform Fee)</td><td class="r">&#8377;{{ gst_on_platform }}</td></tr>
+          <tr><td>Delivery Charges</td><td class="r">&#8377;{{ shipping }}</td></tr>
+          <tr class="tot-grand"><td>Total</td><td class="r">&#8377;{{ total }}</td></tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+
+  <div class="payable-row">
+    <strong>Amount Payable: &nbsp; &#8377;{{ total }}</strong>
+  </div>
+
+  <!-- Footer: UPI / Bank / Signature -->
+  <table class="footer-table">
+    <tr>
+      <td>
+        <div class="footer-label">Payment Info</div>
+        <strong>UPI ID:</strong> recomart@ybl<br>
+        <strong>GPay / PhonePe:</strong> 9999999999
+      </td>
+      <td>
+        <div class="footer-label">Bank Details</div>
+        <strong>Bank:</strong> HDFC Bank<br>
+        <strong>Account #:</strong> 00123456789012<br>
+        <strong>IFSC:</strong> HDFC0001234<br>
+        <strong>Branch:</strong> SG Highway, Ahmedabad
+      </td>
+      <td class="sign">
+        <div class="footer-label">Authorised Signatory</div>
+        <div class="sign-box">SIGN</div><br>
+        <strong>For Recomart</strong>
+      </td>
+    </tr>
+  </table>
+
+  <!-- Notes & T&C -->
+  <div class="notes-section">
+    <h5>Notes:</h5>
+    <p>Thank you for shopping with Recomart!</p>
+    <h5 style="margin-top:8pt;">Terms &amp; Conditions:</h5>
+    <ol>
+      <li>Goods once sold cannot be returned without a valid reason within 7 days.</li>
+      <li>We are not the manufacturers; warranty is as per brand terms and conditions.</li>
+      <li>For disputes, jurisdiction is Ahmedabad, Gujarat.</li>
+      <li>Subject to local taxation laws.</li>
+    </ol>
+  </div>
+
+</body>
+</html>
+        <strong>IFSC:</strong> HDFC0001234<br>
+        <strong>Branch:</strong> SG Highway, Ahmedabad
+      </td>
+      <td class="sign">
+        <div class="footer-label">Authorised Signatory</div>
+        <div class="sign-circle">SIGN</div><br>
+        <strong>For Recomart</strong>
+      </td>
+    </tr>
+  </table>
+
+  <!-- Notes & T&C -->
+  <div class="notes-section">
+    <h5>Notes:</h5>
+    <p>Thank you for shopping with Recomart!</p>
+    <h5 style="margin-top:8pt;">Terms &amp; Conditions:</h5>
+    <ol>
+      <li>Goods once sold cannot be returned without a valid reason within 7 days.</li>
+      <li>We are not the manufacturers; warranty is as per brand terms and conditions.</li>
+      <li>For disputes, jurisdiction is Ahmedabad, Gujarat.</li>
+      <li>Subject to local taxation laws.</li>
+    </ol>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,257 @@
+{% extends "adminpanel/base.html" %}
+{% load static %}
+{% block content %}
+<style>
+/* header */
+.ph{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:24px;}
+.ph-title{font-size:22px;font-weight:800;color:#0f172a;}
+.ph-sub{font-size:13px;color:#64748b;margin-top:3px;}
+.search-bar{display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:9px 16px;min-width:260px;}
+.search-bar:focus-within{border-color:#4f46e5;box-shadow:0 0 0 3px rgba(79,70,229,.1);}
+.search-bar i{color:#94a3b8;font-size:14px;}
+.search-bar input{border:none;outline:none;font-size:13.5px;color:#0f172a;background:transparent;width:100%;}
+
+/* table wrapper */
+.tbl-wrap{background:#fff;border-radius:14px;box-shadow:0 2px 16px rgba(15,23,42,.07);overflow:hidden;}
+.tbl-wrap table{width:100%;border-collapse:collapse;}
+.tbl-wrap thead{background:#f8fafc;}
+.tbl-wrap th{padding:13px 16px;font-size:12px;font-weight:700;color:#4f46e5;text-transform:uppercase;letter-spacing:.5px;text-align:left;border-bottom:2px solid #e8edf5;white-space:nowrap;}
+.tbl-wrap td{padding:13px 16px;border-bottom:1px solid #f1f5f9;vertical-align:middle;font-size:13.5px;color:#1e293b;}
+.tbl-wrap tbody tr:last-child td{border-bottom:none;}
+.tbl-wrap tbody tr:hover{background:#fafbff;}
+
+/* product cell */
+.prod-cell{display:flex;align-items:center;gap:12px;}
+.prod-img{width:52px;height:52px;object-fit:contain;border-radius:8px;background:#f1f5f9;padding:5px;flex-shrink:0;}
+.prod-img-placeholder{width:52px;height:52px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:#f1f5f9;color:#cbd5e1;font-size:22px;flex-shrink:0;}
+.prod-name{font-weight:700;color:#0f172a;line-height:1.3;max-width:220px;}
+.prod-cat{font-size:11.5px;color:#94a3b8;margin-top:2px;}
+
+/* badges */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:50px;font-size:11.5px;font-weight:700;}
+.badge-active{background:#dcfce7;color:#16a34a;}
+.badge-pending{background:#fef9c3;color:#b45309;}
+.badge-rejected{background:#fee2e2;color:#dc2626;}
+.badge-in{background:#dcfce7;color:#16a34a;}
+.badge-low{background:#fff7ed;color:#ea580c;}
+.badge-out{background:#fee2e2;color:#dc2626;}
+.badge-nov{background:#f1f5f9;color:#64748b;}
+
+/* action buttons */
+.act{display:flex;gap:7px;}
+.btn-ic{width:34px;height:34px;border:none;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;transition:.15s;text-decoration:none;flex-shrink:0;}
+.btn-ic:hover{filter:brightness(1.1);transform:translateY(-1px);}
+.btn-activate{background:#dcfce7;color:#16a34a;}
+.btn-deactivate{background:#fff7ed;color:#ea580c;}
+.btn-delete{background:#fee2e2;color:#dc2626;}
+.btn-view{background:#e0e7ff;color:#4f46e5;}
+
+/* empty */
+.empty-row td{text-align:center;padding:60px;color:#94a3b8;font-size:14px;}
+</style>
+
+<style>
+/* ── Page header ── */
+.ph{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:24px;}
+.ph-title{font-size:22px;font-weight:800;color:#0f172a;letter-spacing:-.3px;}
+.ph-sub{font-size:13px;color:#64748b;margin-top:3px;}
+
+/* ── Search bar ── */
+.search-bar{display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:9px 16px;min-width:260px;transition:border-color .2s;}
+.search-bar:focus-within{border-color:#4f46e5;box-shadow:0 0 0 3px rgba(79,70,229,.1);}
+.search-bar i{color:#94a3b8;font-size:14px;}
+.search-bar input{border:none;outline:none;font-size:13.5px;color:#0f172a;background:transparent;width:100%;}
+.search-bar input::placeholder{color:#94a3b8;}
+
+/* ── Product grid ── */
+.pg{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:20px;}
+
+/* ── Product card ── */
+.pc{background:#fff;border-radius:16px;border:1.5px solid #e8edf5;box-shadow:0 2px 16px rgba(15,23,42,.05);overflow:hidden;display:flex;flex-direction:column;transition:box-shadow .2s,transform .15s;}
+.pc:hover{box-shadow:0 8px 32px rgba(79,70,229,.13);transform:translateY(-2px);}
+
+/* image */
+.pc-img-wrap{background:#f8fafc;height:200px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid #f1f5f9;position:relative;overflow:hidden;}
+.pc-img-wrap img{width:100%;height:100%;object-fit:contain;object-position:center;image-rendering:-webkit-optimize-contrast;image-rendering:crisp-edges;padding:12px;box-sizing:border-box;}
+.pc-img-placeholder{color:#cbd5e1;font-size:40px;}
+
+/* status ribbon */
+.pc-ribbon{position:absolute;top:12px;right:12px;}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:50px;font-size:11.5px;font-weight:700;letter-spacing:.2px;}
+.badge-active{background:#dcfce7;color:#16a34a;}
+.badge-pending{background:#fef9c3;color:#b45309;}
+.badge-rejected{background:#fee2e2;color:#dc2626;}
+.badge-out{background:#fee2e2;color:#dc2626;}
+.badge-in{background:#dcfce7;color:#16a34a;}
+.badge-low{background:#fff7ed;color:#ea580c;}
+
+/* body */
+.pc-body{padding:16px 18px;flex:1;display:flex;flex-direction:column;gap:6px;}
+.pc-name{font-size:14.5px;font-weight:700;color:#0f172a;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.pc-vendor{font-size:12px;color:#64748b;display:flex;align-items:center;gap:5px;}
+.pc-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:4px;}
+.pc-price{font-size:16px;font-weight:800;color:#4f46e5;}
+.pc-price-na{font-size:13px;color:#94a3b8;}
+.pc-stock-info{font-size:12px;color:#64748b;margin-left:auto;}
+
+/* footer */
+.pc-footer{padding:12px 18px;border-top:1px solid #f1f5f9;display:flex;align-items:center;gap:8px;}
+.pc-actions{display:flex;gap:7px;margin-left:auto;}
+.btn-ic{width:36px;height:36px;border:none;border-radius:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;transition:all .18s;text-decoration:none;}
+.btn-ic:hover{transform:translateY(-1px);filter:brightness(1.08);}
+.btn-activate{background:#dcfce7;color:#16a34a;}
+.btn-deactivate{background:#fff7ed;color:#ea580c;}
+.btn-delete{background:#fee2e2;color:#dc2626;}
+.btn-view{background:#e0e7ff;color:#4f46e5;}
+
+/* empty */
+.empty-state{text-align:center;padding:60px 20px;color:#94a3b8;}
+.empty-state i{font-size:48px;display:block;margin-bottom:14px;}
+.empty-state p{font-size:15px;}
+
+/* skeleton animation on hover for images */
+@media(max-width:640px){.pg{grid-template-columns:1fr;}}
+</style>
+
+<!-- Header -->
+<div class="ph">
+  <div>
+    <div class="ph-title">Products</div>
+    <div class="ph-sub">{{ products|length }} product{{ products|length|pluralize }} total</div>
+  </div>
+  <div class="search-bar">
+    <i class="fas fa-search"></i>
+    <input type="text" id="productSearch" placeholder="Search by name, vendor, category…">
+  </div>
+</div>
+
+<!-- Table -->
+<div class="tbl-wrap">
+  <table id="productTable">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Product</th>
+        <th>Vendor</th>
+        <th>Category</th>
+        <th>Price</th>
+        <th>Variants</th>
+        <th>Stock</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="productBody">
+    {% for p in products %}
+    {% with fv=p.variants.first vcount=p.variants.count %}
+    <tr data-name="{{ p.name|lower }}" data-vendor="{{ p.vendor.username|lower }}" data-cat="{{ p.category.name|lower|default:'' }}">
+
+      <td style="color:#94a3b8;font-size:13px;">{{ forloop.counter }}</td>
+
+      <td>
+        <div class="prod-cell">
+          {% if p.image %}
+            <img class="prod-img" src="/media/{{ p.image.0 }}" alt="{{ p.name }}">
+          {% else %}
+            <div class="prod-img-placeholder"><i class="fas fa-box"></i></div>
+          {% endif %}
+          <div class="prod-name">{{ p.name }}</div>
+        </div>
+      </td>
+
+      <td>
+        <span style="display:inline-flex;align-items:center;gap:5px;font-size:13px;color:#334155;">
+          <i class="fas fa-store" style="color:#94a3b8;"></i> {{ p.vendor.username }}
+        </span>
+      </td>
+
+      <td style="font-size:13px;color:#64748b;">
+        {% if p.category %}{{ p.category.name }}{% else %}<span style="color:#cbd5e1;">—</span>{% endif %}
+      </td>
+
+      <td>
+        {% if fv %}
+          <span style="font-weight:700;color:#4f46e5;">₹{{ fv.price }}</span>
+        {% else %}
+          <span style="color:#cbd5e1;">—</span>
+        {% endif %}
+      </td>
+
+      <td style="font-size:13px;color:#64748b;">
+        {% if vcount > 0 %}
+          <span style="display:inline-flex;align-items:center;gap:4px;"><i class="fas fa-layer-group"></i> {{ vcount }}</span>
+        {% else %}
+          <span style="color:#cbd5e1;">0</span>
+        {% endif %}
+      </td>
+
+      <td>
+        {% if fv %}
+          {% if fv.stock > 10 %}
+            <span class="badge badge-in"><i class="fas fa-check-circle"></i> In Stock</span>
+          {% elif fv.stock > 0 %}
+            <span class="badge badge-low"><i class="fas fa-exclamation-circle"></i> Low ({{ fv.stock }})</span>
+          {% else %}
+            <span class="badge badge-out"><i class="fas fa-times-circle"></i> Out</span>
+          {% endif %}
+        {% else %}
+          <span class="badge badge-nov"><i class="fas fa-minus"></i> No variants</span>
+        {% endif %}
+      </td>
+
+      <td>
+        {% if p.status == "approved" %}
+          <span class="badge badge-active"><i class="fas fa-check-circle"></i> Active</span>
+        {% elif p.status == "rejected" %}
+          <span class="badge badge-rejected"><i class="fas fa-times-circle"></i> Rejected</span>
+        {% else %}
+          <span class="badge badge-pending"><i class="fas fa-clock"></i> Pending</span>
+        {% endif %}
+      </td>
+
+      <td>
+        <div class="act">
+          <form method="post" action="{% url 'adminpanel:toggle_product_status' p.id %}" style="margin:0;">
+            {% csrf_token %}
+            {% if p.status == "approved" %}
+              <button class="btn-ic btn-deactivate" title="Deactivate"><i class="fas fa-times"></i></button>
+            {% else %}
+              <button class="btn-ic btn-activate" title="Approve"><i class="fas fa-check"></i></button>
+            {% endif %}
+          </form>
+          <form method="post" action="{% url 'adminpanel:delete_product' p.id %}" style="margin:0;"
+                onsubmit="return confirm('Delete {{ p.name|escapejs }}?');">
+            {% csrf_token %}
+            <button class="btn-ic btn-delete" title="Delete"><i class="fas fa-trash"></i></button>
+          </form>
+          <a href="{% url 'adminpanel:admin_product_detail' p.id %}" class="btn-ic btn-view" title="View">
+            <i class="fas fa-eye"></i>
+          </a>
+        </div>
+      </td>
+
+    </tr>
+    {% endwith %}
+    {% empty %}
+    <tr class="empty-row">
+      <td colspan="9">
+        <i class="fas fa-inbox" style="font-size:36px;display:block;margin:0 auto 12px;"></i>
+        No products found.
+      </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<script>
+document.getElementById('productSearch').addEventListener('input', function(){
+  var q = this.value.toLowerCase().trim();
+  document.querySelectorAll('#productBody tr[data-name]').forEach(function(row){
+    var match = !q || row.dataset.name.includes(q) || row.dataset.vendor.includes(q) || (row.dataset.cat||'').includes(q);
+    row.style.display = match ? '' : 'none';
+  });
+});
+</script>
+
+{% endblock %}

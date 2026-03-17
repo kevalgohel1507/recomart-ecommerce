@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+    
+.grid{
+    display:flex;
+    justify-content:center;
+    gap:50px;
+    margin:60px 0;
+}
+
+.card{
+    text-align:center;
+}
+
+.card img{
+    width:120px;
+}
+</style>
+
+<h2 style="text-align:center">{{ parent.name }}</h2>
+
+<div class="grid">
+
+{% for sub in sub_categories %}
+
+<a href="{% url 'category_page' sub.slug %}" class="card">
+
+{% if sub.icon %}
+<img src="{{ sub.icon.url }}">
+{% endif %}
+
+<h3>{{ sub.name }}</h3>
+
+</a>
+
+{% endfor %}
+
+</div>
+
+{% endblock %}

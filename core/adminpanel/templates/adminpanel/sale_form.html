@@ -1,0 +1,71 @@
+{% extends "adminpanel/base.html" %}
+{% block content %}
+
+<style>
+.sf-card{background:#fff;border-radius:14px;border:1px solid var(--border);padding:32px 36px;max-width:700px;box-shadow:0 1px 6px rgba(67,97,238,.05);}
+.sf-group{margin-bottom:20px;}
+.sf-label{display:block;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px;}
+.sf-input,.sf-textarea{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;font-family:inherit;color:var(--text);outline:none;transition:border-color var(--tr);}
+.sf-input:focus,.sf-textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(67,97,238,.1);}
+.sf-textarea{min-height:90px;resize:vertical;}
+.sf-row{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.sf-check-row{display:flex;align-items:center;gap:10px;margin-top:4px;}
+.sf-check-row input{width:18px;height:18px;accent-color:var(--blue);}
+.sf-hint{font-size:12px;color:var(--muted);margin-top:5px;}
+</style>
+
+<div class="ds-page-header">
+  <div>
+    <div class="ds-page-title">{{ action }} Sale</div>
+    <div class="ds-breadcrumb"><a href="/adminpanel/dashboard/">Dashboard</a> / <a href="/adminpanel/sales/">Sales</a> / {{ action }}</div>
+  </div>
+</div>
+
+<div class="sf-card">
+  <form method="post">
+    {% csrf_token %}
+
+    <div class="sf-group">
+      <label class="sf-label">Sale Title *</label>
+      <input class="sf-input" type="text" name="title" value="{{ sale.title|default:'' }}" placeholder="e.g. Mega Summer Sale 2026" required>
+    </div>
+
+    <div class="sf-group">
+      <label class="sf-label">Banner Text <span style="font-weight:400;">(shown on homepage countdown)</span></label>
+      <input class="sf-input" type="text" name="banner_text" value="{{ sale.banner_text|default:'' }}" placeholder="e.g. 🔥 Mega Sale — Up to 70% Off!">
+    </div>
+
+    <div class="sf-group">
+      <label class="sf-label">Description</label>
+      <textarea class="sf-textarea" name="description" placeholder="Tell vendors what this sale is about…">{{ sale.description|default:'' }}</textarea>
+    </div>
+
+    <div class="sf-row">
+      <div class="sf-group">
+        <label class="sf-label">Start Date & Time *</label>
+        <input class="sf-input" type="datetime-local" name="start_datetime"
+               value="{{ sale.start_datetime|date:'Y-m-d\\TH:i'|default:'' }}" required>
+      </div>
+      <div class="sf-group">
+        <label class="sf-label">End Date & Time *</label>
+        <input class="sf-input" type="datetime-local" name="end_datetime"
+               value="{{ sale.end_datetime|date:'Y-m-d\\TH:i'|default:'' }}" required>
+      </div>
+    </div>
+
+    <div class="sf-group">
+      <div class="sf-check-row">
+        <input type="checkbox" name="is_active" id="is_active" {% if sale.is_active or action == 'Create' %}checked{% endif %}>
+        <label for="is_active" style="font-size:14px;font-weight:600;cursor:pointer;">Activate Sale (visible to vendors & customers)</label>
+      </div>
+      <p class="sf-hint">Vendors will receive a notification immediately when the sale is created.</p>
+    </div>
+
+    <div style="display:flex;gap:12px;margin-top:28px;">
+      <button type="submit" class="ds-btn ds-btn-primary"><i class="fa fa-check"></i> {{ action }} Sale</button>
+      <a href="/adminpanel/sales/" class="ds-btn ds-btn-outline">Cancel</a>
+    </div>
+  </form>
+</div>
+
+{% endblock %}

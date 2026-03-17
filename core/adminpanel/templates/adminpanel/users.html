@@ -1,0 +1,189 @@
+{% extends "adminpanel/base.html" %}
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+/* ================= PAGE ================= */
+
+.page-wrapper{
+    font-family:'Inter',sans-serif;
+    padding:40px;
+}
+
+/* TITLE */
+
+.page-title{
+    font-size:28px;
+    font-weight:700;
+    margin-bottom:25px;
+    color:#0f172a;
+}
+
+/* ================= TABLE CARD ================= */
+
+.table-card{
+    background:rgba(255,255,255,.85);
+    backdrop-filter:blur(12px);
+    border-radius:18px;
+    padding:25px;
+    box-shadow:0 15px 40px rgba(0,0,0,.08);
+    overflow:hidden;
+}
+
+/* ================= TABLE ================= */
+
+.vendor-table{
+    width:100%;
+    border-collapse:collapse;
+    overflow:hidden;
+}
+
+/* HEADER */
+
+.vendor-table th{
+    background:#0f172a;
+    color:white;
+    padding:14px;
+    text-align:left;
+    font-weight:600;
+    letter-spacing:.4px;
+    position:sticky;
+    top:0;
+}
+
+/* BODY */
+
+.vendor-table td{
+    padding:14px;
+    border-bottom:1px solid #e5e7eb;
+    color:#334155;
+    transition:.25s;
+}
+
+/* zebra rows */
+.vendor-table tr:nth-child(even){
+    background:#f8fafc;
+}
+
+/* hover animation */
+.vendor-table tbody tr{
+    transition:.25s ease;
+}
+
+.vendor-table tbody tr:hover{
+    background:#eef2ff;
+    transform:scale(1.01);
+    box-shadow:0 5px 12px rgba(0,0,0,.05);
+}
+
+/* ================= ROLE BADGES ================= */
+
+.role-badge{
+    padding:5px 12px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:600;
+    display:inline-block;
+}
+
+/* role colors */
+
+.admin{
+    background:#fee2e2;
+    color:#b91c1c;
+}
+
+.vendor{
+    background:#dcfce7;
+    color:#15803d;
+}
+
+.customer{
+    background:#e0f2fe;
+    color:#0369a1;
+}
+
+/* ================= EMPTY ROW ================= */
+
+.empty{
+    text-align:center;
+    padding:25px;
+    color:#64748b;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media(max-width:768px){
+
+.vendor-table th,
+.vendor-table td{
+    font-size:13px;
+    padding:10px;
+}
+
+.page-wrapper{
+    padding:20px;
+}
+
+}
+
+</style>
+
+<div class="page-wrapper">
+
+<h2 class="page-title">Users</h2>
+
+<div class="table-card">
+
+<table class="vendor-table">
+
+<thead>
+<tr>
+    <th>ID</th>
+    <th>Username</th>
+    <th>Email</th>
+    <th>Role</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for u in users %}
+<tr>
+    <td>#{{ u.id }}</td>
+    <td><strong>{{ u.username }}</strong></td>
+    <td>{{ u.email }}</td>
+    <td>
+
+        {% if u.groups.first %}
+            {% with role=u.groups.first.name|lower %}
+                <span class="role-badge {{ role }}">
+                    {{ u.groups.first.name }}
+                </span>
+            {% endwith %}
+        {% else %}
+            <span class="role-badge customer">User</span>
+        {% endif %}
+
+    </td>
+</tr>
+
+{% empty %}
+<tr>
+    <td colspan="4" class="empty">
+        No users found 👤
+    </td>
+</tr>
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+{% endblock %}

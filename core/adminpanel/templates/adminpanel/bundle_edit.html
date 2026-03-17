@@ -1,0 +1,48 @@
+{% extends "adminpanel/base.html" %}
+{% block content %}
+
+<div class="ds-page-header">
+  <div>
+    <div class="ds-page-title">Edit Bundle</div>
+    <div class="ds-breadcrumb"><a href="/adminpanel/dashboard/">Dashboard</a> / <a href="{% url 'adminpanel:admin_bundles' %}">Bundles</a> / Edit</div>
+  </div>
+</div>
+
+<div class="admin-card">
+  <form method="post" action="{% url 'adminpanel:edit_bundle' bundle.id %}">
+    {% csrf_token %}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;">
+      <div>
+        <label style="display:block;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;">Bundle Name *</label>
+        <input type="text" name="name" required value="{{ bundle.name }}"
+          style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;font-family:inherit;outline:none;">
+      </div>
+      <div>
+        <label style="display:block;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;">Bundle Price (₹) *</label>
+        <input type="number" name="bundle_price" required min="0" step="0.01" value="{{ bundle.bundle_price }}"
+          style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;font-family:inherit;outline:none;">
+      </div>
+    </div>
+    <div style="margin-bottom:18px;">
+      <label style="display:block;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;">Select Products *</label>
+      <select name="products" multiple required
+        style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;font-family:inherit;outline:none;min-height:160px;">
+        {% for p in all_products %}
+        <option value="{{ p.id }}" {% if p.id in selected_ids %}selected{% endif %}>{{ p.name }}</option>
+        {% endfor %}
+      </select>
+      <div style="font-size:12px;color:var(--muted);margin-top:6px;">Hold <strong>Ctrl</strong> (Windows) or <strong>Cmd</strong> (Mac) to select multiple products.</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:24px;">
+      <input type="checkbox" name="is_active" id="is_active_edit" {% if bundle.is_active %}checked{% endif %}
+        style="width:16px;height:16px;accent-color:var(--blue);">
+      <label for="is_active_edit" style="font-size:14px;font-weight:600;cursor:pointer;">Active (visible on product pages)</label>
+    </div>
+    <div style="display:flex;gap:12px;">
+      <button type="submit" class="ds-btn ds-btn-primary"><i class="fa fa-save"></i> Save Changes</button>
+      <a href="{% url 'adminpanel:admin_bundles' %}" class="ds-btn ds-btn-outline">Cancel</a>
+    </div>
+  </form>
+</div>
+
+{% endblock %}
