@@ -32,7 +32,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-change-me')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DJANGO_DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = [host.strip() for host in os.getenv('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost,.onrender.com').split(',') if host.strip()]
+ALLOWED_HOSTS = ["https://recomart-ecommerce-site.onrender.com"]
 
 
 # Application definition
@@ -114,30 +114,13 @@ WSGI_APPLICATION = 'core.wsgi.application'
 #     }
 # }
 
-DATABASE_URL = os.environ.get('DATABASE_URL')
-if DATABASE_URL:
-    if dj_database_url is None:
-        raise RuntimeError('DATABASE_URL is set but dj-database-url is not installed. Install it with: pip install dj-database-url')
-    DATABASES = {
-        'default': dj_database_url.parse(
-            DATABASE_URL,
-            conn_max_age=600,
-        )
-    }
-elif dj_database_url is not None:
-    DATABASES = {
-        'default': dj_database_url.parse(
-            f"sqlite:///{(BASE_DIR / 'db.sqlite3').as_posix()}",
-            conn_max_age=600,
-        )
-    }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+DATABASES = {
+    'default': dj_database_url.config(
+        default='postgresql://postgres:kevalpostgre@localhost:5432/recomart_db',
+        conn_max_age=600,
+        ssl_require=False,
+    )
+}
 
 
 # Password validation
