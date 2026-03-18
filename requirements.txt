@@ -1,8 +1,11 @@
-cat > requirements.txt << EOF
-Django==4.2.7
-gunicorn==21.2.0
-psycopg2-binary==2.9.9
-dj-database-url==2.1.0
-whitenoise==6.6.0
-Pillow==10.1.0
-EOF
+Django==5.2.11
+gunicorn==25.1.0
+psycopg2-binary==2.9.11
+dj-database-url==3.1.2
+whitenoise==6.12.0
+Pillow==12.1.0
+python-dotenv==1.2.2
+django-allauth==65.15.0
+django-crispy-forms==2.6
+requests==2.32.5
+xhtml2pdf==0.2.17
