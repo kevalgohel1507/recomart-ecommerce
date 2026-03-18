@@ -13,6 +13,7 @@ import os
 from importlib import import_module
 
 from pathlib import Path
+from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,6 +23,26 @@ try:
 except ModuleNotFoundError:
     dj_database_url = None
 
+try:
+    from dotenv import load_dotenv
+except ModuleNotFoundError:
+    load_dotenv = None
+
+if load_dotenv:
+    load_dotenv(BASE_DIR / '.env')
+    load_dotenv(BASE_DIR.parent / '.env')
+
+
+def env_bool(key, default=False):
+    value = os.getenv(key)
+    if value is None:
+        return default
+    return value.strip().lower() in {'1', 'true', 'yes', 'on'}
+
+
+def env_list(key, default=''):
+    return [item.strip() for item in os.getenv(key, default).split(',') if item.strip()]
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -30,16 +51,33 @@ except ModuleNotFoundError:
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-change-me')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DJANGO_DEBUG', 'True').lower() == 'true'
+DEBUG = env_bool('DJANGO_DEBUG', True)
 
-ALLOWED_HOSTS = [
-    host.strip()
-    for host in os.getenv(
-        'DJANGO_ALLOWED_HOSTS',
-        '127.0.0.1,localhost,.onrender.com,recomart-ecommerce-site.onrender.com',
-    ).split(',')
-    if host.strip()
-]
+if not DEBUG and SECRET_KEY == 'django-insecure-change-me':
+    raise ImproperlyConfigured(
+        'DJANGO_SECRET_KEY must be set to a secure value when DJANGO_DEBUG is False.'
+    )
+
+ALLOWED_HOSTS = env_list(
+    'DJANGO_ALLOWED_HOSTS',
+    '127.0.0.1,localhost,.onrender.com,recomart-ecommerce-webbb.onrender.com,recomart-ecommerce-site.onrender.com',
+)
+
+CSRF_TRUSTED_ORIGINS = env_list(
+    'DJANGO_CSRF_TRUSTED_ORIGINS',
+    'https://*.onrender.com,https://recomart-ecommerce-webbb.onrender.com,https://recomart-ecommerce-site.onrender.com',
+)
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+
+if not DEBUG:
+    SECURE_SSL_REDIRECT = env_bool('DJANGO_SECURE_SSL_REDIRECT', True)
+    SESSION_COOKIE_SECURE = env_bool('DJANGO_SESSION_COOKIE_SECURE', True)
+    CSRF_COOKIE_SECURE = env_bool('DJANGO_CSRF_COOKIE_SECURE', True)
+    SECURE_HSTS_SECONDS = int(os.getenv('DJANGO_SECURE_HSTS_SECONDS', '31536000'))
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool('DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS', True)
+    SECURE_HSTS_PRELOAD = env_bool('DJANGO_SECURE_HSTS_PRELOAD', True)
 
 
 # Application definition
@@ -124,7 +162,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASE_URL = os.getenv('DATABASE_URL')
 if DATABASE_URL:
     if dj_database_url is None:
-        raise RuntimeError(
+        raise ImproperlyConfigured(
             'DATABASE_URL is set but dj-database-url is not installed.'
         )
 
@@ -136,31 +174,12 @@ if DATABASE_URL:
         )
     }
 else:
-    if not DEBUG:
-        raise RuntimeError(
-            'DATABASE_URL is required when DJANGO_DEBUG is False.'
-        )
-
-    local_database_url = os.getenv(
-        'LOCAL_DATABASE_URL',
-        f"sqlite:///{(BASE_DIR / 'db.sqlite3').as_posix()}",
-    )
-
-    if dj_database_url is not None:
-        DATABASES = {
-            'default': dj_database_url.parse(
-                local_database_url,
-                conn_max_age=600,
-                ssl_require=False,
-            )
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
         }
-    else:
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': BASE_DIR / 'db.sqlite3',
-            }
-        }
+    }
 
 
 # Password validation
@@ -204,6 +223,15 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static'
 ]
 
+STORAGES = {
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    },
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+    },
+}
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -212,12 +240,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
+EMAIL_USE_TLS = env_bool('EMAIL_USE_TLS', True)
 
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
@@ -251,8 +278,8 @@ SOCIALACCOUNT_LOGIN_ON_GET = True
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'APP': {
-            'client_id': 'YOUR_GOOGLE_CLIENT_ID',
-            'secret':    'YOUR_GOOGLE_CLIENT_SECRET',
+            'client_id': os.getenv('GOOGLE_CLIENT_ID', ''),
+            'secret': os.getenv('GOOGLE_CLIENT_SECRET', ''),
             'key':       ''
         },
         'SCOPE': ['profile', 'email'],
@@ -260,8 +287,8 @@ SOCIALACCOUNT_PROVIDERS = {
     },
     'facebook': {
         'APP': {
-            'client_id': 'YOUR_FACEBOOK_APP_ID',
-            'secret':    'YOUR_FACEBOOK_APP_SECRET',
+            'client_id': os.getenv('FACEBOOK_APP_ID', ''),
+            'secret': os.getenv('FACEBOOK_APP_SECRET', ''),
             'key':       ''
         },
         'METHOD': 'oauth2',
@@ -272,5 +299,5 @@ SOCIALACCOUNT_PROVIDERS = {
     },
 }
 
-RAZORPAY_KEY_ID="rzp_test_SPURShA4zv5sfw"
-RAZORPAY_KEY_SECRET="a0vupLgSzFwRka7drZxQ5dQ7"
+RAZORPAY_KEY_ID = os.getenv('RAZORPAY_KEY_ID', '')
+RAZORPAY_KEY_SECRET = os.getenv('RAZORPAY_KEY_SECRET', '')
